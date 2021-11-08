@@ -4,6 +4,7 @@ local _ADVANCEDTAB = 3
 --local _MITIGATIONTAB = 4
 local _, class = UnitClass("player")
 TheoryCraft_NotStripped = true
+
 local function findpattern(text, pattern, start)
 	if (text and pattern and (string.find(text, pattern, start))) then
 		return string.sub(text, string.find(text, pattern, start))
@@ -91,6 +92,7 @@ function TheoryCraft_UpdateOutfitTab()
 	if not TheoryCraftOutfitTab:IsVisible() then
 		return
 	end
+
 	local i = 1
 	local i2 = 1
 	while i < 4 do
@@ -113,6 +115,7 @@ function TheoryCraft_UpdateOutfitTab()
 			if (class == TheoryCraft_Talents[i].class) and (TheoryCraft_Talents[i].dontlist == nil) and (((TheoryCraft_Talents[i].tree == i2) and (TheoryCraft_Talents[i].forcetree == nil)) or (TheoryCraft_Talents[i].forcetree == i2)) then
 				title = getglobal("TheoryCraftTalentTree"..i2)
 				rank = getglobal("TheoryCraftTalent"..i2..number)
+                -- NOTE: "rank" appears to be a frame, specifically a button
 				i3 = 1
 				while (TheoryCraft_Locale.TalentTranslator[i3]) and (TheoryCraft_Locale.TalentTranslator[i3].id ~= TheoryCraft_Talents[i].name) do
 					i3 = i3 + 1
@@ -128,11 +131,18 @@ function TheoryCraft_UpdateOutfitTab()
 					rank:SetNormalTexture(nil)
 					rank:SetPushedTexture(nil)
 					rank:SetHighlightTexture(nil)
+
+                    -- https://wowwiki-archive.fandom.com/wiki/API_FontInstance_SetTextColor
+                    -- Button:SetTextColor was deleted in 3.0. Instead use FontInstance:SetTextColor
+                    rank:SetNormalFontObject("GameFontHighlight") -- TODO: what does this string mean? Maybe it doesn't matter because we'll just overwrite it?
+                    local font = rank:GetNormalFontObject()
+
 					if (TheoryCraft_Talents[i].forceto) and (TheoryCraft_Talents[i].forceto ~= -1) and (TheoryCraft_Talents[i].forceto ~= currank) then
-						rank:SetTextColor(1,1,0.1)
+                        font:SetTextColor(1,1,0.1)
 					else
-						rank:SetTextColor(0.1,1,0.1)
+                        font:SetTextColor(0.1,1,0.1)
 					end
+                    rank:SetNormalFontObject(font)
 					rank:Show()
 					number = number + 1
 				end

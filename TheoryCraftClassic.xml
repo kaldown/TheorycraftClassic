@@ -67,6 +67,9 @@
 				</Anchors>
 				<Scripts>
 					<OnLoad>
+                        if not self.SetBackdrop then
+							Mixin(self, BackdropTemplateMixin)
+						end
 						self:SetBackdropColor(0, 0, 0);
 						self:SetBackdropBorderColor(0.4, 0.4, 0.4);
 					</OnLoad>
