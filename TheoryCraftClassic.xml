@@ -44,18 +44,8 @@
 	<ScrollFrame name="TheoryCraft_MultiLineEditboxTemplate" inherits="UIPanelScrollFrameTemplate" frameStrata="HIGH" virtual="true">
 		<Size><AbsDimension x="276" y="510"/></Size>
 		<Frames>
+			<!-- This frame is for the text area to configure which spells should have button_text -->
 			<Frame name="$parent_Background" frameStrata="MEDIUM">
-				<Backdrop bgFile="Interface\Tooltips\UI-Tooltip-Background" edgeFile="Interface\Tooltips\UI-Tooltip-Border" tile="true">
-					<EdgeSize>
-						<AbsValue val="16"/>
-					</EdgeSize>
-					<TileSize>
-						<AbsValue val="16"/>
-					</TileSize>
-					<BackgroundInsets>
-						<AbsInset left="5" right="5" top="5" bottom="5"/>
-					</BackgroundInsets>
-				</Backdrop>
 				<Size><AbsDimension x="10" y="10"/></Size>
 				<Anchors>
 					<Anchor point="TOPLEFT">
@@ -72,6 +62,14 @@
 						end
 						self:SetBackdropColor(0, 0, 0);
 						self:SetBackdropBorderColor(0.4, 0.4, 0.4);
+						self:SetBackdrop({
+							bgFile = "Interface\\Tooltips\\UI-Tooltip-Background",
+							edgeFile="Interface\\Tooltips\\UI-Tooltip-Border",
+							tile = true,
+							tileSize = 16,
+							edgeSize = 16,
+							insets = {bottom = 5, left = 5, right = 5, top = 5},
+						})
 					</OnLoad>
 				</Scripts>
 			</Frame>
@@ -1075,18 +1073,27 @@
 							</OnLoad>
 						</Scripts>
 					</ScrollFrame>
+					<!-- NOTE: this fake icon is the bounding box for the movable X below -->
 					<Frame name="TheoryCraftActionButtonBackground" frameStrata="MEDIUM">
 						<Size x="36" y="36"/>
-						<Backdrop bgFile="Interface\Icons\Spell_Frost_IceShard">
-							<TileSize val="36"/>
-						</Backdrop>
-						
 						<Anchors>
 							<Anchor point="BOTTOMLEFT">
 								<Offset><AbsDimension x="22" y="172"/></Offset>
 							</Anchor>
 						</Anchors>
+						<Scripts>
+							<OnLoad>
+								if not self.SetBackdrop then
+									Mixin(self, BackdropTemplateMixin)
+								end
+								self:SetBackdrop({
+									bgFile = "Interface\\Icons\\Spell_Frost_IceShard",
+									tileSize = 36,
+								})
+							</OnLoad>
+						</Scripts>
 						<Frames>
+							<!-- NOTE: this is to position the button_text within a spell icon. -->
 							<Frame name="TheoryCraftActionButtonTextPos" frameStrata="MEDIUM" enableMouse="true" movable="true" >
 								<Scripts>
 									<OnMouseDown>
@@ -1719,19 +1726,23 @@
 		<Size>
 			<AbsDimension x="300" y="300"/>
 		</Size>
-		<Backdrop bgFile="Interface\DialogFrame\UI-DialogBox-Background" edgeFile="Interface\DialogFrame\UI-DialogBox-Border" tile="true">
-			<TileSize>
-				<AbsValue val="32"/>
-			</TileSize>
-			<EdgeSize>
-				<AbsValue val="32"/>
-			</EdgeSize>
-			<BackgroundInsets>
-				<AbsInset left="11" right="12" top="12" bottom="11"/>
-			</BackgroundInsets>
-		</Backdrop>
+		<Scripts>
+			<OnLoad>
+				if not self.SetBackdrop then
+					Mixin(self, BackdropTemplateMixin)
+				end
+				self:SetBackdrop({
+					bgFile = "Interface\\DialogFrame\\UI-DialogBox-Background",
+					edgeFile="Interface\\DialogFrame\\UI-DialogBox-Border",
+					tile = true,
+					tileSize = 32,
+					edgeSize = 32,
+					insets = {bottom = 11, left = 11, right = 12, top = 12},
+				})
+			</OnLoad>
+		</Scripts>
 		<Layers>
-<!-- Custom Form -->
+			<!-- Custom Form -->
 			<Layer level="OVERLAY">
 				<FontString name="TheoryCraftCustomDesc" justifyH="LEFT" justifyV="MIDDLE" inherits="GameFontNormal" text="ALT-clicking an item link or item button will have TC equip it, updating your tooltips accordingly.">
 					<Size>
