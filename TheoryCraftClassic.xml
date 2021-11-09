@@ -1661,14 +1661,15 @@
 					</Button>
 				</Frames>
 			</Frame>
+			<!-- TODO: when positioned ontop of the UI frame, it appears behind it. I'm not sure how to resolve that. Same layer as the 3 tabbed frames, I guess it ties? -->
 			<Button name="TheoryCraftClose" inherits="TheoryCraftButtonTemplate" text="X">
 				<Size>
-					<AbsDimension x="18" y="22"/>
+					<AbsDimension x="20" y="20"/>
 				</Size>
 				<Anchors>
 					<Anchor point="TOPRIGHT" relativeTo="TheoryCraft" relativePoint="TOPRIGHT">
 						<Offset>
-							<AbsDimension x="-2" y="-2"/>
+							<AbsDimension x="0" y="14"/>
 						</Offset>
 					</Anchor>
 				</Anchors>
