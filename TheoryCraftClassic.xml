@@ -412,6 +412,7 @@
 			</OnClick>
 		</Scripts>
 	</Button>
+	<!-- This is the main frame including "TheoryCraft" title -->
 	<Frame name="TheoryCraft" parent="UIParent" hidden="true" enableMouse="true" movable="true" >
 		<Anchors>
 			<Anchor point="TOP">

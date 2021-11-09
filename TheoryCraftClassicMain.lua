@@ -791,6 +791,7 @@ function TheoryCraft_CheckBoxToggle(self)
 	end
 end
 
+-- NOTE: This handles /tc and all sub-commands
 function TheoryCraft_Command(cmd)
 	if (cmd == "") then
 		if TheoryCraft_Data["firstrun"] == nil then

@@ -395,13 +395,13 @@ function TheoryCraft_InitDropDown(this)
 	i = AddButton(i, "Spellcasts remaining", "spellcasts", a)
 end
 
-
+-- NOTE: this is for positioning the button_text relative to the spell icons. -- It is currently bugged (probably an xml fix)
 function TheoryCraft_UpdateButtonTextPos(this)
-	TheoryCraft_Settings["buttontextx"] = (this:GetParent():GetLeft()-this:GetLeft())/3
-	TheoryCraft_Settings["buttontexty"] = (this:GetParent():GetTop()-this:GetTop())/3
+	TheoryCraft_Settings["buttontextx"] = (this:GetParent():GetLeft() - this:GetLeft()) / 3
+	TheoryCraft_Settings["buttontexty"] = (this:GetParent():GetTop()  - this:GetTop())  / 3
 	TheoryCraftdummytext:GetParent():ClearAllPoints()
-	TheoryCraftdummytext:GetParent():SetPoint("TOPLEFT", TheoryCraftdummytext:GetParent():GetParent(), "TOPLEFT", -TheoryCraft_Settings["buttontextx"]*3, -TheoryCraft_Settings["buttontexty"]*3)
-	TheoryCraftdummytext:GetParent():SetPoint("BOTTOMRIGHT", TheoryCraftdummytext:GetParent():GetParent(), "BOTTOMRIGHT", -TheoryCraft_Settings["buttontextx"]*3, -TheoryCraft_Settings["buttontexty"]*3)
+	TheoryCraftdummytext:GetParent():SetPoint("TOPLEFT",     TheoryCraftdummytext:GetParent():GetParent(), "TOPLEFT",     - TheoryCraft_Settings["buttontextx"]*3, - TheoryCraft_Settings["buttontexty"]*3)
+	TheoryCraftdummytext:GetParent():SetPoint("BOTTOMRIGHT", TheoryCraftdummytext:GetParent():GetParent(), "BOTTOMRIGHT", - TheoryCraft_Settings["buttontextx"]*3, - TheoryCraft_Settings["buttontexty"]*3)
 end
 
 function TheoryCraft_UpdateDummyButtonText(dontupdate)
