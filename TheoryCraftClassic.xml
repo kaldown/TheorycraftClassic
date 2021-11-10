@@ -294,7 +294,7 @@
 		</Size>
 		<Scripts>
 			<OnClick>
-				PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON);
+				PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON); -- Standard subtle click sound
 				TheoryCraft_OutfitChange(self)
 			</OnClick>
 		</Scripts>
@@ -1386,6 +1386,7 @@
 								</Anchor>
 							</Anchors>
 						</FontString>
+						<!-- NOTE: positioning tree1 below "Talents" section title, offset +6px, then tree2 and tree3 columns are placed to the left of tree1 offset +13px (spacing) -->
 						<FontString name="TheoryCraftTalentTree1" inherits="TheoryCraftTalentTitleTemplate" text="Imp. Drain Life">
 							<Anchors>
 								<Anchor point="TOPLEFT" relativeTo="TheoryCraftTalentTitle" relativePoint="BOTTOMLEFT">

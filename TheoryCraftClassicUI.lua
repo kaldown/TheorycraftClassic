@@ -187,10 +187,17 @@ function TheoryCraft_UpdateOutfitTab()
 		return
 	end
 
+	-- ####### Draw talent area (at bottom of window) #######
+	-- NOTE: this area is of dubious value
+	-- The intended purpose is to tweak your talent setup and see what effect that might have on your dps/hps
+	-- This is probably out of scope for this mod, Spreadsheet simulators are much more accurate these days.
 	local i = 1
 	local i2 = 1
 	while i < 4 do
 		i2 = 1
+		-- hide all buttons and clear the accompaning text.
+		-- Will be redrawn by the subsequent loop below
+		-- similar to remove classes from a group, and re-set on a single element.
 		getglobal("TheoryCraftTalentTree"..i):SetText(" ")
 		while getglobal("TheoryCraftTalent"..i..i2) do
 			getglobal("TheoryCraftTalent"..i..i2):Hide()
@@ -202,9 +209,12 @@ function TheoryCraft_UpdateOutfitTab()
 	local number
 	local title, rank, i3, _, currank
 	local highestnumber = 0
+	-- redraw all talent text and buttons
+	-- REM: not all talents apply for all classes, so only relevant ones will be redrawn.
 	while i2 < 4 do
 		i = 1
 		number = 1
+
 		while (TheoryCraft_Talents[i]) do
 			if (class == TheoryCraft_Talents[i].class) and (TheoryCraft_Talents[i].dontlist == nil) and (((TheoryCraft_Talents[i].tree == i2) and (TheoryCraft_Talents[i].forcetree == nil)) or (TheoryCraft_Talents[i].forcetree == i2)) then
 				title = getglobal("TheoryCraftTalentTree"..i2)
@@ -247,22 +257,31 @@ function TheoryCraft_UpdateOutfitTab()
 		i2 = i2 + 1
 	end
 
+	-- This is placing the "Talents" title JUST high enough to not push talent columns off the bottom.
+	-- Maximum of 8 talents in a column, so this is of dubious value
 	TheoryCraftTalentTitle:SetPoint("BOTTOMLEFT", TheoryCraftOutfitTab, "BOTTOMLEFT", 20, 42+10*highestnumber)
 
+	-- ####### Draw the vitals area (at top of window) #######
+
+	-- First reset everything
 	TheoryCraftVitalsLeft:SetText()
 	TheoryCraftVitalsRight:SetText()
 	TheoryCraftVitalsLeft:SetHeight(2)
 	TheoryCraftVitalsRight:SetHeight(2)
+
 	TheoryCraftStatsLeft:SetText()
 	TheoryCraftStatsRight:SetText()
 	TheoryCraftStatsLeft:SetHeight(2)
 	TheoryCraftStatsRight:SetHeight(2)
+
 	TheoryCraftModsLeft:SetText()
 	TheoryCraftModsRight:SetText()
 	TheoryCraftModsLeft:SetHeight(2)
 	TheoryCraftModsRight:SetHeight(2)
 
 	local totalmana = TheoryCraft_GetStat("totalmana")+TheoryCraft_GetStat("manarestore")
+
+	-- Calculate everything according to class formulae
 
 	TheoryCraftAddVital("Health", math.floor(TheoryCraft_GetStat("totalhealth")))
 	if class == "HUNTER" then
@@ -489,6 +508,7 @@ function TheoryCraft_InitDropDown(this)
 	i = AddButton(i, "Spellcasts remaining", "spellcasts", a)
 end
 
+-- NOTE: TheoryCraft_Talents[i].forceto is an override of what you're actual talents are with what the player wants to experiment with.
 function TheoryCraft_SetTalent(name)
 	--local name = self:GetName()
 	local i = 1
