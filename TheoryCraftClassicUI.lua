@@ -232,21 +232,28 @@ function TheoryCraft_UpdateOutfitTab()
 					else
 						rank:SetText(TheoryCraft_Talents[i].forceto)
 					end
-					rank:SetNormalTexture(nil)
-					rank:SetPushedTexture(nil)
-					rank:SetHighlightTexture(nil)
+					-- TODO: I don't think these are working, but I don't care.
+					--rank:SetNormalTexture(nil)
+					--rank:SetPushedTexture(nil)
+					--rank:SetHighlightTexture(nil)
 
                     -- https://wowwiki-archive.fandom.com/wiki/API_FontInstance_SetTextColor
                     -- Button:SetTextColor was deleted in 3.0. Instead use FontInstance:SetTextColor
-                    rank:SetNormalFontObject("GameFontHighlight") -- TODO: what does this string mean? Maybe it doesn't matter because we'll just overwrite it?
-                    local font = rank:GetNormalFontObject()
 
-					if (TheoryCraft_Talents[i].forceto) and (TheoryCraft_Talents[i].forceto ~= -1) and (TheoryCraft_Talents[i].forceto ~= currank) then
-                        font:SetTextColor(1,1,0.1)
-					else
-                        font:SetTextColor(0.1,1,0.1)
+					-- Built in colors: GameFontNormalSmall, GameFontGreenSmall, GameFontRedSmall
+					-- reset the color
+					rank:SetNormalFontObject("GameFontNormalSmall")
+
+					-- If the talent is modified from what your actual talents are.
+					if (TheoryCraft_Talents[i].forceto) and (TheoryCraft_Talents[i].forceto ~= -1) then
+						-- maybe modify the color
+						if TheoryCraft_Talents[i].forceto > currank then
+							rank:SetNormalFontObject("GameFontGreenSmall")
+						elseif TheoryCraft_Talents[i].forceto < currank then
+							rank:SetNormalFontObject("GameFontRedSmall")
+						end
 					end
-                    rank:SetNormalFontObject(font)
+
 					rank:Show()
 					number = number + 1
 				end
