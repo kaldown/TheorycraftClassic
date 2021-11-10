@@ -408,7 +408,7 @@
 		</Shadow>
 		<Scripts>
 			<OnClick> 
-				TheoryCraft_SetTalent()
+				TheoryCraft_SetTalent(self:GetName())
 			</OnClick>
 		</Scripts>
 	</Button>

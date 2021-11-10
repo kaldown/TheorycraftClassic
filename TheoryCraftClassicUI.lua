@@ -42,6 +42,100 @@ local function round(arg1, decplaces)
 	return string.format ("%."..decplaces.."f", arg1)
 end
 
+function TheoryCraft_GenBoxEditChange()
+	TheoryCraft_Settings["GenerateList"] = TheoryCraftGenBox_Text:GetText()
+	if string.find(TheoryCraft_Settings["GenerateList"], "ONDEMAND") then
+		TheoryCraft_Settings["GenerateList"] = "ONDEMAND"
+	end
+end
+
+function TheoryCraft_CustomizedEditChange()
+	TheoryCraft_Settings["Customized"] = TheoryCraftCustomized_Text:GetText()
+end
+
+local function UpdateCustomOutfit()
+	if TheoryCraft_Data.outfit == 2 then
+		TheoryCraftCustomOutfit:Show()
+	else
+		TheoryCraftCustomOutfit:Hide()
+		return
+	end
+	local i = 1
+	local i2 = 1
+	TheoryCraftCustomLeft:SetText()
+	TheoryCraftCustomRight:SetText()
+	TheoryCraftCustomLeft:SetHeight(1)
+	TheoryCraftCustomRight:SetHeight(1)
+	local text = 1
+	while (TheoryCraft_SlotNames[i]) do
+		if (TheoryCraftCustomLeft:GetText(text) == nil) or (string.find(TheoryCraftCustomLeft:GetText(text), TheoryCraft_SlotNames[i].slot) == nil) then
+			if string.find(TheoryCraft_SlotNames[i].slot, "%d+") then
+				text = string.sub(TheoryCraft_SlotNames[i].slot, 1, string.find(TheoryCraft_SlotNames[i].slot, "%d+")-1)
+			else
+				text = TheoryCraft_SlotNames[i].slot
+			end
+			if TheoryCraftCustomLeft:GetText() then
+				TheoryCraftCustomLeft:SetText(TheoryCraftCustomLeft:GetText().."\n"..text)
+			else
+				TheoryCraftCustomLeft:SetText(text)
+			end
+			if TheoryCraft_Settings["CustomOutfit"].slots[TheoryCraft_SlotNames[i].slot] then
+				text = TheoryCraft_Settings["CustomOutfit"].slots[TheoryCraft_SlotNames[i].slot]["name"]
+			else
+				text = " "
+			end
+			if TheoryCraftCustomRight:GetText() then
+				TheoryCraftCustomRight:SetText(TheoryCraftCustomRight:GetText().."\n"..text)
+			else
+				TheoryCraftCustomRight:SetText(text)
+			end
+			TheoryCraftCustomLeft:SetHeight(11+TheoryCraftCustomLeft:GetHeight())
+			TheoryCraftCustomRight:SetHeight(TheoryCraftCustomLeft:GetHeight())
+		end
+		i = i + 1
+	end
+end
+
+local function TheoryCraftAddStat(text, text2)
+	if (text == nil) or (text2 == nil) then return end
+	if TheoryCraftStatsLeft:GetText() then
+		TheoryCraftStatsLeft:SetText(TheoryCraftStatsLeft:GetText().."\n"..text)
+		TheoryCraftStatsRight:SetText(TheoryCraftStatsRight:GetText().."\n"..text2)
+	else
+		TheoryCraftStatsLeft:SetText(text)
+		TheoryCraftStatsRight:SetText(text2)
+	end
+	TheoryCraftStatsLeft:SetHeight(10+TheoryCraftStatsLeft:GetHeight())
+	TheoryCraftStatsRight:SetHeight(TheoryCraftStatsLeft:GetHeight())
+end
+
+local function TheoryCraftAddVital(text, text2)
+	if (text == nil) or (text2 == nil) then return end
+	if TheoryCraftVitalsLeft:GetText() then
+		TheoryCraftVitalsLeft:SetText(TheoryCraftVitalsLeft:GetText().."\n"..text)
+		TheoryCraftVitalsRight:SetText(TheoryCraftVitalsRight:GetText().."\n"..text2)
+	else
+		TheoryCraftVitalsLeft:SetText(text)
+		TheoryCraftVitalsRight:SetText(text2)
+	end
+	TheoryCraftVitalsLeft:SetHeight(10+TheoryCraftVitalsLeft:GetHeight())
+	TheoryCraftVitalsRight:SetHeight(TheoryCraftVitalsLeft:GetHeight())
+end
+
+local function TheoryCraftAddMod(text, text2)
+	if (text == nil) or (text2 == nil) then return end
+	if TheoryCraftModsLeft:GetText() then
+		TheoryCraftModsLeft:SetText(TheoryCraftModsLeft:GetText().."\n"..text)
+	else
+		TheoryCraftModsLeft:SetText(text)
+	end
+	if TheoryCraftModsRight:GetText() then
+		TheoryCraftModsRight:SetText(TheoryCraftModsRight:GetText().."\n"..text2)
+	else
+		TheoryCraftModsRight:SetText(text2)
+	end
+end
+
 local function AddMods(mult, mod, all, healing, damage, school, prefix, suffix, pre2)
 	local tmp = TheoryCraft_GetStat("All"..mod)*mult
 	if tmp ~= 0 then
@@ -393,6 +487,46 @@ function TheoryCraft_InitDropDown(this)
 	i = AddButton(i, "Total Healing", "maxoomhealfloored", a)
 	i = AddButton(i, "Total Healing (left)", "maxoomhealremaining", a)
 	i = AddButton(i, "Spellcasts remaining", "spellcasts", a)
+end
+
+function TheoryCraft_SetTalent(name)
+	--local name = self:GetName()
+	local i = 1
+	local i2 = tonumber(string.sub(name, 18, 18))
+	local numberneeded = tonumber(string.sub(name, 19, 19))
+	local number = 1
+	local newrank = 0
+	local _, currank, maxRank
+	number = 1
+	while (TheoryCraft_Talents[i]) do
+		if (class == TheoryCraft_Talents[i].class) and (TheoryCraft_Talents[i].dontlist == nil) and (((TheoryCraft_Talents[i].tree == i2) and (TheoryCraft_Talents[i].forcetree == nil)) or (TheoryCraft_Talents[i].forcetree == i2)) then
+			if (number == numberneeded) then
+				nameneeded = TheoryCraft_Talents[i].name
+				_, _, _, _, currank, maxRank= GetTalentInfo(TheoryCraft_Talents[i].tree, TheoryCraft_Talents[i].number)
+				if (TheoryCraft_Talents[i].forceto == nil) or (TheoryCraft_Talents[i].forceto == -1) then
+					newrank = currank + 1
+				else
+					newrank = TheoryCraft_Talents[i].forceto + 1
+				end
+				if newrank > maxRank then
+					newrank = 0
+				end
+				break
+			end
+			number = number + 1
+		end
+		i = i+1
+	end
+	i = 1
+	while (TheoryCraft_Talents[i]) do
+		if (class == TheoryCraft_Talents[i].class) then
+			if (TheoryCraft_Talents[i].name == nameneeded) then
+				TheoryCraft_Talents[i].forceto = newrank
+			end
+		end
+		i = i+1
+	end
+	TheoryCraft_UpdateTalents()
 end
 
 -- NOTE: this is for positioning the button_text relative to the spell icons. -- It is currently bugged (probably an xml fix)
