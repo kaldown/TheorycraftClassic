@@ -217,7 +217,6 @@ function TheoryCraft_UpdateOutfitTab()
 
 		while (TheoryCraft_Talents[i]) do
 			if (class == TheoryCraft_Talents[i].class) and (TheoryCraft_Talents[i].dontlist == nil) and (((TheoryCraft_Talents[i].tree == i2) and (TheoryCraft_Talents[i].forcetree == nil)) or (TheoryCraft_Talents[i].forcetree == i2)) then
-				title = getglobal("TheoryCraftTalentTree"..i2)
 				rank = getglobal("TheoryCraftTalent"..i2..number)
                 -- NOTE: "rank" appears to be a frame, specifically a button
 				i3 = 1
@@ -225,14 +224,18 @@ function TheoryCraft_UpdateOutfitTab()
 					i3 = i3 + 1
 				end
 				if (TheoryCraft_Locale.TalentTranslator[i3]) and (rank ~= nil) then
-					title:SetText(title:GetText()..TheoryCraft_Locale.TalentTranslator[i3].translated.."\n")
+                    -- TODO: it would be nice to be able to access this through rank instead of through the global namespace.
+                    title = getglobal("TheoryCraftTalent"..i2..number.."Label")
+                    title:SetText(TheoryCraft_Locale.TalentTranslator[i3].translated)
+
 					_, _, _, _, currank = GetTalentInfo(TheoryCraft_Talents[i].tree, TheoryCraft_Talents[i].number)
 					if ((TheoryCraft_Talents[i].forceto == nil) or (TheoryCraft_Talents[i].forceto == -1)) then
 						rank:SetText(currank)
 					else
 						rank:SetText(TheoryCraft_Talents[i].forceto)
 					end
-					-- TODO: I don't think these are working, but I don't care.
+					-- Clear the button textures, so its just the number
+					-- TODO: These are not working, but I don't care.
 					--rank:SetNormalTexture(nil)
 					--rank:SetPushedTexture(nil)
 					--rank:SetHighlightTexture(nil)

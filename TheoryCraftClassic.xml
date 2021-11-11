@@ -413,6 +413,19 @@
 				TheoryCraft_SetTalent(self:GetName())
 			</OnClick>
 		</Scripts>
+        <Layers>
+            <Layer level="OVERLAY">
+                <FontString name="$parentLabel" inherits="GameFontWhiteSmall" text="A Talent">
+                    <Anchors>
+                        <Anchor point="RIGHT" relativeTo="$parent" relativePoint="LEFT">
+                            <Offset>
+                                <AbsDimension x="-5" y="0"/>
+                            </Offset>
+                        </Anchor>
+                    </Anchors>
+                </FontString>
+            </Layer>
+        </Layers>
 	</Button>
 	<!-- This is the main frame including "TheoryCraft" title -->
 	<Frame name="TheoryCraft" parent="UIParent" hidden="true" enableMouse="true" movable="true" >
