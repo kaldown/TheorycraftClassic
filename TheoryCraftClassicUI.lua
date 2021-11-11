@@ -457,15 +457,18 @@ local function AddButton(i, text, value, func, remaining)
 	if (func == TheoryCraft_Combo4Click) and (TheoryCraft_Settings["trysecondsfg"] == value) then
 		UIDropDownMenu_SetSelectedID(TheoryCrafttrysecondsfg, i)
 	end
+--[[
 	if (func == TheoryCraft_OutfitClick) and ((TheoryCraft_Data["outfit"] == value) or ((TheoryCraft_Data["outfit"] == nil) and (value == 1))) then
 		UIDropDownMenu_SetSelectedID(TheoryCraftoutfit, i)
 	end
+--]]
 	return i + 1
 end
 
 function TheoryCraft_InitDropDown(this)
 	local a
 	local i = 1
+--[[
 	if string.find(this:GetName(), "TheoryCraftoutfit") then
 		for k, v in pairs(TheoryCraft_Outfits) do
 			if ((v.class == nil) or (class == v.class)) then
@@ -474,6 +477,7 @@ function TheoryCraft_InitDropDown(this)
 		end
 		return
 	end
+--]]
 	if string.find(this:GetName(), "sfg") then
 		if string.find(this:GetName(), "TheoryCrafttryfirst") then
 			a = TheoryCraft_Combo3Click

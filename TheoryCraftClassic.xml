@@ -1416,8 +1416,8 @@
 								</Anchor>
 							</Anchors>
 						</FontString>
-<!-- Outfits -->
-						<FontString name="TheoryCraftOutfitTitle" inherits="TheoryCraftTitleTemplate" text="Outfits:">
+						<!-- Outfits -->
+						<!--FontString name="TheoryCraftOutfitTitle" inherits="TheoryCraftTitleTemplate" text="Outfits:">
 							<Anchors>
 								<Anchor point="BOTTOMLEFT" relativeTo="TheoryCraftOutfitTab" relativePoint="BOTTOMLEFT">
 									<Offset>
@@ -1425,11 +1425,11 @@
 									</Offset>
 								</Anchor>
 							</Anchors>
-						</FontString>
+						</FontString-->
 					</Layer>
 				</Layers>
 				<Frames>
-					<Frame name="TheoryCraftoutfit" inherits="TheoryCraftDropdownTemplate" enableMouse="true" id="5">
+					<!--Frame name="TheoryCraftoutfit" inherits="TheoryCraftDropdownTemplate" enableMouse="true" id="5">
 						<Anchors>
 							<Anchor point="BOTTOMLEFT" relativeTo="TheoryCraftOutfitTab" relativePoint="BOTTOMLEFT">
 								<Offset>
@@ -1442,7 +1442,16 @@
 						<Anchors>
 							<Anchor point="LEFT" relativeTo="TheoryCraftoutfit" relativePoint="RIGHT">
 								<Offset>
-									<AbsDimension x="28" y="3" /> <!--y="8"-->
+									<AbsDimension x="28" y="3" />
+								</Offset>
+							</Anchor>
+						</Anchors>
+					</Button-->
+                    <Button name="TheoryCraftResetButton" inherits="TheoryCraftButtonTemplate" text="Reset">
+						<Anchors>
+							<Anchor point="BOTTOMRIGHT" relativeTo="TheoryCraftOutfitTab" relativePoint="BOTTOMRIGHT">
+								<Offset>
+									<AbsDimension x="-30" y="20" />
 								</Offset>
 							</Anchor>
 						</Anchors>

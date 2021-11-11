@@ -1083,7 +1083,7 @@ function TheoryCraft_OutfitChange(self)
 		TheoryCraft_UpdateTalents(true)
 		TheoryCraft_LoadStats()
 		TheoryCraft_GenerateAll()
-		UIDropDownMenu_SetSelectedID(TheoryCraftoutfit, 1)
+		--UIDropDownMenu_SetSelectedID(TheoryCraftoutfit, 1)
 		TheoryCraftCustomOutfit:Hide()
 		return
 	end
