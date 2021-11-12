@@ -428,7 +428,7 @@
         </Layers>
 	</Button>
 	<!-- This is the main frame including "TheoryCraft" title -->
-	<Frame name="TheoryCraft" parent="UIParent" hidden="true" enableMouse="true" movable="true" >
+	<Frame name="TheoryCraft" parent="UIParent" hidden="true" movable="true">
 		<Anchors>
 			<Anchor point="TOP">
 				<Offset>
@@ -440,20 +440,6 @@
 			<AbsDimension x="340" y="400"/>
 		</Size>
 		<Scripts>
-			<OnMouseDown>
-				self:StartMoving()
-			</OnMouseDown>
-			<OnDragStart>
-				self:StartMoving()
-			</OnDragStart>
-			<OnDragStop>
-				self:StopMovingOrSizing()
-				TheoryCraft_UpdateDummyButtonText()
-			</OnDragStop>
-			<OnMouseUp>
-				self:StopMovingOrSizing()
-				TheoryCraft_UpdateDummyButtonText()
-			</OnMouseUp>
 			<OnLoad>
 				TheoryCraft_OnLoad(self)
 			</OnLoad>
@@ -1115,13 +1101,6 @@
 									<OnMouseDown>
 										self:StartMoving()
 									</OnMouseDown>
-									<OnDragStart>
-										self:StartMoving()
-									</OnDragStart>
-									<OnDragStop>
-										self:StopMovingOrSizing()
-										TheoryCraft_UpdateButtonTextPos(self)
-									</OnDragStop>
 									<OnMouseUp>
 										self:StopMovingOrSizing()
 										TheoryCraft_UpdateButtonTextPos(self)
@@ -1137,7 +1116,6 @@
 											<Anchor point="BOTTOMRIGHT"/>
 										</Anchors>
 										</FontString>
-							
 									</Layer>
 								</Layers>
 							</Frame>
@@ -1469,6 +1447,7 @@
 							</Anchor>
 						</Anchors>
 					</Button>
+                    <!-- Talent buttons below here -->
 					<Button name="TheoryCraftTalent11" inherits="TheoryCraftTalentTemplate" text="5">
 						<Anchors>
 							<Anchor point="TOPLEFT" relativeTo="TheoryCraftTalentTree1" relativePoint="TOPRight">
@@ -1685,6 +1664,7 @@
 							</Anchor>
 						</Anchors>
 					</Button>
+                    <!-- Talent buttons above here -->
 				</Frames>
 			</Frame>
 			<!-- TODO: when positioned ontop of the UI frame, it appears behind it. I'm not sure how to resolve that. Same layer as the 3 tabbed frames, I guess it ties? -->
@@ -1702,7 +1682,7 @@
 			</Button>
 		</Frames>
 	</Frame>
-	<Frame name="TheoryCraftTitleFrame" parent="TheoryCraft" >
+	<Frame name="TheoryCraftTitleFrame" parent="TheoryCraft" enableMouse="true" >
 		<Anchors>
 			<Anchor point="CENTER" relativePoint="TOP">
 				<Offset>
@@ -1710,6 +1690,15 @@
 				</Offset>
 			</Anchor>
 		</Anchors>
+        <Scripts>
+            <OnMouseDown>
+                self:GetParent():StartMoving()
+            </OnMouseDown>
+            <OnMouseUp>
+                self:GetParent():StopMovingOrSizing()
+                TheoryCraft_UpdateDummyButtonText()
+            </OnMouseUp>
+        </Scripts>
 		<Size>
 			<AbsDimension x="95" y="27"/>
 		</Size>
