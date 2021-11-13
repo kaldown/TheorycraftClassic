@@ -167,94 +167,21 @@
 		</Scripts>
 	</CheckButton>
 
-	<CheckButton name="TheoryCraftCheckButtonTemplate" inherits="UICheckButtonTemplate" virtual="true">
+    <!-- All Checkboxes in the first tab EXCEPT for "dont resist" -->
+	<CheckButton name="TheoryCraftCBTemplate" inherits="UICheckButtonTemplate" virtual="true">
+        <!-- NOTE: Alters the user input hit box for a frame. This makes the text work like an html label  -->
 		<HitRectInsets>
 			<AbsInset left="0" right="-100" top="0" bottom="0"/>
 		</HitRectInsets>
-		<Scripts>
-			<OnClick>
-				if ( self:GetChecked() ) then
-					PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON);
-				else
-					PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_OFF);
-				end
-			</OnClick>
-			<OnEnter>
-				if ( self.tooltipText ) then
-					GameTooltip:SetOwner(this, "ANCHOR_RIGHT");
-					GameTooltip:SetText(self.tooltipText, nil, nil, nil, nil, 1);
-				end
-				if ( self.tooltipRequirement ) then
-					GameTooltip:AddLine(self.tooltipRequirement, "", 1.0, 1.0, 1.0);
-					GameTooltip:Show();
-				end
-			</OnEnter>
-			<OnLeave>
-				GameTooltip:Hide();
-			</OnLeave>
-		</Scripts>
-	</CheckButton>
-	<CheckButton name="TheoryCraftCBTemplate" inherits="TheoryCraftCheckButtonTemplate" virtual="true" >
 		<Size>
 			<AbsDimension x="20" y="20"/>
 		</Size>
 		<Scripts>
-			<OnClick>
-				PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON);
-			</OnClick>
-			<OnLoad> 
+			<OnLoad>
 				TheoryCraft_CheckBoxSetText(self)
 			</OnLoad>
-			<OnClick> 
-				TheoryCraft_CheckBoxToggle(self)
-			</OnClick>
-			<OnEnter>
-				TheoryCraft_CheckBoxShowDescription(self)
-			</OnEnter>
-			<OnLeave>
-				GameTooltip:Hide()
-			</OnLeave>
-		</Scripts>
-	</CheckButton>
-	<CheckButton name="TheoryCraftCheckBoxTemplate" inherits="UICheckButtonTemplate" virtual="true">
-		<Scripts>
 			<OnClick>
-				if ( self:GetChecked() ) then
-					PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON);
-				else
-					PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_OFF);
-				end
-			</OnClick>
-			<OnEnter>
-				if ( self.tooltipText ) then
-					GameTooltip:SetOwner(this, "ANCHOR_RIGHT");
-					GameTooltip:SetText(self.tooltipText, nil, nil, nil, nil, 1);
-				end
-				if ( self.tooltipRequirement ) then
-					GameTooltip:AddLine(self.tooltipRequirement, "", 1.0, 1.0, 1.0);
-					GameTooltip:Show();
-				end
-			</OnEnter>
-			<OnLeave>
-				GameTooltip:Hide();
-			</OnLeave>
-		</Scripts>
-	</CheckButton>
-	<CheckButton name="TheoryCraftCB2Template" inherits="TheoryCraftCheckBoxTemplate" virtual="true" >
-		<HitRectInsets>
-			<AbsInset left="0" right="-70" top="0" bottom="0"/>
-		</HitRectInsets>
-		<Size>
-			<AbsDimension x="20" y="20"/>
-		</Size>
-		<Scripts>
-			<OnClick>
-				PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON);
-			</OnClick>
-			<OnLoad> 
-				TheoryCraft_CheckBoxSetText(self)
-			</OnLoad>
-			<OnClick> 
+                PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON); -- Standard subtle click sound
 				TheoryCraft_CheckBoxToggle(self)
 			</OnClick>
 			<OnEnter>
@@ -266,28 +193,7 @@
 		</Scripts>
 	</CheckButton>
 
-	<CheckButton name="TheoryCraftCBoxTemplate" inherits="TheoryCraftCheckBoxTemplate" virtual="true" >
-		<Size>
-			<AbsDimension x="20" y="20"/>
-		</Size>
-		<Scripts>
-			<OnClick>
-				PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON);
-			</OnClick>
-			<OnLoad> 
-				TheoryCraft_CheckBoxSetText(self)
-			</OnLoad>
-			<OnClick> 
-				TheoryCraft_CheckBoxToggle(self)
-			</OnClick>
-			<OnEnter>
-				TheoryCraft_CheckBoxShowDescription(self)
-			</OnEnter>
-			<OnLeave>
-				GameTooltip:Hide()
-			</OnLeave>
-		</Scripts>
-	</CheckButton>
+	<!-- TODO: should this inherit from UIPanelButtonTemplate instead? -->
 	<Button name="TheoryCraftButtonTemplate" inherits="OptionsButtonTemplate" virtual="true">
 		<Size>
 			<AbsDimension x="73" y="20"/>
@@ -873,7 +779,10 @@
 							</Anchor>
 						</Anchors>
 					</CheckButton>
-					<CheckButton name="TheoryCraftdontresist" inherits="TheoryCraftCB2Template">
+					<CheckButton name="TheoryCraftdontresist" inherits="TheoryCraftCBTemplate">
+                        <HitRectInsets>
+                            <AbsInset left="0" right="-70" top="0" bottom="0"/>
+                        </HitRectInsets>
 						<Anchors>
 							<Anchor point="LEFT" relativeTo="TheoryCraftdontcrit">
 								<Offset>
