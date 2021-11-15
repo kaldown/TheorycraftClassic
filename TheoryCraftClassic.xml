@@ -888,7 +888,7 @@
 				</Anchors>
 				<Scripts>
 					<OnLoad>
-						if not self.SetBackdrop then -- didn't work
+						if not self.SetBackdrop then
 							Mixin(self, BackdropTemplateMixin)
 						end
 						self:SetBackdrop({
@@ -1017,7 +1017,7 @@
 								</Scripts>
 								<Layers>
 									<Layer level="OVERLAY">
-										<FontString SetJustifyV="MIDDLE" name="TheoryCraftdummytext" inherits="TheoryCraftLeftTemplate" text="X">
+										<FontString name="TheoryCraftdummytext" inherits="TheoryCraftLeftTemplate" justifyV="MIDDLE" justifyH="CENTER" text="X">
 										<Anchors>
 											<Anchor point="TOPLEFT">
 												<AbsDimension x="0" y="6"/>
@@ -1176,7 +1176,7 @@
 				</Anchors>
 				<Scripts>
 					<OnLoad>
-						if not self.SetBackdrop then -- didn't work
+						if not self.SetBackdrop then
 							Mixin(self, BackdropTemplateMixin)
 						end
 						self:SetBackdrop({

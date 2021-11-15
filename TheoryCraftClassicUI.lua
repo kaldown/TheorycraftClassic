@@ -585,19 +585,11 @@ function TheoryCraft_UpdateDummyButtonText(dontupdate)
 	end
 
 	TheoryCraftdummytext:GetParent():ClearAllPoints()
-	TheoryCraftdummytext:GetParent():SetPoint("TOPLEFT", TheoryCraftdummytext:GetParent():GetParent(), "TOPLEFT", -TheoryCraft_Settings["buttontextx"]*3, -TheoryCraft_Settings["buttontexty"]*3)
+	TheoryCraftdummytext:GetParent():SetPoint("TOPLEFT",     TheoryCraftdummytext:GetParent():GetParent(), "TOPLEFT",     -TheoryCraft_Settings["buttontextx"]*3, -TheoryCraft_Settings["buttontexty"]*3)
 	TheoryCraftdummytext:GetParent():SetPoint("BOTTOMRIGHT", TheoryCraftdummytext:GetParent():GetParent(), "BOTTOMRIGHT", -TheoryCraft_Settings["buttontextx"]*3, -TheoryCraft_Settings["buttontexty"]*3)
 
 	TheoryCraftdummytext:SetFont(TheoryCraft_Settings["FontPath"], TheoryCraft_Settings["FontSize"]*3, "OUTLINE")
 	TheoryCraftdummytext:SetTextColor(TheoryCraft_Settings["ColR"], TheoryCraft_Settings["ColG"], TheoryCraft_Settings["ColB"])
-	TheoryCraftdummytext:SetJustifyV("MIDDLE")
-	if TheoryCraft_Settings["alignleft"] then
-		TheoryCraftdummytext:SetJustifyH("LEFT")
-	elseif TheoryCraft_Settings["alignright"] then
-		TheoryCraftdummytext:SetJustifyH("RIGHT")
-	else
-		TheoryCraftdummytext:SetJustifyH("CENTER")
-	end
 end
 
 local function formattext(a, field, places)
@@ -692,10 +684,6 @@ function TheoryCraft_ButtonUpdate(this, ...)
 		return
 	end
 
-	if not buttontext then return end
-
-	
-
 	if (buttontext.fontsize ~= TheoryCraft_Settings["FontSize"]) or
 	   (buttontext.fontpath ~= TheoryCraft_Settings["FontPath"]) then
 		buttontext.fontsize = TheoryCraft_Settings["FontSize"]
@@ -721,22 +709,6 @@ function TheoryCraft_ButtonUpdate(this, ...)
 		buttontext:ClearAllPoints()
 		buttontext:SetPoint("TOPLEFT", this, "TOPLEFT", -TheoryCraft_Settings["buttontextx"], -TheoryCraft_Settings["buttontexty"])
 		buttontext:SetPoint("BOTTOMRIGHT", this, "BOTTOMRIGHT", -TheoryCraft_Settings["buttontextx"], -TheoryCraft_Settings["buttontexty"])
-	end
-	if (buttontext.align == nil) or
-	   ((buttontext.align == 1) and (not TheoryCraft_Settings["alignleft"])) or
-	   ((buttontext.align == 2) and (not TheoryCraft_Settings["alignright"])) or
-	   ((buttontext.align == 3) and (TheoryCraft_Settings["alignleft"] or TheoryCraft_Settings["alignright"])) then
-		buttontext:SetJustifyV("MIDDLE")
-		if TheoryCraft_Settings["alignleft"] then
-			buttontext.align = 1
-			buttontext:SetJustifyH("LEFT")
-		elseif TheoryCraft_Settings["alignright"] then
-			buttontext.align = 2
-			buttontext:SetJustifyH("RIGHT")
-		else
-			buttontext.align = 3
-			buttontext:SetJustifyH("CENTER")
-		end
 	end
 
 	if not TheoryCraft_Settings["buttontext"] then

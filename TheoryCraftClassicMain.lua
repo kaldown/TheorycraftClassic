@@ -751,12 +751,7 @@ function TheoryCraft_CheckBoxToggle(self)
 		TheoryCraft_SetCheckBox("embedstyle1")
 		TheoryCraft_SetCheckBox("embedstyle2")
 		TheoryCraft_SetCheckBox("embedstyle3")
-	elseif (name == "alignleft") or (name == "alignright") then
-		TheoryCraft_Settings["alignleft"] = nil
-		TheoryCraft_Settings["alignright"] = nil
-		TheoryCraft_Settings[name] = onoff
-		TheoryCraft_SetCheckBox("alignleft")
-		TheoryCraft_SetCheckBox("alignright")
+
 	elseif name == "useglock" then
 		if (MobResistDB) and (type(MobResistDB) == "table") and (onoff == true) then
 			TheoryCraft_Settings[name] = onoff
