@@ -565,32 +565,85 @@ function TheoryCraft_SetTalent(name)
 end
 
 -- NOTE: this is for positioning the button_text relative to the spell icons. -- It is currently bugged (probably an xml fix)
-function TheoryCraft_UpdateButtonTextPos(this)
-	TheoryCraft_Settings["buttontextx"] = (this:GetParent():GetLeft() - this:GetLeft()) / 3
-	TheoryCraft_Settings["buttontexty"] = (this:GetParent():GetTop()  - this:GetTop())  / 3
-	TheoryCraftdummytext:GetParent():ClearAllPoints()
-	TheoryCraftdummytext:GetParent():SetPoint("TOPLEFT",     TheoryCraftdummytext:GetParent():GetParent(), "TOPLEFT",     - TheoryCraft_Settings["buttontextx"]*3, - TheoryCraft_Settings["buttontexty"]*3)
-	TheoryCraftdummytext:GetParent():SetPoint("BOTTOMRIGHT", TheoryCraftdummytext:GetParent():GetParent(), "BOTTOMRIGHT", - TheoryCraft_Settings["buttontextx"]*3, - TheoryCraft_Settings["buttontexty"]*3)
+function TheoryCraft_RestrictDummyButtonText(this)
+    -- Looks like scale is 1 for me... TODO: do I need to worry about scale in the future?
+    --print('scale: ' .. this:GetScale())
+
+    local w = round(GetScreenWidth())
+    local h = round(GetScreenHeight())
+
+    --print('screen width: ' .. w)
+    --print('screen height: ' .. h)
+
+    local xL, xR, yT, yB -- left, right, top, bottom
+
+    -- Returns the distance from the bottom-left corner of the screen to the center of a region
+    xL, yB = this:GetParent():GetCenter()
+    xL = round(xL)
+    yB = round(yB)
+
+    xR = w - xL
+    yT = h - yB
+
+    --print('center offset LxB: ' .. xL .. ' x ' .. yB)
+    --print('center offset RxT: ' .. xR .. ' x ' .. yT)
+
+    local fw, fh = this:GetParent():GetSize() -- both should be 100 as set by the xml  (weird decimals, TODO: maybe round?)
+    fw = round(fw)
+    fh = round(fh)
+
+    --print('parent WxH: ' .. fw .. ' x ' .. fh)
+
+    -- Figure out the proper offsets.
+    local offset_L, offset_R, offset_T, offset_B
+    offset_L = xL - (fw/2)
+    offset_R = xR - (fw/2)
+    offset_T = yT - (fh/2)
+    offset_B = yB - (fh/2)
+
+    --print('offset_L: ' .. offset_L)
+    --print('offset_R: ' .. offset_R)
+    --print('offset_T: ' .. offset_T)
+    --print('offset_B: ' .. offset_B)
+
+    -- First set this, or else the Insets won't work.
+    this:SetClampedToScreen(true)
+    -- Set margins from the edges of the screen. No there doesn't seem to be a better way to do this
+    -- L & B must be negative to enforce a margin
+    -- R & T must be positive to enforce a margin
+    this:SetClampRectInsets(-offset_L, offset_R, offset_T, -offset_B)
 end
 
-function TheoryCraft_UpdateDummyButtonText(dontupdate)
-	if not dontupdate then
-		TheoryCraftFontPath:SetText(TheoryCraft_Settings["FontPath"])
-		TheoryCraftColR:SetText(TheoryCraft_Settings["ColR"]*255)
-		TheoryCraftColG:SetText(TheoryCraft_Settings["ColG"]*255)
-		TheoryCraftColB:SetText(TheoryCraft_Settings["ColB"]*255)
-		TheoryCraftColR2:SetText(TheoryCraft_Settings["ColR2"]*255)
-		TheoryCraftColG2:SetText(TheoryCraft_Settings["ColG2"]*255)
-		TheoryCraftColB2:SetText(TheoryCraft_Settings["ColB2"]*255)
-		TheoryCraftFontSize:SetText(TheoryCraft_Settings["FontSize"])
-	end
+-- NOTE: this is for positioning the button_text relative to the spell icons.
+function TheoryCraft_UpdateButtonTextPos(this)
+    -- TODO: why are things divided by 3 and then re-multiplied by 3?
+	TheoryCraft_Settings["buttontextx"] = (this:GetParent():GetLeft() - this:GetLeft()) / 3
+	TheoryCraft_Settings["buttontexty"] = (this:GetParent():GetTop()  - this:GetTop())  / 3
+    --print('buttontextx: ' .. TheoryCraft_Settings["buttontextx"])
+    --print('buttontexty: ' .. TheoryCraft_Settings["buttontexty"])
 
-	TheoryCraftdummytext:GetParent():ClearAllPoints()
-	TheoryCraftdummytext:GetParent():SetPoint("TOPLEFT",     TheoryCraftdummytext:GetParent():GetParent(), "TOPLEFT",     -TheoryCraft_Settings["buttontextx"]*3, -TheoryCraft_Settings["buttontexty"]*3)
-	TheoryCraftdummytext:GetParent():SetPoint("BOTTOMRIGHT", TheoryCraftdummytext:GetParent():GetParent(), "BOTTOMRIGHT", -TheoryCraft_Settings["buttontextx"]*3, -TheoryCraft_Settings["buttontexty"]*3)
+    -- clear screen padding restrictions when move is finished
+    this:SetClampRectInsets(0,0,0,0)
 
-	TheoryCraftdummytext:SetFont(TheoryCraft_Settings["FontPath"], TheoryCraft_Settings["FontSize"]*3, "OUTLINE")
-	TheoryCraftdummytext:SetTextColor(TheoryCraft_Settings["ColR"], TheoryCraft_Settings["ColG"], TheoryCraft_Settings["ColB"])
+    -- Now we need to anchor this so it automatically moves if the main TC window is repositioned.
+    this:ClearAllPoints()
+    this:SetPoint("TOPLEFT", this:GetParent(), "TOPLEFT", - TheoryCraft_Settings["buttontextx"]*3, - TheoryCraft_Settings["buttontexty"]*3)
+end
+
+-- NOTE: can only be called after event VARIABLES_LOADED
+function TheoryCraft_InitButtonTextOpts()
+    --print('InitButtonTextOpts')
+    TheoryCraftFontPath:SetText(TheoryCraft_Settings["FontPath"])
+
+    TheoryCraftColR:SetText(TheoryCraft_Settings["ColR"]*255)
+    TheoryCraftColG:SetText(TheoryCraft_Settings["ColG"]*255)
+    TheoryCraftColB:SetText(TheoryCraft_Settings["ColB"]*255)
+
+    TheoryCraftColR2:SetText(TheoryCraft_Settings["ColR2"]*255)
+    TheoryCraftColG2:SetText(TheoryCraft_Settings["ColG2"]*255)
+    TheoryCraftColB2:SetText(TheoryCraft_Settings["ColB2"]*255)
+
+    TheoryCraftFontSize:SetText(TheoryCraft_Settings["FontSize"])
 end
 
 local function formattext(a, field, places)

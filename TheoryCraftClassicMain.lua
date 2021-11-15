@@ -543,6 +543,7 @@ function TheoryCraft_OnEvent(self, event, arg1)
 
 	local UIMem = gcinfo()
 	if event == "VARIABLES_LOADED" then
+        TheoryCraft_InitButtonTextOpts()
 		TheoryCraft_AddButtonText()
 
 		TheoryCraft_Mitigation = nil
@@ -595,6 +596,7 @@ function TheoryCraft_OnEvent(self, event, arg1)
 		if TheoryCraft_Settings["off"] then
 			Print("TheoryCraft is currently switched off, type in '/tc on' to enabled")
 		end
+
 	elseif event == "PLAYER_LOGIN" then
 		self:RegisterEvent("UNIT_AURA")
 		self:RegisterEvent("UNIT_INVENTORY_CHANGED")

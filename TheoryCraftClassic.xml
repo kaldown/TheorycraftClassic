@@ -91,42 +91,42 @@
 			</Button>
 		</Frames>
 		<ScrollChild>
-		<EditBox name="$parent_Text" multiLine="true" letters="50000" autoFocus="false" enableMouse="true" frameStrata="HIGH">
-			<Size><AbsDimension x="276" y="510"/></Size>
-			<Scripts>
-				<OnLoad>
-					self:SetHeight(self:GetParent():GetHeight());
-					self:SetWidth(self:GetParent():GetWidth());
-				</OnLoad>
-				<OnTextChanged>
-					local scrollBar = getglobal(self:GetParent():GetName().."ScrollBar")
-					self:GetParent():UpdateScrollChildRect();
-					local min, max = scrollBar:GetMinMaxValues();
-					if ( max > 0 and (self.max ~= max) ) then
-						self.max = max;
-						scrollBar:SetValue(max);
-					end
-					if (self:GetParent().textChanged) then
-						self:GetParent().textChanged();
-					end
-				</OnTextChanged>
-				<OnEscapePressed>
-					self:ClearFocus();
-					getglobal(self:GetParent():GetName().."_FocusButton"):Show();
-				</OnEscapePressed>
-				<OnHide>
-					getglobal(self:GetParent():GetName().."_FocusButton"):Show();
-				</OnHide>
-			</Scripts>
-			<FontString font="Fonts\ARIALN.TTF">
-				<Color r="1" g="1" b="1"/>
-				<FontHeight>
-					<AbsValue val="12"/>
-				</FontHeight>
-			</FontString>
-		</EditBox>
-	</ScrollChild>
-</ScrollFrame>
+			<EditBox name="$parent_Text" multiLine="true" letters="50000" autoFocus="false" enableMouse="true" frameStrata="HIGH">
+				<Size><AbsDimension x="276" y="510"/></Size>
+				<Scripts>
+					<OnLoad>
+						self:SetHeight(self:GetParent():GetHeight());
+						self:SetWidth(self:GetParent():GetWidth());
+					</OnLoad>
+					<OnTextChanged>
+						local scrollBar = getglobal(self:GetParent():GetName().."ScrollBar")
+						self:GetParent():UpdateScrollChildRect();
+						local min, max = scrollBar:GetMinMaxValues();
+						if ( max > 0 and (self.max ~= max) ) then
+							self.max = max;
+							scrollBar:SetValue(max);
+						end
+						if (self:GetParent().textChanged) then
+							self:GetParent().textChanged();
+						end
+					</OnTextChanged>
+					<OnEscapePressed>
+						self:ClearFocus();
+						getglobal(self:GetParent():GetName().."_FocusButton"):Show();
+					</OnEscapePressed>
+					<OnHide>
+						getglobal(self:GetParent():GetName().."_FocusButton"):Show();
+					</OnHide>
+				</Scripts>
+				<FontString font="Fonts\ARIALN.TTF">
+					<Color r="1" g="1" b="1"/>
+					<FontHeight>
+						<AbsValue val="12"/>
+					</FontHeight>
+				</FontString>
+			</EditBox>
+		</ScrollChild>
+	</ScrollFrame>
 
 	<Frame name="TheoryCraftDropdownTemplate" inherits="UIDropDownMenuTemplate" virtual="true">
 		<Size>
@@ -348,6 +348,7 @@
 		<Scripts>
 			<OnLoad>
 				TheoryCraft_OnLoad(self)
+                self:SetClampedToScreen(true)
 			</OnLoad>
 			<OnEvent>
 				TheoryCraft_OnEvent(self,event,...)
@@ -986,7 +987,7 @@
 					</ScrollFrame>
 					<!-- NOTE: this fake icon is the bounding box for the movable X below -->
 					<Frame name="TheoryCraftActionButtonBackground" frameStrata="MEDIUM">
-						<Size x="36" y="36"/>
+						<Size x="100" y="100"/>
 						<Anchors>
 							<Anchor point="BOTTOMLEFT">
 								<Offset><AbsDimension x="22" y="172"/></Offset>
@@ -999,31 +1000,44 @@
 								end
 								self:SetBackdrop({
 									bgFile = "Interface\\Icons\\Spell_Frost_IceShard",
-									tileSize = 36,
+									tileSize = 100,
 								})
 							</OnLoad>
 						</Scripts>
 						<Frames>
-							<!-- NOTE: this is to position the button_text within a spell icon. -->
-							<Frame name="TheoryCraftActionButtonTextPos" frameStrata="MEDIUM" enableMouse="true" movable="true" >
+							<!-- NOTE: this is to position the button_text within a spell icon. ~ TODO: fix the bounding box so it cannot be dragged outside the demo icon -->
+							<Frame name="TheoryCraftActionButtonTextPos" frameStrata="HIGH" enableMouse="true" movable="true" >
+                                <Size x="10" y="10"/>
 								<Scripts>
 									<OnMouseDown>
+                                        TheoryCraft_RestrictDummyButtonText(self)
 										self:StartMoving()
 									</OnMouseDown>
 									<OnMouseUp>
 										self:StopMovingOrSizing()
 										TheoryCraft_UpdateButtonTextPos(self)
 									</OnMouseUp>
+                                    <!-- NOTE: this is for debugging only -->
+                                    <!--OnLoad>
+                                        if not self.SetBackdrop then
+                                            Mixin(self, BackdropTemplateMixin)
+                                        end
+                                        self:SetBackdrop({
+                                            bgFile = "Interface\\Tooltips\\UI-Tooltip-Background",
+                                            tile = true,
+                                            tileSize = 16
+                                        })
+                                    </OnLoad-->
 								</Scripts>
 								<Layers>
 									<Layer level="OVERLAY">
-										<FontString name="TheoryCraftdummytext" inherits="TheoryCraftLeftTemplate" justifyV="MIDDLE" justifyH="CENTER" text="X">
-										<Anchors>
-											<Anchor point="TOPLEFT">
-												<AbsDimension x="0" y="6"/>
-											</Anchor>
-											<Anchor point="BOTTOMRIGHT"/>
-										</Anchors>
+										<FontString name="TheoryCraftdummytext" inherits="TheoryCraftLeftTemplate" justifyV="MIDDLE" justifyH="CENTER" text="O">
+                                            <!-- Remove the shadow -->
+                                            <Shadow>
+                                                <Offset>
+                                                    <AbsDimension x="0" y="0"/>
+                                                </Offset>
+                                            </Shadow>
 										</FontString>
 									</Layer>
 								</Layers>
@@ -1222,7 +1236,7 @@
 								</Anchor>
 							</Anchors>
 						</FontString>
-<!-- Stats -->
+						<!-- Stats -->
 						<FontString name="TheoryCraftStatsTitle" inherits="TheoryCraftTitleTemplate" text="Stats:">
 							<Anchors>
 								<Anchor point="TOPLEFT" relativeTo="TheoryCraftVitalsLeft" relativePoint="BOTTOMLEFT">
@@ -1250,7 +1264,7 @@
 								</Anchor>
 							</Anchors>
 						</FontString>
-<!-- Modifiers -->
+						<!-- Modifiers -->
 						<FontString name="TheoryCraftModTitle" inherits="TheoryCraftTitleTemplate" text="Modifiers:">
 							<Anchors>
 								<Anchor point="TOPLEFT" relativeTo="TheoryCraftStatsLeft" relativePoint="BOTTOMLEFT">
@@ -1278,7 +1292,7 @@
 								</Anchor>
 							</Anchors>
 						</FontString>
-<!-- Talents -->
+						<!-- Talents -->
 						<FontString name="TheoryCraftTalentTitle" inherits="TheoryCraftTitleTemplate" text="Talents">
 							<Anchors>
 								<Anchor point="BOTTOMLEFT" relativeTo="TheoryCraftOutfitTab" relativePoint="BOTTOMLEFT">
@@ -1605,7 +1619,6 @@
             </OnMouseDown>
             <OnMouseUp>
                 self:GetParent():StopMovingOrSizing()
-                TheoryCraft_UpdateDummyButtonText()
             </OnMouseUp>
         </Scripts>
 		<Size>
