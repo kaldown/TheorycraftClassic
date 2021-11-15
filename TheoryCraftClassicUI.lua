@@ -163,12 +163,15 @@ end
 function TheoryCraft_TabHandler(name)
 	--local name = self:GetName()
 	name = tonumber(string.sub(name, 15))
+
+    -- Hide all
 	TheoryCraftSettingsTab:Hide()
 	TheoryCraftCustomOutfit:Hide()
 	TheoryCraftOutfitTab:Hide()
 	TheoryCraftButtonTextTab:Hide()
 	TheoryCraftCustomOutfit:Hide()
---	TheoryCraftMitigationTab:Hide()
+
+    -- Show whichever one was clicked.
 	if (name == _TOOLTIPTAB) then
 		TheoryCraftSettingsTab:Show()
 	elseif (name == _BUTTONTEXTTAB) then
@@ -176,8 +179,6 @@ function TheoryCraft_TabHandler(name)
 	elseif (name == _ADVANCEDTAB) then 
 		TheoryCraftOutfitTab:Show()
 		TheoryCraft_UpdateOutfitTab()
---	elseif (name == _MITIGATIONTAB) then
---		TheoryCraftMitigationTab:Show()
 	end
 end
 

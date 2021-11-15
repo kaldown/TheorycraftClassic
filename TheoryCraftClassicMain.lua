@@ -690,6 +690,7 @@ function TheoryCraft_OnEvent(self, event, arg1)
 	end
 end
 
+-- This is the mouse over for detailed description of each checkbox.
 function TheoryCraft_CheckBoxShowDescription(self)
 	local name = self:GetName()
 	name = string.sub(name, 12)
