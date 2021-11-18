@@ -1029,8 +1029,10 @@ function TheoryCraft_Command(cmd)
 end
 
 function TheoryCraft_OutfitChange(self)
-	local id = self:GetName()
+	local id   = self:GetName()
 	local name = self:GetText()
+
+    -- Add all spells to the text box (and then you can selectively remove them)
 	if (id == "TheoryCraftSetToAll") then
 		TheoryCraftGenBox_Text:SetText("")
 		local spellname, spellrank
@@ -1070,6 +1072,7 @@ function TheoryCraft_OutfitChange(self)
 		TheoryCraft_GenerateAll()
 		return
 	end
+    -- Remove all manual adjustments to talent points
 	if (id == "TheoryCraftResetButton") then
 		TheoryCraft_Data["outfit"] = 1
 		local i = 1
@@ -1085,6 +1088,10 @@ function TheoryCraft_OutfitChange(self)
 		TheoryCraftCustomOutfit:Hide()
 		return
 	end
+    if (id == "TheoryCraftApplyButtonText") then
+        TheoryCraft_UpdateAllButtonText()
+    end
+    -- TODO: defunct because outfits are disabled.
 	if (id == "TheoryCraftClearButton") then
 		TheoryCraft_Settings["CustomOutfitName"] = "Custom"
 		TheoryCraft_Settings["CustomOutfit"] = nil

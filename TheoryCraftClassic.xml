@@ -383,9 +383,12 @@
 					</Anchor>
 				</Anchors>
 			</CheckButton>
+
+
 			<!-- These are the actual window contents as controlled by the tabs above. -->
+
+            <!-- Tooltip tab -->
 			<Frame name="TheoryCraftSettingsTab" parent="TheoryCraft">
-				<!-- Tooltip tab -->
 				<Anchors>
 					<Anchor point="TOP">
 						<Offset>
@@ -878,8 +881,8 @@
 					</EditBox>
 				</Frames>
 			</Frame>
+			<!-- Button Text tab -->
 			<Frame name="TheoryCraftButtonTextTab" parent="TheoryCraft" hidden="true">
-				<!-- Button Text tab -->
 				<Anchors>
 					<Anchor point="TOP">
 						<Offset>
@@ -1176,11 +1179,24 @@
 							</Anchor>
 						</Anchors>
 					</Button>
+                    <!-- TODO: eventually maybe remove this and make text automatically update after settings are changed -->
+					<Button name="TheoryCraftApplyButtonText" inherits="TheoryCraftButtonTemplate" text="Apply">
+						<Size>
+							<AbsDimension x="60" y="20"/>
+						</Size>
+						<Anchors>
+							<Anchor point="BOTTOMRIGHT">
+								<Offset>
+									<AbsDimension x="-20" y="20"/>
+								</Offset>
+							</Anchor>
+						</Anchors>
+					</Button>
 			
 				</Frames>
 			</Frame>
+			<!-- Vitals tab -->
 			<Frame name="TheoryCraftOutfitTab" parent="TheoryCraft" hidden="true">
-				<!-- Vitals tab -->
 				<Anchors>
 					<Anchor point="TOP">
 						<Offset>
