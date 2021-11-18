@@ -580,9 +580,11 @@ function TheoryCraft_OnEvent(self, event, arg1)
 		if (TheoryCraft_Settings["dataversion"] ~= TheoryCraft_DataVersion) then
 			SetDefaults()
 		end
+        -- if no values are set, choose defaults -- TODO: come up with a better way to do this
 		if TheoryCraft_Settings["ColR2"] == nil then
 			TheoryCraft_Settings["buttontextx"] = 1.111
 			TheoryCraft_Settings["buttontexty"] = 10.22
+            -- REM: these are stored as decimals between 0/1 because that is how SetTextColor expects values
 			TheoryCraft_Settings["ColR"] = 1
 			TheoryCraft_Settings["ColG"] = 1
 			TheoryCraft_Settings["ColB"] = 1
@@ -590,7 +592,7 @@ function TheoryCraft_OnEvent(self, event, arg1)
 			TheoryCraft_Settings["ColG2"] = 1
 			TheoryCraft_Settings["ColB2"] = 175/255
 			TheoryCraft_Settings["FontSize"] = 12
-			TheoryCraft_Settings["FontPath"] = "Fonts\\ArialN.TTF"
+			--TheoryCraft_Settings["FontPath"] = "Fonts\\ArialN.TTF"
 		end
 		if TheoryCraftGenBox_Text then TheoryCraftGenBox_Text:SetText(TheoryCraft_Settings["GenerateList"]) end
 		if TheoryCraft_Settings["off"] then
@@ -1141,30 +1143,30 @@ end
 function TheoryCraft_UpdateEditBox(self)
 	local s = string.gsub(self:GetName(), "TheoryCraft", "")
 	local text = self:GetText()
-	if s ~= "FontPath" then
-		if text == "~" and strfind(s, "resist") then
-			TheoryCraft_Settings["resistscores"][string.gsub(s, "resist", "")] = "~"
-			TheoryCraft_DeleteTable(TheoryCraft_UpdatedButtons)
-			return
-		end
-		text = tonumber(text)
-		if text == nil then
-			if strfind(s, "resist") then
-				TheoryCraft_Settings["resistscores"][string.gsub(s, "resist", "")] = 0
-				TheoryCraft_DeleteTable(TheoryCraft_UpdatedButtons)
-			end
-			return
-		end
-		if strfind(s, "Col") then
-			if text > 255 then
-				text = 255
-			end
-			if text < 0 then
-				text = 0
-			end
-			text = text/255
-		end
+
+	if text == "~" and strfind(s, "resist") then
+		TheoryCraft_Settings["resistscores"][string.gsub(s, "resist", "")] = "~"
+		TheoryCraft_DeleteTable(TheoryCraft_UpdatedButtons)
+		return
 	end
+	text = tonumber(text)
+	if text == nil and strfind(s, "resist")then
+			TheoryCraft_Settings["resistscores"][string.gsub(s, "resist", "")] = 0
+			TheoryCraft_DeleteTable(TheoryCraft_UpdatedButtons)
+		return
+	end
+	-- One of the many color boxes
+	if strfind(s, "Col") then
+		if text == nil then
+			text = 0
+		elseif text > 255 then
+			text = 255
+		elseif text < 0 then
+			text = 0
+		end
+		text = text/255
+	end
+
 	if strfind(s, "resist") then
 		TheoryCraft_Settings["resistscores"][string.gsub(s, "resist", "")] = text
 		if TheoryCraft_Settings["dontresist"] then
@@ -1172,6 +1174,5 @@ function TheoryCraft_UpdateEditBox(self)
 		end
 	else
 		TheoryCraft_Settings[s] = text
-
 	end
 end

@@ -15,6 +15,7 @@
 	<Script file="TheoryCraftClassicMessy.lua"/>
 	<Script file="TheoryCraftClassicMitigation.lua"/>
 
+    <!-- NOTE: this template is used for input.type=text boxes -->
 	<EditBox name="TheoryCraft_EditBoxTemplate" autoFocus="false" inherits="InputBoxTemplate" justifyH="CENTER" frameStrata="HIGH" virtual="true">
 		<Size><AbsDimension x="47" y="20"/></Size>
 		<Scripts>
@@ -1064,7 +1065,8 @@
 							</OnLoad>
 						</Scripts>
 					</EditBox>
-					<EditBox name="TheoryCraftFontPath" inherits="TheoryCraft_EditBoxTemplate">
+                    <!-- TODO: In future maybe could be changed into a dropdown to choose from several font options? -->
+					<!--EditBox name="TheoryCraftFontPath" inherits="TheoryCraft_EditBoxTemplate">
 						<Size><AbsDimension x="131" y="20"/></Size>
 						<Anchors>
 							<Anchor point="TOPRIGHT" relativeTo="TheoryCraftFontSize" relativePoint="BOTTOMRIGHT">
@@ -1078,11 +1080,11 @@
 								getglobal(self:GetName().."Label"):SetText("Path:   ")
 							</OnLoad>
 						</Scripts>
-					</EditBox>
+					</EditBox-->
 					<EditBox name="TheoryCraftColB" inherits="TheoryCraft_EditBoxTemplate">
 						<Size><AbsDimension x="25" y="20"/></Size>
 						<Anchors>
-							<Anchor point="TOPRIGHT" relativeTo="TheoryCraftFontPath" relativePoint="BOTTOMRIGHT">
+							<Anchor point="TOPRIGHT" relativeTo="TheoryCraftFontSize" relativePoint="BOTTOMRIGHT">
 								<Offset>
 									<AbsDimension x="0" y="0"/>
 								</Offset>

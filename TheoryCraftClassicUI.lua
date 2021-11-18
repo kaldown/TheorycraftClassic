@@ -13,19 +13,22 @@ local function findpattern(text, pattern, start)
 	end
 end
 
+-- REM: called from inside TheoryCraft_AddButtonText and from whatever bartender4 code exists
 function TheoryCraft_SetUpButton(parentname, type, specialid)
 	oldbutton = getglobal(parentname)
 
 	if not oldbutton then return nil end
 
+    -- If the text subframe has already been created, we're good to go
 	newbutton = getglobal(parentname.."_TCText")
 	if newbutton and newbutton.type then 
 		return newbutton
 	end
 
 	oldbutton:CreateFontString(parentname.."_TCText", "ARTWORK");
+    -- Looks like this is creating the sub-frame FontString for each button, so it can be written later.
 	newbutton = getglobal(parentname.."_TCText")
-	newbutton:SetFont("Fonts\\ARIALN.TTF", 12, "OUTLINE")
+	newbutton:SetFont("Fonts\\ARIALN.TTF", TheoryCraft_Settings["FontSize"], "OUTLINE")
 	newbutton:SetPoint("TOPLEFT", oldbutton, "TOPLEFT", 0, 0)
 	newbutton:SetPoint("BOTTOMRIGHT", oldbutton, "BOTTOMRIGHT", 0, 0)
 	newbutton.type = type
@@ -632,7 +635,7 @@ end
 -- NOTE: can only be called after event VARIABLES_LOADED
 function TheoryCraft_InitButtonTextOpts()
     --print('InitButtonTextOpts')
-    TheoryCraftFontPath:SetText(TheoryCraft_Settings["FontPath"])
+    --TheoryCraftFontPath:SetText(TheoryCraft_Settings["FontPath"])
 
     TheoryCraftColR:SetText(TheoryCraft_Settings["ColR"]*255)
     TheoryCraftColG:SetText(TheoryCraft_Settings["ColG"]*255)
@@ -664,6 +667,7 @@ local function formattext(a, field, places)
 	return round(a[field]*10^places)/10^places
 end
 
+-- REM: called after VARIABLES_LOADED
 function TheoryCraft_AddButtonText(...)
 	local newbutton, oldbutton
 	local setupbutton = TheoryCraft_SetUpButton
@@ -732,17 +736,26 @@ function TheoryCraft_ButtonUpdate(this, ...)
 	end
 	local i = this:GetName().."_TCText"
 
+    -- REM: buttontext is a FontString created on each button during SetupButtons
 	local buttontext = getglobal(i)
 	if not buttontext then 
 		return
 	end
 
+    -- font path is broken and not very useful
+--[[
 	if (buttontext.fontsize ~= TheoryCraft_Settings["FontSize"]) or
 	   (buttontext.fontpath ~= TheoryCraft_Settings["FontPath"]) then
 		buttontext.fontsize = TheoryCraft_Settings["FontSize"]
 		buttontext.fontpath = TheoryCraft_Settings["FontPath"]
 		buttontext:SetFont(TheoryCraft_Settings["FontPath"], buttontext.fontsize, "OUTLINE")
 	end
+--]]
+	if (buttontext.fontsize ~= TheoryCraft_Settings["FontSize"]) then
+		buttontext.fontsize = TheoryCraft_Settings["FontSize"]
+		buttontext:SetFont("Fonts\\ARIALN.TTF", buttontext.fontsize, "OUTLINE")
+	end
+
 	if (buttontext.colr ~= TheoryCraft_Settings["ColR"]) or
 	   (buttontext.colg ~= TheoryCraft_Settings["ColG"]) or
 	   (buttontext.colb ~= TheoryCraft_Settings["ColB"]) or
@@ -768,8 +781,8 @@ function TheoryCraft_ButtonUpdate(this, ...)
 		buttontext:Hide()
 		return
 	end
-	-- Try to find the spell data lookup by the spell we have on the button
 
+	-- Try to find the spell data lookup by the spell we have on the button
 	local tryfirst, trysecond, spelldata
 	if buttontext.type == "SpellBook" then
 		local icon = getglobal(this:GetName().."SpellName")
