@@ -19,14 +19,14 @@ function TheoryCraft_SetUpButton(parentname, type, specialid)
 
 	if not oldbutton then return nil end
 
-    -- If the text subframe has already been created, we're good to go
+	-- If the text subframe has already been created, we're good to go
 	newbutton = getglobal(parentname.."_TCText")
 	if newbutton and newbutton.type then 
 		return newbutton
 	end
 
 	oldbutton:CreateFontString(parentname.."_TCText", "ARTWORK");
-    -- Looks like this is creating the sub-frame FontString for each button, so it can be written later.
+	-- Looks like this is creating the sub-frame FontString for each button, so it can be written later.
 	newbutton = getglobal(parentname.."_TCText")
 	newbutton:SetFont("Fonts\\ARIALN.TTF", TheoryCraft_Settings["FontSize"], "OUTLINE")
 	newbutton:SetPoint("TOPLEFT", oldbutton, "TOPLEFT", 0, 0)
@@ -167,13 +167,13 @@ function TheoryCraft_TabHandler(name)
 	--local name = self:GetName()
 	name = tonumber(string.sub(name, 15))
 
-    -- Hide all
+	-- Hide all
 	TheoryCraftSettingsTab:Hide()
 	TheoryCraftCustomOutfit:Hide()
 	TheoryCraftOutfitTab:Hide()
 	TheoryCraftButtonTextTab:Hide()
 
-    -- Show whichever one was clicked.
+	-- Show whichever one was clicked.
 	if (name == _TOOLTIPTAB) then
 		TheoryCraftSettingsTab:Show()
 	elseif (name == _BUTTONTEXTTAB) then
@@ -221,15 +221,15 @@ function TheoryCraft_UpdateOutfitTab()
 		while (TheoryCraft_Talents[i]) do
 			if (class == TheoryCraft_Talents[i].class) and (TheoryCraft_Talents[i].dontlist == nil) and (((TheoryCraft_Talents[i].tree == i2) and (TheoryCraft_Talents[i].forcetree == nil)) or (TheoryCraft_Talents[i].forcetree == i2)) then
 				rank = getglobal("TheoryCraftTalent"..i2..number)
-                -- NOTE: "rank" appears to be a frame, specifically a button
+				-- NOTE: "rank" appears to be a frame, specifically a button
 				i3 = 1
 				while (TheoryCraft_Locale.TalentTranslator[i3]) and (TheoryCraft_Locale.TalentTranslator[i3].id ~= TheoryCraft_Talents[i].name) do
 					i3 = i3 + 1
 				end
 				if (TheoryCraft_Locale.TalentTranslator[i3]) and (rank ~= nil) then
                     -- TODO: it would be nice to be able to access this through rank instead of through the global namespace.
-                    title = getglobal("TheoryCraftTalent"..i2..number.."Label")
-                    title:SetText(TheoryCraft_Locale.TalentTranslator[i3].translated)
+					title = getglobal("TheoryCraftTalent"..i2..number.."Label")
+					title:SetText(TheoryCraft_Locale.TalentTranslator[i3].translated)
 
 					_, _, _, _, currank = GetTalentInfo(TheoryCraft_Talents[i].tree, TheoryCraft_Talents[i].number)
 					if ((TheoryCraft_Talents[i].forceto == nil) or (TheoryCraft_Talents[i].forceto == -1)) then
@@ -243,8 +243,8 @@ function TheoryCraft_UpdateOutfitTab()
 					--rank:SetPushedTexture(nil)
 					--rank:SetHighlightTexture(nil)
 
-                    -- https://wowwiki-archive.fandom.com/wiki/API_FontInstance_SetTextColor
-                    -- Button:SetTextColor was deleted in 3.0. Instead use FontInstance:SetTextColor
+					-- https://wowwiki-archive.fandom.com/wiki/API_FontInstance_SetTextColor
+					-- Button:SetTextColor was deleted in 3.0. Instead use FontInstance:SetTextColor
 
 					-- Built in colors: GameFontNormalSmall, GameFontGreenSmall, GameFontRedSmall
 					-- reset the color
@@ -566,86 +566,86 @@ function TheoryCraft_SetTalent(name)
 	TheoryCraft_UpdateTalents()
 end
 
--- NOTE: this is for positioning the button_text relative to the spell icons. -- It is currently bugged (probably an xml fix)
+-- TODO: maybe a better name?
 function TheoryCraft_RestrictDummyButtonText(this)
-    -- Looks like scale is 1 for me... TODO: do I need to worry about scale in the future?
-    --print('scale: ' .. this:GetScale())
+	-- Looks like scale is 1 for me... TODO: do I need to worry about scale in the future?
+	--print('scale: ' .. this:GetScale())
 
-    local w = round(GetScreenWidth())
-    local h = round(GetScreenHeight())
+	local w = round(GetScreenWidth())
+	local h = round(GetScreenHeight())
 
-    --print('screen width: ' .. w)
-    --print('screen height: ' .. h)
+	--print('screen width: ' .. w)
+	--print('screen height: ' .. h)
 
-    local xL, xR, yT, yB -- left, right, top, bottom
+	local xL, xR, yT, yB -- left, right, top, bottom
 
-    -- Returns the distance from the bottom-left corner of the screen to the center of a region
-    xL, yB = this:GetParent():GetCenter()
-    xL = round(xL)
-    yB = round(yB)
+	-- Returns the distance from the bottom-left corner of the screen to the center of a region
+	xL, yB = this:GetParent():GetCenter()
+	xL = round(xL)
+	yB = round(yB)
 
-    xR = w - xL
-    yT = h - yB
+	xR = w - xL
+	yT = h - yB
 
-    --print('center offset LxB: ' .. xL .. ' x ' .. yB)
-    --print('center offset RxT: ' .. xR .. ' x ' .. yT)
+	--print('center offset LxB: ' .. xL .. ' x ' .. yB)
+	--print('center offset RxT: ' .. xR .. ' x ' .. yT)
 
-    local fw, fh = this:GetParent():GetSize() -- both should be 100 as set by the xml  (weird decimals, TODO: maybe round?)
-    fw = round(fw)
-    fh = round(fh)
+	local fw, fh = this:GetParent():GetSize() -- both should be 100 as set by the xml  (weird decimals, TODO: maybe round?)
+	fw = round(fw)
+	fh = round(fh)
 
-    --print('parent WxH: ' .. fw .. ' x ' .. fh)
+	--print('parent WxH: ' .. fw .. ' x ' .. fh)
 
-    -- Figure out the proper offsets.
-    local offset_L, offset_R, offset_T, offset_B
-    offset_L = xL - (fw/2)
-    offset_R = xR - (fw/2)
-    offset_T = yT - (fh/2)
-    offset_B = yB - (fh/2)
+	-- Figure out the proper offsets.
+	local offset_L, offset_R, offset_T, offset_B
+	offset_L = xL - (fw/2)
+	offset_R = xR - (fw/2)
+	offset_T = yT - (fh/2)
+	offset_B = yB - (fh/2)
 
-    --print('offset_L: ' .. offset_L)
-    --print('offset_R: ' .. offset_R)
-    --print('offset_T: ' .. offset_T)
-    --print('offset_B: ' .. offset_B)
+	--print('offset_L: ' .. offset_L)
+	--print('offset_R: ' .. offset_R)
+	--print('offset_T: ' .. offset_T)
+	--print('offset_B: ' .. offset_B)
 
-    -- First set this, or else the Insets won't work.
-    this:SetClampedToScreen(true)
-    -- Set margins from the edges of the screen. No there doesn't seem to be a better way to do this
-    -- L & B must be negative to enforce a margin
-    -- R & T must be positive to enforce a margin
-    this:SetClampRectInsets(-offset_L, offset_R, offset_T, -offset_B)
+	-- First set this, or else the Insets won't work.
+	this:SetClampedToScreen(true)
+	-- Set margins from the edges of the screen. No there doesn't seem to be a better way to do this
+	-- L & B must be negative to enforce a margin
+	-- R & T must be positive to enforce a margin
+	this:SetClampRectInsets(-offset_L, offset_R, offset_T, -offset_B)
 end
 
 -- NOTE: this is for positioning the button_text relative to the spell icons.
 function TheoryCraft_UpdateButtonTextPos(this)
-    -- TODO: why are things divided by 3 and then re-multiplied by 3?
+	-- TODO: why are things divided by 3 and then re-multiplied by 3?  Also probably round it to the nearest pixel?
 	TheoryCraft_Settings["buttontextx"] = (this:GetParent():GetLeft() - this:GetLeft()) / 3
 	TheoryCraft_Settings["buttontexty"] = (this:GetParent():GetTop()  - this:GetTop())  / 3
-    --print('buttontextx: ' .. TheoryCraft_Settings["buttontextx"])
-    --print('buttontexty: ' .. TheoryCraft_Settings["buttontexty"])
+	--print('buttontextx: ' .. TheoryCraft_Settings["buttontextx"])
+	--print('buttontexty: ' .. TheoryCraft_Settings["buttontexty"])
 
-    -- clear screen padding restrictions when move is finished
-    this:SetClampRectInsets(0,0,0,0)
+	-- clear screen padding restrictions when move is finished
+	this:SetClampRectInsets(0,0,0,0)
 
-    -- Now we need to anchor this so it automatically moves if the main TC window is repositioned.
-    this:ClearAllPoints()
-    this:SetPoint("TOPLEFT", this:GetParent(), "TOPLEFT", - TheoryCraft_Settings["buttontextx"]*3, - TheoryCraft_Settings["buttontexty"]*3)
+	-- Now we need to anchor this so it automatically moves if the main TC window is repositioned.
+	this:ClearAllPoints()
+	this:SetPoint("TOPLEFT", this:GetParent(), "TOPLEFT", - TheoryCraft_Settings["buttontextx"]*3, - TheoryCraft_Settings["buttontexty"]*3)
 end
 
 -- NOTE: can only be called after event VARIABLES_LOADED
 function TheoryCraft_InitButtonTextOpts()
-    --print('InitButtonTextOpts')
-    --TheoryCraftFontPath:SetText(TheoryCraft_Settings["FontPath"])
+	--print('InitButtonTextOpts')
+	--TheoryCraftFontPath:SetText(TheoryCraft_Settings["FontPath"])
 
-    TheoryCraftColR:SetText(TheoryCraft_Settings["ColR"]*255)
-    TheoryCraftColG:SetText(TheoryCraft_Settings["ColG"]*255)
-    TheoryCraftColB:SetText(TheoryCraft_Settings["ColB"]*255)
+	TheoryCraftColR:SetText(TheoryCraft_Settings["ColR"]*255)
+	TheoryCraftColG:SetText(TheoryCraft_Settings["ColG"]*255)
+	TheoryCraftColB:SetText(TheoryCraft_Settings["ColB"]*255)
 
-    TheoryCraftColR2:SetText(TheoryCraft_Settings["ColR2"]*255)
-    TheoryCraftColG2:SetText(TheoryCraft_Settings["ColG2"]*255)
-    TheoryCraftColB2:SetText(TheoryCraft_Settings["ColB2"]*255)
+	TheoryCraftColR2:SetText(TheoryCraft_Settings["ColR2"]*255)
+	TheoryCraftColG2:SetText(TheoryCraft_Settings["ColG2"]*255)
+	TheoryCraftColB2:SetText(TheoryCraft_Settings["ColB2"]*255)
 
-    TheoryCraftFontSize:SetText(TheoryCraft_Settings["FontSize"])
+	TheoryCraftFontSize:SetText(TheoryCraft_Settings["FontSize"])
 end
 
 local function formattext(a, field, places)
@@ -736,13 +736,13 @@ function TheoryCraft_ButtonUpdate(this, ...)
 	end
 	local i = this:GetName().."_TCText"
 
-    -- REM: buttontext is a FontString created on each button during SetupButtons
+	-- REM: buttontext is a FontString created on each button during SetupButtons
 	local buttontext = getglobal(i)
 	if not buttontext then 
 		return
 	end
 
-    -- font path is broken and not very useful
+	-- font path is broken and not very useful
 --[[
 	if (buttontext.fontsize ~= TheoryCraft_Settings["FontSize"]) or
 	   (buttontext.fontpath ~= TheoryCraft_Settings["FontPath"]) then

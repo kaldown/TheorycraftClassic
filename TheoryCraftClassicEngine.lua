@@ -2000,11 +2000,11 @@ function dump(o)
 end
 
 function GetSpellRankById(spellId)
-    if spellId == nil then return nil end
-    local spellSubtext = GetSpellSubtext(spellId)
-    if spellSubtext == nil then return nil end
-    rank = string.match(spellSubtext, "%d+")
-    return rank
+	if spellId == nil then return nil end
+	local spellSubtext = GetSpellSubtext(spellId)
+	if spellSubtext == nil then return nil end
+	rank = string.match(spellSubtext, "%d+")
+	return rank
 end
 
 function TheoryCraft_GetSpellDataByFrame(frame, force)

@@ -15,7 +15,7 @@
 	<Script file="TheoryCraftClassicMessy.lua"/>
 	<Script file="TheoryCraftClassicMitigation.lua"/>
 
-    <!-- NOTE: this template is used for input.type=text boxes -->
+	<!-- NOTE: this template is used for input.type=text boxes -->
 	<EditBox name="TheoryCraft_EditBoxTemplate" autoFocus="false" inherits="InputBoxTemplate" justifyH="CENTER" frameStrata="HIGH" virtual="true">
 		<Size><AbsDimension x="47" y="20"/></Size>
 		<Scripts>
@@ -168,9 +168,9 @@
 		</Scripts>
 	</CheckButton>
 
-    <!-- All Checkboxes in the first tab EXCEPT for "dont resist" -->
+	<!-- All Checkboxes in the first tab EXCEPT for "dont resist" -->
 	<CheckButton name="TheoryCraftCBTemplate" inherits="UICheckButtonTemplate" virtual="true">
-        <!-- NOTE: Alters the user input hit box for a frame. This makes the text work like an html label  -->
+		<!-- NOTE: Alters the user input hit box for a frame. This makes the text work like an html label  -->
 		<HitRectInsets>
 			<AbsInset left="0" right="-100" top="0" bottom="0"/>
 		</HitRectInsets>
@@ -182,7 +182,7 @@
 				TheoryCraft_CheckBoxSetText(self)
 			</OnLoad>
 			<OnClick>
-                PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON); -- Standard subtle click sound
+				PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON); -- Standard subtle click sound
 				TheoryCraft_CheckBoxToggle(self)
 			</OnClick>
 			<OnEnter>
@@ -320,22 +320,24 @@
 				TheoryCraft_SetTalent(self:GetName())
 			</OnClick>
 		</Scripts>
-        <Layers>
-            <Layer level="OVERLAY">
-                <FontString name="$parentLabel" inherits="GameFontWhiteSmall" text="A Talent">
-                    <Anchors>
-                        <Anchor point="RIGHT" relativeTo="$parent" relativePoint="LEFT">
-                            <Offset>
-                                <AbsDimension x="-5" y="0"/>
-                            </Offset>
-                        </Anchor>
-                    </Anchors>
-                </FontString>
-            </Layer>
-        </Layers>
+		<Layers>
+			<Layer level="OVERLAY">
+				<FontString name="$parentLabel" inherits="GameFontWhiteSmall" text="A Talent">
+					<Anchors>
+						<Anchor point="RIGHT" relativeTo="$parent" relativePoint="LEFT">
+							<Offset>
+								<AbsDimension x="-5" y="0"/>
+							</Offset>
+						</Anchor>
+					</Anchors>
+				</FontString>
+			</Layer>
+		</Layers>
 	</Button>
 	<!-- This is the main frame including "TheoryCraft" title -->
 	<Frame name="TheoryCraft" parent="UIParent" hidden="true" movable="true">
+		<!-- TODO: the layering of the frame is strange, goes behind some of the bottom action bar items (but not all)... should be floating ontop of everything. Is that a layering issue? -->
+		<!-- TODO: maybe the backdrop should be defined once? All the other frames just appear within this right? -->
 		<Anchors>
 			<Anchor point="TOP">
 				<Offset>
@@ -349,7 +351,7 @@
 		<Scripts>
 			<OnLoad>
 				TheoryCraft_OnLoad(self)
-                self:SetClampedToScreen(true)
+				self:SetClampedToScreen(true)
 			</OnLoad>
 			<OnEvent>
 				TheoryCraft_OnEvent(self,event,...)
@@ -388,7 +390,7 @@
 
 			<!-- These are the actual window contents as controlled by the tabs above. -->
 
-            <!-- Tooltip tab -->
+			<!-- Tooltip tab -->
 			<Frame name="TheoryCraftSettingsTab" parent="TheoryCraft">
 				<Anchors>
 					<Anchor point="TOP">
@@ -785,9 +787,9 @@
 						</Anchors>
 					</CheckButton>
 					<CheckButton name="TheoryCraftdontresist" inherits="TheoryCraftCBTemplate">
-                        <HitRectInsets>
-                            <AbsInset left="0" right="-70" top="0" bottom="0"/>
-                        </HitRectInsets>
+						<HitRectInsets>
+							<AbsInset left="0" right="-70" top="0" bottom="0"/>
+						</HitRectInsets>
 						<Anchors>
 							<Anchor point="LEFT" relativeTo="TheoryCraftdontcrit">
 								<Offset>
@@ -998,8 +1000,8 @@
 							</Anchor>
 						</Anchors>
 						<Scripts>
-                            <!-- TODO: for fluff, make the icon change depending on your class? -->
-                            <!-- https://classic.wowhead.com/icons/name:spell?filter=2;1;0 -->
+							<!-- TODO: for fluff, make the icon change depending on your class? -->
+							<!-- https://classic.wowhead.com/icons/name:spell?filter=2;1;0 -->
 							<OnLoad>
 								if not self.SetBackdrop then
 									Mixin(self, BackdropTemplateMixin)
@@ -1013,38 +1015,38 @@
 						<Frames>
 							<!-- NOTE: this is to position the button_text within a spell icon. ~ TODO: fix the bounding box so it cannot be dragged outside the demo icon -->
 							<Frame name="TheoryCraftActionButtonTextPos" frameStrata="HIGH" enableMouse="true" movable="true" >
-                                <Size x="10" y="10"/>
+								<Size x="10" y="10"/>
 								<Scripts>
 									<OnMouseDown>
-                                        TheoryCraft_RestrictDummyButtonText(self)
+										TheoryCraft_RestrictDummyButtonText(self)
 										self:StartMoving()
 									</OnMouseDown>
 									<OnMouseUp>
 										self:StopMovingOrSizing()
 										TheoryCraft_UpdateButtonTextPos(self)
 									</OnMouseUp>
-                                    <!-- NOTE: this is for debugging only -->
-                                    <!--OnLoad>
-                                        if not self.SetBackdrop then
-                                            Mixin(self, BackdropTemplateMixin)
-                                        end
-                                        self:SetBackdrop({
-                                            bgFile = "Interface\\Tooltips\\UI-Tooltip-Background",
-                                            tile = true,
-                                            tileSize = 16
-                                        })
-                                    </OnLoad-->
+									<!-- NOTE: this is for debugging only -->
+									<!--OnLoad>
+										if not self.SetBackdrop then
+											Mixin(self, BackdropTemplateMixin)
+										end
+										self:SetBackdrop({
+											bgFile = "Interface\\Tooltips\\UI-Tooltip-Background",
+											tile = true,
+											tileSize = 16
+										})
+									</OnLoad-->
 								</Scripts>
 								<Layers>
 									<Layer level="OVERLAY">
 										<FontString name="TheoryCraftdummytext" inherits="TheoryCraftLeftTemplate" justifyV="MIDDLE" justifyH="CENTER" text="O">
-                                            <!-- Remove the shadow -->
-                                            <!-- TODO: It would be nice if this could be solid, or bold or something? -->
-                                            <Shadow>
-                                                <Offset>
-                                                    <AbsDimension x="0" y="0"/>
-                                                </Offset>
-                                            </Shadow>
+											<!-- Remove the shadow -->
+											<!-- TODO: It would be nice if this could be solid, or bold or something? -->
+											<Shadow>
+												<Offset>
+													<AbsDimension x="0" y="0"/>
+												</Offset>
+											</Shadow>
 										</FontString>
 									</Layer>
 								</Layers>
@@ -1065,7 +1067,7 @@
 							</OnLoad>
 						</Scripts>
 					</EditBox>
-                    <!-- TODO: In future maybe could be changed into a dropdown to choose from several font options? -->
+					<!-- TODO: In future maybe could be changed into a dropdown to choose from several font options? -->
 					<!--EditBox name="TheoryCraftFontPath" inherits="TheoryCraft_EditBoxTemplate">
 						<Size><AbsDimension x="131" y="20"/></Size>
 						<Anchors>
@@ -1184,7 +1186,7 @@
 							</Anchor>
 						</Anchors>
 					</Button>
-                    <!-- TODO: eventually maybe remove this and make text automatically update after settings are changed -->
+					<!-- TODO: eventually maybe remove this and make text automatically update after settings are changed -->
 					<Button name="TheoryCraftApplyButtonText" inherits="TheoryCraftButtonTemplate" text="Apply">
 						<Size>
 							<AbsDimension x="60" y="20"/>
@@ -1382,7 +1384,7 @@
 							</Anchor>
 						</Anchors>
 					</Button-->
-                    <Button name="TheoryCraftResetButton" inherits="TheoryCraftButtonTemplate" text="Reset">
+					<Button name="TheoryCraftResetButton" inherits="TheoryCraftButtonTemplate" text="Reset">
 						<Anchors>
 							<Anchor point="BOTTOMRIGHT" relativeTo="TheoryCraftOutfitTab" relativePoint="BOTTOMRIGHT">
 								<Offset>
@@ -1391,7 +1393,7 @@
 							</Anchor>
 						</Anchors>
 					</Button>
-                    <!-- Talent buttons below here -->
+					<!-- Talent buttons below here -->
 					<Button name="TheoryCraftTalent11" inherits="TheoryCraftTalentTemplate" text="5">
 						<Anchors>
 							<Anchor point="TOPLEFT" relativeTo="TheoryCraftTalentTree1" relativePoint="TOPRight">
@@ -1608,7 +1610,7 @@
 							</Anchor>
 						</Anchors>
 					</Button>
-                    <!-- Talent buttons above here -->
+					<!-- Talent buttons above here -->
 				</Frames>
 			</Frame>
 			<!-- TODO: when positioned ontop of the UI frame, it appears behind it. I'm not sure how to resolve that. Same layer as the 3 tabbed frames, I guess it ties? -->
@@ -1634,14 +1636,14 @@
 				</Offset>
 			</Anchor>
 		</Anchors>
-        <Scripts>
-            <OnMouseDown>
-                self:GetParent():StartMoving()
-            </OnMouseDown>
-            <OnMouseUp>
-                self:GetParent():StopMovingOrSizing()
-            </OnMouseUp>
-        </Scripts>
+		<Scripts>
+			<OnMouseDown>
+				self:GetParent():StartMoving()
+			</OnMouseDown>
+			<OnMouseUp>
+				self:GetParent():StopMovingOrSizing()
+			</OnMouseUp>
+		</Scripts>
 		<Size>
 			<AbsDimension x="95" y="27"/>
 		</Size>

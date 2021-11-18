@@ -77,8 +77,8 @@ function TheoryCraft_AddTooltipInfo(frame, dontshow)
 			return ""
 		else
 			return "|c"..string.format("%.2x", math.floor(r*255))..
-				    string.format("%.2x", math.floor(g*255))..
-				    string.format("%.2x", math.floor(b*255)).."ff"
+					string.format("%.2x", math.floor(g*255))..
+					string.format("%.2x", math.floor(b*255)).."ff"
 		end
 	end
 

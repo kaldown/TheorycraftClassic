@@ -46,7 +46,7 @@ local function TheoryCraft_AddEquipEffect (slotname, test, data, equippedsets)
 	local itemLink = GetInventoryItemLink("player",GetInventorySlotInfo(slotname.."Slot"))
 	if(itemLink) then
 		stats = GetItemStats(itemLink)
-	    if (stats) then
+		if (stats) then
 			local found = stats["ITEM_MOD_SPELL_HEALING_DONE_SHORT"] or 0
 			data["Healing"] = (data["Healing"] or 0) + found
 		end

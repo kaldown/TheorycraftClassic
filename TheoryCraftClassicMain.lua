@@ -543,7 +543,7 @@ function TheoryCraft_OnEvent(self, event, arg1)
 
 	local UIMem = gcinfo()
 	if event == "VARIABLES_LOADED" then
-        TheoryCraft_InitButtonTextOpts()
+		TheoryCraft_InitButtonTextOpts()
 		TheoryCraft_AddButtonText()
 
 		TheoryCraft_Mitigation = nil
@@ -580,11 +580,11 @@ function TheoryCraft_OnEvent(self, event, arg1)
 		if (TheoryCraft_Settings["dataversion"] ~= TheoryCraft_DataVersion) then
 			SetDefaults()
 		end
-        -- if no values are set, choose defaults -- TODO: come up with a better way to do this
+		-- if no values are set, choose defaults -- TODO: come up with a better way to do this
 		if TheoryCraft_Settings["ColR2"] == nil then
 			TheoryCraft_Settings["buttontextx"] = 1.111
 			TheoryCraft_Settings["buttontexty"] = 10.22
-            -- REM: these are stored as decimals between 0/1 because that is how SetTextColor expects values
+			-- REM: these are stored as decimals between 0/1 because that is how SetTextColor expects values
 			TheoryCraft_Settings["ColR"] = 1
 			TheoryCraft_Settings["ColG"] = 1
 			TheoryCraft_Settings["ColB"] = 1
@@ -1034,7 +1034,7 @@ function TheoryCraft_OutfitChange(self)
 	local id   = self:GetName()
 	local name = self:GetText()
 
-    -- Add all spells to the text box (and then you can selectively remove them)
+	-- Add all spells to the text box (and then you can selectively remove them)
 	if (id == "TheoryCraftSetToAll") then
 		TheoryCraftGenBox_Text:SetText("")
 		local spellname, spellrank
@@ -1074,7 +1074,7 @@ function TheoryCraft_OutfitChange(self)
 		TheoryCraft_GenerateAll()
 		return
 	end
-    -- Remove all manual adjustments to talent points
+	-- Remove all manual adjustments to talent points
 	if (id == "TheoryCraftResetButton") then
 		TheoryCraft_Data["outfit"] = 1
 		local i = 1
@@ -1090,9 +1090,9 @@ function TheoryCraft_OutfitChange(self)
 		TheoryCraftCustomOutfit:Hide()
 		return
 	end
-    if (id == "TheoryCraftApplyButtonText") then
-        TheoryCraft_UpdateAllButtonText()
-    end
+	if (id == "TheoryCraftApplyButtonText") then
+		TheoryCraft_UpdateAllButtonText()
+	end
     -- TODO: defunct because outfits are disabled.
 	if (id == "TheoryCraftClearButton") then
 		TheoryCraft_Settings["CustomOutfitName"] = "Custom"
@@ -1151,8 +1151,8 @@ function TheoryCraft_UpdateEditBox(self)
 	end
 	text = tonumber(text)
 	if text == nil and strfind(s, "resist")then
-			TheoryCraft_Settings["resistscores"][string.gsub(s, "resist", "")] = 0
-			TheoryCraft_DeleteTable(TheoryCraft_UpdatedButtons)
+		TheoryCraft_Settings["resistscores"][string.gsub(s, "resist", "")] = 0
+		TheoryCraft_DeleteTable(TheoryCraft_UpdatedButtons)
 		return
 	end
 	-- One of the many color boxes
