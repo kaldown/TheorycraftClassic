@@ -169,7 +169,6 @@ function TheoryCraft_TabHandler(name)
 	TheoryCraftCustomOutfit:Hide()
 	TheoryCraftOutfitTab:Hide()
 	TheoryCraftButtonTextTab:Hide()
-	TheoryCraftCustomOutfit:Hide()
 
     -- Show whichever one was clicked.
 	if (name == _TOOLTIPTAB) then

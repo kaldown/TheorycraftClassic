@@ -997,12 +997,14 @@
 							</Anchor>
 						</Anchors>
 						<Scripts>
+                            <!-- TODO: for fluff, make the icon change depending on your class? -->
+                            <!-- https://classic.wowhead.com/icons/name:spell?filter=2;1;0 -->
 							<OnLoad>
 								if not self.SetBackdrop then
 									Mixin(self, BackdropTemplateMixin)
 								end
 								self:SetBackdrop({
-									bgFile = "Interface\\Icons\\Spell_Frost_IceShard",
+									bgFile = "Interface\\Icons\\spell_shadow_twilight",
 									tileSize = 100,
 								})
 							</OnLoad>
@@ -1036,6 +1038,7 @@
 									<Layer level="OVERLAY">
 										<FontString name="TheoryCraftdummytext" inherits="TheoryCraftLeftTemplate" justifyV="MIDDLE" justifyH="CENTER" text="O">
                                             <!-- Remove the shadow -->
+                                            <!-- TODO: It would be nice if this could be solid, or bold or something? -->
                                             <Shadow>
                                                 <Offset>
                                                     <AbsDimension x="0" y="0"/>
