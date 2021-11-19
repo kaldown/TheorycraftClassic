@@ -335,7 +335,7 @@
 		</Layers>
 	</Button>
 	<!-- This is the main frame including "TheoryCraft" title -->
-	<Frame name="TheoryCraft" parent="UIParent" hidden="true" movable="true">
+	<Frame name="TheoryCraft" parent="UIParent" hidden="true" enableMouse="true" movable="true">
 		<!-- TODO: the layering of the frame is strange, goes behind some of the bottom action bar items (but not all)... should be floating ontop of everything. Is that a layering issue? -->
 		<!-- TODO: maybe the backdrop should be defined once? All the other frames just appear within this right? -->
 		<Anchors>
