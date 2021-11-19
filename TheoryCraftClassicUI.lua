@@ -25,15 +25,20 @@ function TheoryCraft_SetUpButton(parentname, type, specialid)
 		return newbutton
 	end
 
-	oldbutton:CreateFontString(parentname.."_TCText", "ARTWORK");
 	-- Looks like this is creating the sub-frame FontString for each button, so it can be written later.
+	oldbutton:CreateFontString(parentname.."_TCText", "ARTWORK"); -- TODO: why artwork level, shouldn't it be OVERLAY?
 	newbutton = getglobal(parentname.."_TCText")
 	newbutton:SetFont("Fonts\\ARIALN.TTF", TheoryCraft_Settings["FontSize"], "OUTLINE")
-	newbutton:SetPoint("TOPLEFT", oldbutton, "TOPLEFT", 0, 0)
-	newbutton:SetPoint("BOTTOMRIGHT", oldbutton, "BOTTOMRIGHT", 0, 0)
+
+	-- NOTE: by calling SetPoint(TOPLEFT)
+	--       and        SetPoint(BOTTOMRIGHT)
+	--       in theory this is scaling self to the size of the parent.
+	--       see: https://wowpedia.fandom.com/wiki/API_Region_SetAllPoints
+	newbutton:SetPoint("TOPLEFT",     oldbutton, "TOPLEFT",     0, 0)
+	--newbutton:SetPoint("BOTTOMRIGHT", oldbutton, "BOTTOMRIGHT", 0, 0)
 	newbutton.type = type
 	newbutton.specialid = specialid
-	newbutton:SetText("0")
+	newbutton:SetText(" ")
 	newbutton:Show()
 
 	return newbutton
@@ -579,6 +584,9 @@ function TheoryCraft_RestrictDummyButtonText(this)
 
 	local xL, xR, yT, yB -- left, right, top, bottom
 
+	-- TODO: maybe "left, bottom, width, height = GetRect()"
+	--             "left, bottom, width, height = GetScaledRect()"
+
 	-- Returns the distance from the bottom-left corner of the screen to the center of a region
 	xL, yB = this:GetParent():GetCenter()
 	xL = round(xL)
@@ -590,8 +598,8 @@ function TheoryCraft_RestrictDummyButtonText(this)
 	--print('center offset LxB: ' .. xL .. ' x ' .. yB)
 	--print('center offset RxT: ' .. xR .. ' x ' .. yT)
 
-	local fw, fh = this:GetParent():GetSize() -- both should be 100 as set by the xml  (weird decimals, TODO: maybe round?)
-	fw = round(fw)
+	local fw, fh = this:GetParent():GetSize() -- both should be 100 as set by the xml
+	fw = round(fw) -- weird decimals, need rounding
 	fh = round(fh)
 
 	--print('parent WxH: ' .. fw .. ' x ' .. fh)
@@ -618,18 +626,30 @@ end
 
 -- NOTE: this is for positioning the button_text relative to the spell icons.
 function TheoryCraft_UpdateButtonTextPos(this)
-	-- TODO: why are things divided by 3 and then re-multiplied by 3?  Also probably round it to the nearest pixel?
-	TheoryCraft_Settings["buttontextx"] = (this:GetParent():GetLeft() - this:GetLeft()) / 3
-	TheoryCraft_Settings["buttontexty"] = (this:GetParent():GetTop()  - this:GetTop())  / 3
-	--print('buttontextx: ' .. TheoryCraft_Settings["buttontextx"])
-	--print('buttontexty: ' .. TheoryCraft_Settings["buttontexty"])
+	local this_left, this_bottom = this:GetCenter()
+	-- Find the offsets from the parent frame. (both should be positive)
+	-- TODO: take into account scaling?
+	local p_left, p_bottom, p_width, p_height = this:GetParent():GetRect()
+	p_width  = round(p_width)  -- weird decimals, need rounding
+	p_height = round(p_height)
+	--print('parent WxH: ' .. p_width .. ' x ' .. p_height)
 
-	-- clear screen padding restrictions when move is finished
+	local offset_x = round(this_left   - p_left)
+	local offset_y = round(this_bottom - p_bottom)
+	--print('offset x/y: ' .. offset_x .. '/' .. offset_y)
+
+	-- anchor this frame (so if the whole TheoryCraft window moves, things don't get weird)
+	this:ClearAllPoints() -- May have already been done by the act of dragging it
+	this:SetPoint("CENTER", this:GetParent(), "BOTTOMLEFT", offset_x, offset_y)
+
+	-- also clear screen padding restrictions since the move is finished
 	this:SetClampRectInsets(0,0,0,0)
 
-	-- Now we need to anchor this so it automatically moves if the main TC window is repositioned.
-	this:ClearAllPoints()
-	this:SetPoint("TOPLEFT", this:GetParent(), "TOPLEFT", - TheoryCraft_Settings["buttontextx"]*3, - TheoryCraft_Settings["buttontexty"]*3)
+	-- Save the offsets, scaled by parent frame size.
+	TheoryCraft_Settings["buttontextx"] = offset_x / p_width
+	TheoryCraft_Settings["buttontexty"] = offset_y / p_height
+	--print('buttontextx: ' .. TheoryCraft_Settings["buttontextx"])
+	--print('buttontexty: ' .. TheoryCraft_Settings["buttontexty"])
 end
 
 -- NOTE: can only be called after event VARIABLES_LOADED
@@ -660,7 +680,7 @@ local function formattext(a, field, places)
 	if a[field] == nil then
 		return nil
 	end
-	if (field == "maxoomdam") or (field == "maxoomdamremaining") or (field == "maxoomdamfloored") or
+	if (field == "maxoomdam")  or (field == "maxoomdamremaining")  or (field == "maxoomdamfloored") or
 	   (field == "maxoomheal") or (field == "maxoomhealremaining") or (field == "maxoomhealfloored") then
 		return round(a[field]/1000*10^places)/10^places.."k"
 	end
@@ -686,6 +706,7 @@ function TheoryCraft_AddButtonText(...)
 	end
 end
 
+-- this will handle changing the button color and position
 function TheoryCraft_UpdateAllButtonText(...)
 	if not TheoryCraft_Data.TalentsHaveBeenRead then
 		return
@@ -734,6 +755,7 @@ function TheoryCraft_ButtonUpdate(this, ...)
 	if not TheoryCraft_Data.TalentsHaveBeenRead then
 		return
 	end
+
 	local i = this:GetName().."_TCText"
 
 	-- REM: buttontext is a FontString created on each button during SetupButtons
@@ -771,10 +793,12 @@ function TheoryCraft_ButtonUpdate(this, ...)
 	end
 	if (buttontext.buttontextx ~= TheoryCraft_Settings["buttontextx"]) or (buttontext.buttontexty ~= TheoryCraft_Settings["buttontexty"]) then
 		buttontext.buttontextx = TheoryCraft_Settings["buttontextx"]
-		buttontext.buttontexty = TheoryCraft_Settings["buttontextx"]
+		buttontext.buttontexty = TheoryCraft_Settings["buttontexty"]
 		buttontext:ClearAllPoints()
-		buttontext:SetPoint("TOPLEFT", this, "TOPLEFT", -TheoryCraft_Settings["buttontextx"], -TheoryCraft_Settings["buttontexty"])
-		buttontext:SetPoint("BOTTOMRIGHT", this, "BOTTOMRIGHT", -TheoryCraft_Settings["buttontextx"], -TheoryCraft_Settings["buttontexty"])
+		-- rescale based on actual button dimensions
+		local w,h = this:GetSize()
+		-- TODO: using CENTER point seems a little bit further to the left than I think is ideal, but every other point looks much worse.
+		buttontext:SetPoint("CENTER", this, "BOTTOMLEFT", TheoryCraft_Settings["buttontextx"]*w, TheoryCraft_Settings["buttontexty"]*h)
 	end
 
 	if not TheoryCraft_Settings["buttontext"] then
