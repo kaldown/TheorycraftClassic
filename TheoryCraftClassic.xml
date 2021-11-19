@@ -798,15 +798,6 @@
 							</Anchor>
 						</Anchors>
 					</CheckButton>
-					<CheckButton name="TheoryCraftuseglock" inherits="TheoryCraftCBTemplate">
-						<Anchors>
-							<Anchor point="LEFT" relativeTo="TheoryCraftdontresist">
-								<Offset>
-									<AbsDimension x="90" y="0"/>
-								</Offset>
-							</Anchor>
-						</Anchors>
-					</CheckButton>
 					<EditBox name="TheoryCraftresistArcane" inherits="TheoryCraft_EditBoxTemplate">
 						<Size><AbsDimension x="30" y="20"/></Size>
 						<Anchors>

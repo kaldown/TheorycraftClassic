@@ -235,18 +235,6 @@ end
 local old = {}
 
 function TheoryCraft_UpdateTarget(dontgen)
-	if UnitName("target") == nil and TheoryCraft_Settings["useglock"] then
-		TheoryCraft_Settings["resistscores"]["Arcane"] = 0
-		TheoryCraft_Settings["resistscores"]["Fire"] = 0
-		TheoryCraft_Settings["resistscores"]["Nature"] = 0
-		TheoryCraft_Settings["resistscores"]["Frost"] = 0
-		TheoryCraft_Settings["resistscores"]["Shadow"] = 0
-		TheoryCraftresistArcane:SetText(TheoryCraft_Settings["resistscores"]["Arcane"])
-		TheoryCraftresistFire:SetText(TheoryCraft_Settings["resistscores"]["Fire"])
-		TheoryCraftresistNature:SetText(TheoryCraft_Settings["resistscores"]["Nature"])
-		TheoryCraftresistFrost:SetText(TheoryCraft_Settings["resistscores"]["Frost"])
-		TheoryCraftresistShadow:SetText(TheoryCraft_Settings["resistscores"]["Shadow"])
-	end
 	TheoryCraft_DeleteTable(old)
 	TheoryCraft_CopyTable(TheoryCraft_Data.Target, old)
 	TheoryCraft_DeleteTable(TheoryCraft_Data.Target)
@@ -331,14 +319,12 @@ local function SetDefaults()
 	TheoryCraft_Settings["dataversion"] = TheoryCraft_DataVersion
 	TheoryCraft_Settings["GenerateList"] = ""
 	TheoryCraft_Settings["dontresist"] = true
-	if (MobResistDB) and type(MobResistDB) == "table" then
-		TheoryCraft_Settings["useglock"] = true
-	end
+
 	TheoryCraft_Settings["resistscores"] = {}
 	TheoryCraft_Settings["resistscores"]["Arcane"] = 0
-	TheoryCraft_Settings["resistscores"]["Fire"] = 0
+	TheoryCraft_Settings["resistscores"]["Fire"]   = 0
 	TheoryCraft_Settings["resistscores"]["Nature"] = 0
-	TheoryCraft_Settings["resistscores"]["Frost"] = 0
+	TheoryCraft_Settings["resistscores"]["Frost"]  = 0
 	TheoryCraft_Settings["resistscores"]["Shadow"] = 0
 end
 
@@ -550,21 +536,7 @@ function TheoryCraft_OnEvent(self, event, arg1)
 		TheoryCraft_Data["SetItemRef"] = SetItemRef
 		SetItemRef = TheoryCraft_SetItemRef
 
-		if (MobResistDB) and (GLOCK_UIschools) and type(MobResistDB) == "table" then
-			for k, v in TheoryCraft_PrimarySchools do
-				for k, v2 in GLOCK_UIschools do
-					if v2 == v.name then
-						if getglobal("GMin"..v.name.."TxT") and getglobal("GMin"..v.name.."TxT").SetText then
-							getglobal("GMin"..v.name.."TxT").TCType = v.name
-							getglobal("GMin"..v.name.."TxT").OldSetText = getglobal("GMin"..v.name.."TxT").SetText
-							getglobal("GMin"..v.name.."TxT").SetText = TheoryCraft_GLOCK_UpdateResist
-							break
-						end
-					end
-				end
-			end
-		end
-
+		-- TODO: what the heck does this mean?
 		if TheoryCraft_OnShow_Save ~= nil then
 			return
 		end
@@ -756,18 +728,10 @@ function TheoryCraft_CheckBoxToggle(self)
 		TheoryCraft_SetCheckBox("embedstyle1")
 		TheoryCraft_SetCheckBox("embedstyle2")
 		TheoryCraft_SetCheckBox("embedstyle3")
-
-	elseif name == "useglock" then
-		if (MobResistDB) and (type(MobResistDB) == "table") and (onoff == true) then
-			TheoryCraft_Settings[name] = onoff
-		elseif (not MobResistDB) then
-			TheoryCraft_Settings[name] = nil
-			self:SetChecked(false)
-			Print("GLOCK can be found at Curse Gaming. (TC couldn't find it installed)")
-		end
 	else
 		TheoryCraft_Settings[name] = onoff
 	end
+
 	if name == "dontresist" then
 		if TheoryCraft_Settings["dontresist"] then
 			TheoryCraftresistArcane:Show()
@@ -786,7 +750,7 @@ function TheoryCraft_CheckBoxToggle(self)
 	if (name == "procs") or (name == "rollignites") or (name == "sepignites") or (name == "combinedot") or (name == "dotoverct") or (name == "dontcrit") then
 		TheoryCraft_GenerateAll()
 	end
-	if (name == "buttontext") or (name == "tryfirstlarge") or (name == "trysecondlarge") or (name == "dontresist") or (name == "useglock")  then
+	if (name == "buttontext") or (name == "tryfirstlarge") or (name == "trysecondlarge") or (name == "dontresist") then
 		TheoryCraft_DeleteTable(TheoryCraft_UpdatedButtons)
 	end
 end
@@ -840,7 +804,6 @@ function TheoryCraft_Command(cmd)
 		TheoryCraft_SetCheckBox("lifetap")
 		TheoryCraft_SetCheckBox("dontcrit")
 		TheoryCraft_SetCheckBox("dontresist")
-		TheoryCraft_SetCheckBox("useglock")
 		TheoryCraft_SetCheckBox("buttontext")
 		TheoryCraft_SetCheckBox("tryfirstlarge")
 		TheoryCraft_SetCheckBox("trysecondlarge")
