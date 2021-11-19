@@ -529,8 +529,7 @@ function TheoryCraft_OnEvent(self, event, arg1)
 
 	local UIMem = gcinfo()
 	if event == "VARIABLES_LOADED" then
-		TheoryCraft_InitButtonTextOpts()
-		TheoryCraft_AddButtonText()
+		--print('Theorycraft Variables Loaded')
 
 		TheoryCraft_Mitigation = nil
 		TheoryCraft_Data["SetItemRef"] = SetItemRef
@@ -554,8 +553,8 @@ function TheoryCraft_OnEvent(self, event, arg1)
 		end
 		-- if no values are set, choose defaults -- TODO: come up with a better way to do this
 		if TheoryCraft_Settings["ColR2"] == nil then
-			TheoryCraft_Settings["buttontextx"] = 1.111
-			TheoryCraft_Settings["buttontexty"] = 10.22
+			TheoryCraft_Settings["buttontextx"] = 0.5
+			TheoryCraft_Settings["buttontexty"] = 0.5
 			-- REM: these are stored as decimals between 0/1 because that is how SetTextColor expects values
 			TheoryCraft_Settings["ColR"] = 1
 			TheoryCraft_Settings["ColG"] = 1
@@ -566,7 +565,13 @@ function TheoryCraft_OnEvent(self, event, arg1)
 			TheoryCraft_Settings["FontSize"] = 12
 			--TheoryCraft_Settings["FontPath"] = "Fonts\\ArialN.TTF"
 		end
-		if TheoryCraftGenBox_Text then TheoryCraftGenBox_Text:SetText(TheoryCraft_Settings["GenerateList"]) end
+		if TheoryCraftGenBox_Text then
+			TheoryCraftGenBox_Text:SetText(TheoryCraft_Settings["GenerateList"])
+		end
+
+		TheoryCraft_InitButtonTextOpts()
+		TheoryCraft_AddButtonText()
+
 		if TheoryCraft_Settings["off"] then
 			Print("TheoryCraft is currently switched off, type in '/tc on' to enabled")
 		end

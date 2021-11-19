@@ -339,6 +339,7 @@
 		<!-- TODO: the layering of the frame is strange, goes behind some of the bottom action bar items (but not all)... should be floating ontop of everything. Is that a layering issue? -->
 		<!-- TODO: maybe the backdrop should be defined once? All the other frames just appear within this right? -->
 		<Anchors>
+			<!-- REM: this is only the default point. layout-local.txt overrides this setting if it was moved. -->
 			<Anchor point="TOP">
 				<Offset>
 					<AbsDimension x="0" y="-20"/>
@@ -1007,6 +1008,12 @@
 							<!-- NOTE: this is to position the button_text within a spell icon. ~ TODO: fix the bounding box so it cannot be dragged outside the demo icon -->
 							<Frame name="TheoryCraftActionButtonTextPos" frameStrata="HIGH" enableMouse="true" movable="true" >
 								<Size x="10" y="10"/>
+								<!-- REM: this is only the default point. layout-local.txt overrides this setting if it was moved. -->
+								<Anchors>
+									<Anchor point="CENTER">
+										<Offset><AbsDimension x="0" y="0"/></Offset>
+									</Anchor>
+								</Anchors>
 								<Scripts>
 									<OnMouseDown>
 										TheoryCraft_RestrictDummyButtonText(self)
