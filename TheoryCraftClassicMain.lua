@@ -707,6 +707,7 @@ function TheoryCraft_CheckBoxSetText(self)
 	local name = self:GetName()
 	name = string.sub(name, 12)
 	if TheoryCraft_CheckButtons[name] == nil then return end
+
 	if TheoryCraft_CheckButtons[name].hide then
 		for k,v in pairs(TheoryCraft_CheckButtons[name].hide) do
 			if (class == v) or ((v == "STRIPPED") and (not TheoryCraft_NotStripped)) then
@@ -719,12 +720,13 @@ function TheoryCraft_CheckBoxSetText(self)
 end
 
 function TheoryCraft_CheckBoxToggle(self)
+	-- REM: true or nil
 	local onoff
 	if (self:GetChecked()) then
 		onoff = true
 	end
 	local name = self:GetName()
-	name = string.sub(name, 12)
+	name = string.sub(name, 12) -- TheoryCraft
 	if (name == "embedstyle1") or (name == "embedstyle2") or (name == "embedstyle3") then
 		TheoryCraft_Settings["embedstyle1"] = nil
 		TheoryCraft_Settings["embedstyle2"] = nil
@@ -755,7 +757,7 @@ function TheoryCraft_CheckBoxToggle(self)
 	if (name == "procs") or (name == "rollignites") or (name == "sepignites") or (name == "combinedot") or (name == "dotoverct") or (name == "dontcrit") then
 		TheoryCraft_GenerateAll()
 	end
-	if (name == "buttontext") or (name == "tryfirstlarge") or (name == "trysecondlarge") or (name == "dontresist") then
+	if (name == "buttontext") or (name == "dontresist") then
 		TheoryCraft_DeleteTable(TheoryCraft_UpdatedButtons)
 	end
 end
@@ -810,9 +812,6 @@ function TheoryCraft_Command(cmd)
 		TheoryCraft_SetCheckBox("dontcrit")
 		TheoryCraft_SetCheckBox("dontresist")
 		TheoryCraft_SetCheckBox("buttontext")
-		TheoryCraft_SetCheckBox("tryfirstlarge")
-		TheoryCraft_SetCheckBox("trysecondlarge")
-		TheoryCraft_SetCheckBox("framebyframe")
 
 		TheoryCraftresistArcane:SetText(TheoryCraft_Settings["resistscores"]["Arcane"])
 		TheoryCraftresistFire:SetText(TheoryCraft_Settings["resistscores"]["Fire"])
