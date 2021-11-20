@@ -1116,6 +1116,9 @@ function TheoryCraft_UpdateEditBox(self)
 	local short_name = string.gsub(self:GetName(), "TheoryCraft", "")
 	local text       = self:GetText()
 
+	-- TODO: If an invalid option is chosen, we should immediately update the box value to whatever the default failsafe is.
+	--       not just upon reload
+
 	if strfind(short_name, "resist") then
 		local resist_type = string.gsub(short_name, "resist", "")
 
@@ -1145,5 +1148,18 @@ function TheoryCraft_UpdateEditBox(self)
 		end
 		text = text/255
 	end
+
+	-- FontSize box
+	if strfind(short_name, "FontSize") then
+		text = tonumber(text)
+
+		-- valid font sizes is 12 <--> 20 pt
+		if text == nil or text < 12 then
+			text = 12
+		elseif text > 20 then
+			text = 20
+		end
+	end
+
 	TheoryCraft_Settings[short_name] = text
 end
