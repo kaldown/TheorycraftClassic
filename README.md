@@ -1,89 +1,48 @@
 # TheorycraftClassic
-This is a fix of the old Theorycraft addon to work with WoW Classic. I've began to maintain my own version of this fork separate from the Boothin repository because it was not actively being updated or fixed.
+This is yet another fix for the old Theorycraft addon to work with WoW Classic & TBC. This is a fork from Boothin's repository because he had apparently abandon it. Lets see if I have better luck sticking with this.
 
 Use /tc to open the options window.
+Use /tc more to see additional commands
 
-(NOTE: it looks like CharacterStatsTBC isn't really all that useful. The dropdown bars exist already in TBC no mods.)
+NOTE: If you had a previous version of TheoryCraft installed, I would recommend deleting the configuration in SavedVariables because I cannot guarantee the settings will transfer correctly.
 
-0) Basic frame debugging, make sure the mod is actually not causing lua errors. Data is almost certainly incorrect, but at least no errors.
+## Current status
 
-0.1) Move the localizations into a localization folder????
+Frames are basically working. Mod should not cause lua errors.
+Spell and Talent data may not have been updated since WoW vanilla version 1.06, so expect some weirdness.
+
+Changes already made from code I inherited from Boothin
+- Frame backgrounds restored
+- Functions that were randomly removed in other branch/repo commits were restored to resolve Lua errors.
+- Close button is now fully visible
+- Talent buttons are now red/green depending on override state.
+- Outfits Disabled until I can figure out how to rework them. (they were broken and out of date anyways)
+- Cleaned up a bunch of old references to things that had been deleted previously, or were otherwise hopelessly broken (companion addon glock)
+
+## Roadmap to glory
+
+0) Fix the tooltip embedded text for +damage/healing.
 
 1) Modernize stat collection. No longer needing to scrape stats from the actual items equipped.
---- Study how character stats classic does it.
-    GetSpellBonusDamage() <<< built in blizzard function???
-    CSC_GetMP5FromGear()
-    CSC_HasEnchant
-    GetWeaponEnchantInfo()
-    GetHitModifier()
-    GetCombatRatingBonus() <<< + the above = total hit?
-    stat, effectiveStat, posBuff, negBuff = UnitStat(unit, statIndex);  for stats 1->5 strength, agility, staminia, intellect, spirit
-    GetAttackPowerForStat()
-    GetSpellCritChanceFromIntellect()
-    GetUnitManaRegenRateFromSpirit()
 
-2) Update all spell data and talent data for BCC
+2) Update all spell data and talent data for Classic & BCC. Including spell Coefficients.
 
 3) Update all spell coefficients
-Verify all the formulas, especially any pally/shaman abilities that scale based on AP or SP. (if that exists in TBC)
 
 4) Define lists of equipment set bonuses that probably won't be captured by the default game engine.
---- We still don't want to have scrapers for this, so just look at all items equipped by ID.
---- Have each itemID that is part of a set bonus map to a set_number.
---- if set_number greater than threshold => apply set bonus. (this is the part of onEquip event)
---- maybe also on equipment break (if that is an event... if not, its an edge case we can probably ignore, people usually repair themselves pretty quick rather than walk around with broken gear)
 
-5) Split Versions for wow-classic and TBC-classic. Hopefully the addon could auto-detect which data-sets to use.
---- Hopefully I can use the PTR testing for working on this. I don't want to have to level a character to test it out.
+... More, but thats as far ahead as I've thought.
 
-Spelldata.lua
-- Probably can ditch large amounts of this since many basic stats (crit/hit) will be collected automatically without having to take talents into account.
-- Probably rework 
-- Things that raise damage dealt by types of spells though, those will still have to be handled.
---- what does "dontlist" mean?
-- Probably refactor this TheoryCraft_Talents table completely. Nested table.
-   talent_data =  { 
-     mage: {
-       -- array by tree index 1,2,3
-       {1 = {name="", bonustype="", firstrank=X, perrank=Y}, 2 = {...}, ... } -- sparse array of relevant talents.
-       {...}
-       {...}
-     }
-   }
-- Probably refactor TheoryCraft_Spells to similarlly index by spellID, talents that grant crit chance (or spell bonus damage or whatever) should list spellIDs that are modified by this talent)
-- TheoryCraft_Outfits is where setbonuses are currently stored.
+## Other Known Issues
 
+- I've seen some taint issues. Not sure how to reproduce or resolve them at this time.
+- Some slash commands may not function
+- Some checkboxes may have no effect
+- +spell damage is not currently read correctly
+- Button Text positioning widget may get unstuck from its parent frame somehow.
+- Some descriptive text may not be clear in its function.
+- Localizations are AS-IS, and will be worked on later if there is any interest.
+- Some elements of the TC frame have inconsistent z-index values.
+- There may be some initial game load lag. Probably related to stat scraping.
 
-ClassicBuffs.lua
-- Its possible everything in this file could be thrown out.... I'd have to see how the functions are actually used.
-
-??? why is findpattern() defined in each file separately? This makes no damn sense.
-
-ClassicTalents.lua
-- should be gutted and rewritten as per rework of talent data tables.
-
-ClassicColours.lua
-- Can probably be ignored
-
-ClassicGear.lua
-- Probably nearly 100% junk. Its written so poorly, hopefully I won't even have to figure out what in the hell its actually doing.
-
-ClassicMessy.lua
-- I hope this file can be 100% junked.
-
-ClassicMitigation.lua
-- I have no idea what this is even supposed to be doing.
-
-
-ClassicMain.lua
-- Maybe move utility functions to a utility file.
-- Probably move any config-UI functions into their own file.
-- ??? looks like its storing historical data against mobs ??? like resistence data... or something?
-
-ClassicTooltip.lua
-- Not sure what this is doing, but I hope its whats actually writing data into the tooltip for each spell.
-
-ClassicUI.lua
-- Not sure what this is doing, but I hope its the configuration UI....
-
-
+Please report any bugs you find
