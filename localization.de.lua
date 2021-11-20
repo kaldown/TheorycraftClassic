@@ -713,7 +713,6 @@ TheoryCraft_CheckButtons = {
 	["showsimult"] 	= { short = "Vergleichs Modus", description = "If checked, your current stats and your outfits/talents stats\nwill be shown simulatenously on the tooltip." },
 	["dontcrit"] 	= { hide = {"ROGUE", "WARRIOR"}, short = "Ohne Krits", description = "If checked crits won't be included in calculated values (eg: dpm/hpm/dps).\nThis will also disable illumination, master of elements and natures grace bonuses." },
 	["dontresist"] 	= { hide = {"ROGUE", "WARRIOR"}, short = "Factor resists", description = "If checked, level-based and resistance-based resists will be factored\nfor all calculated values (eg: dpm/hpm/dps).\nResists can be set below." },
-	["useglock"] 	= { hide = {"ROGUE", "WARRIOR"}, short = "Use GLOCK", description = "GLOCK is an external addon that calculates Mob's resistances from combat.\nIf checked, and GLOCK is enabled, these values can be used by TheoryCraft\nto provide the most accurate statistics available for your target.\n\nWith this option enabled, the edit boxes below are regularly overwritten." },
 }
 
 -- Used for schoolname in the buffs/equips.  Wherever schoolname appears, it'll try each "text" value,
