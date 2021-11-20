@@ -123,6 +123,7 @@ TheoryCraft_TooltipFormat = {
 	{show = "maxevoc", 	left = "Max Schaden mit evoc+gem: $maxevocoomdam$ ($maxevocoomdamtime$ secs)"},
 }
 
+
 TheoryCraft_MeleeComboEnergyConverter = "in (.-) zusätzlichen"
 TheoryCraft_MeleeComboReader = "(%d+) Punkt(.-): (%d+)%-(%d+) Schadenspunkte"
 TheoryCraft_MeleeComboReplaceWith = "$points$ Punkt%1: %2%-%3 Schadenspunkte"
@@ -130,71 +131,81 @@ TheoryCraft_MeleeComboReplaceWith = "$points$ Punkt%1: %2%-%3 Schadenspunkte"
 TheoryCraft_MeleeMinMaxReader = {
 	{ pattern = "der (%d+)%% Eurer Angriffskraft entspricht",				-- Blutdurst
 		type={"bloodthirstmult"} },
-	{ pattern = " zusätzlich (%d+) Punkt%(e%) Schaden",						-- Klaue
+	{ pattern = " zusätzlich (%d+) Punkt%(e%) Schaden",					-- Klaue
 		type={"addeddamage"} },
-	{ pattern = "(%d+)%%",													-- Schreddern/Verheeren/Hinterhalt/Meucheln
+	{ pattern = "(%d+)%%",									-- Schreddern/Verheeren/Hinterhalt/Meucheln
 		type={"backstabmult"} },
-	{ pattern = "plus (%d+)",												-- Schreddern/Verheeren/Hinterhalt/Maucheln
+	{ pattern = "plus (%d+)",								-- Schreddern/Verheeren/Hinterhalt/Maucheln
 		type={"addeddamage"} },
-	{ pattern = " um (%d+)",												-- Maul/Zermalmen/Gezielter Schuß/Heldenhafter Stoß/Raptorstoß
+	{ pattern = " um (%d+)",								-- Maul/Zermalmen/Gezielter Schuß/Heldenhafter Stoß/Raptorstoß
 		type={"addeddamage"} },
-	{ pattern = "fügt Ihnen (%d+) Punkt",									-- Donnerknall
+	{ pattern = "fügt Ihnen (%d+) Punkt",							-- Donnerknall
 		type={"addeddamage"} },		
-	{ pattern = "(%d+) Schaden zusätzlich",									-- Sinister Strike
+	{ pattern = "(%d+) Schaden zusätzlich",							-- Sinister Strike
 		type={"addeddamage"} },
-	{ pattern = "verursacht (%d+) bis (%d+) Schaden",						-- Prankenhieb/Schildschlag
+	{ pattern = "verursacht (%d+) bis (%d+) Schaden",					-- Prankenhieb/Schildschlag
 		type={"mindamage", "maxdamage"} },
-	{ pattern = "der (%d+) Schaden",										-- Spöttischer Schlag
+	{ pattern = "der (%d+) Schaden",							-- Spöttischer Schlag
 		type={"addeddamage"} },
-	{ pattern = " um zusätzlich (%d+) ",									-- Mehrfach Schuß
+	{ pattern = " um zusätzlich (%d+) ",							-- Mehrfach Schuß
 		type={"addeddamage"} },
+	-- TODO: translate
+	{ pattern = "for an additional (%d+) damage",						-- Multi-Shot
+		type={"addeddamage"} },
+	{ pattern = "inflicting (%d+) damage%.",						-- Swipe
+		type={"addeddamage"} },
+	{ pattern = "that causes (%d+) damage,",						-- Mocking Blow
+		type={"addeddamage"} },
+	{ pattern = "and doing (%d+) damage to them",						-- Thunder Clap
+		type={"addeddamage"} },
+
 }
 
 
 TheoryCraft_MeleeMinMaxReplacer = {
-	{ search = "Schild und verursacht (%d+) bis (%d+) Schaden",							-- Schildschlag
+	{ search = "Schild und verursacht (%d+) bis (%d+) Schaden",				-- Schildschlag
 	  replacewith = "Schild und verursacht $damage$ Schaden" },
-	{ search = " der den Distanzschaden um (%d+) erhöht",								-- Gezielter Schuss
+	{ search = " der den Distanzschaden um (%d+) erhöht",					-- Gezielter Schuss
 	  replacewith = " der beim Ziel $damage$ Distanzschaden verursacht" },
-	{ search = "Nahkampfschaden um (%d+) Punkt",										-- Heldenhafter Stoß, Raptorstoß
+	{ search = "Nahkampfschaden um (%d+) Punkt",						-- Heldenhafter Stoß, Raptorstoß
 	  replacewith = "Nahkampfschaden auf $damage$ Punkt" },
-	{ search = "zusätzlich (%d+) Punkt%(e%)",											-- Klaue
+	{ search = "zusätzlich (%d+) Punkt%(e%)",						-- Klaue
 	  replacewith = "ingesamt $damage$ Punkte" },
-	{ search = "Ziel (%d+)%% Schaden plus (%d+) zugefügt wird",							-- Schredden/Verheeren
+	{ search = "Ziel (%d+)%% Schaden plus (%d+) zugefügt wird",				-- Schredden/Verheeren
 	  replacewith = "Ziel $damage$ Punkte Schaden zugefügt werden" },
-	{ search = "Druiden um %d+",														-- Zermalmen
+	{ search = "Druiden um %d+",								-- Zermalmen
 	  replacewith = "Druiden auf $damage$ Punkte Schaden" },
-	{ search = " (%d+)%% Waffenschaden plus %d+",										-- Hinterhalt/Meucheln
+	{ search = " (%d+)%% Waffenschaden plus %d+",						-- Hinterhalt/Meucheln
 	  replacewith = " $damage$ Waffenschaden" },
-	{ search = " fügt (%d+)%% Waffenschaden hinzu und ",								-- Scattershot/Ghostly Strike
+	{ search = " fügt (%d+)%% Waffenschaden hinzu und ",					-- Scattershot/Ghostly Strike
 	  replacewith = " fügt $damage$ Schaden zu und " },
 	{ search = " verursacht Schaden gleich bis (%d+)%% von Eurer Angriffskraft",		-- Bloodthirst
 	  replacewith = " verursacht $damage$ Schaden." },
-	{ search = " verursacht (%d+)%% Schaden plus %d+ beim Ziel",						-- Shred/Ravage
+	{ search = " verursacht (%d+)%% Schaden plus %d+ beim Ziel",				-- Shred/Ravage
 	  replacewith = " verursacht $damage$ Schaden" },
 	{ search = " verursacht (%d+) zusätzlichen Schaden zu Eurem normalen Waffenschaden",	-- Sinister Strike
 	  replacewith = " verursacht $damage$ Schaden" },
-	{ search = " erhöht Nahkampfschaden um (%d+)",										-- Gezielter Schuß
+	{ search = " erhöht Nahkampfschaden um (%d+)",						-- Gezielter Schuß
 	  replacewith = " bringt $damage$ Schaden beim Ziel" },
-	{ search = " erhöht Distanzschaden um (%d+)",										-- Gezielter Schuß
+	{ search = " erhöht Distanzschaden um (%d+)",						-- Gezielter Schuß
 	  replacewith = " verursacht $damage$ Schaden beim Ziel" },
-	{ search = " für zusätzlich (%d+) Schaden",											-- Mehrfach Schuß
+	{ search = " für zusätzlich (%d+) Schaden",						-- Mehrfach Schuß
 	  replacewith = " für $damage$ Schaden" },
-	{ search = " bringt Waffenschaden plus (%d+) und ",									-- Mortal Strike
+	{ search = " bringt Waffenschaden plus (%d+) und ",					-- Mortal Strike
 	  replacewith = " bringt $damage$ Schaden und " },
-	{ search = " Euer Waffenschaden plus (%d+) bis ",									-- Cleave
+	{ search = " Euer Waffenschaden plus (%d+) bis ",					-- Cleave
 	  replacewith = " bringt $damage$ Schaden bis " },
-	{ search = " verursacht Waffenschaden plus (%d+)",									-- Overpower
+	{ search = " verursacht Waffenschaden plus (%d+)",					-- Overpower
 	  replacewith = " verursacht $damage$ Schaden" },
-	{ search = " zum Blocken feindlicher Nahkampf und Distanzangriffe%.",				-- Block
+	{ search = " zum Blocken feindlicher Nahkampf und Distanzangriffe%.",			-- Block
 	  replacewith = " zum Blocken feindlicher Nahkampf und Distanzangriffe, Schadensreduzierung von $blockvalue$." },
-	{ search = "Diser Angriff fügt (%d+)%% Waffenschaden hinzu ",						-- Riposte
+	{ search = "Diser Angriff fügt (%d+)%% Waffenschaden hinzu ",				-- Riposte
 	  replacewith = "Diser Angriff fügt $damage$ Schaden hinzu" },
-	{ search = "verursacht (%d+) bis (%d+) Schaden",									-- Prankenhieb
+	{ search = "verursacht (%d+) bis (%d+) Schaden",					-- Prankenhieb
 	  replacewith = "verursacht $damage$ Schaden" }, 
-	{ search = "der (%d+) Schaden",														-- Spöttischer Schlag
+	{ search = "der (%d+) Schaden",								-- Spöttischer Schlag
 	  replacewith = "der $damage$ Schaden" },
-	{ search = "fügt Ihnen (%d+) Punkt",												-- Donnerschlag
+	{ search = "fügt Ihnen (%d+) Punkt",							-- Donnerschlag
 	  replacewith = "fügt Ihnen $damage$ Punkt" },
 }
 
@@ -327,7 +338,7 @@ TheoryCraft_Locale = {
 	ID_Beast	= "Bestie",
 	ID_Humanoid	= "Humanoid",
 	ID_Giant	= "Riese",
-	ID_Dragonkin	= "Drache",
+	ID_Dragonkin = "Drache",
 	ID_Equip	= "Anlegen: ",
 	ID_Set		= "Set: ",
 	ID_Use		= "Benutzen: ",
@@ -475,8 +486,6 @@ TheoryCraft_Locale = {
 	
 	
 -- Appears on the advanced tab, left side matches spell data (do not translate), right side equals display text
--- Talent Namen Stark gekürtzt, DIENT NUR ZUR ANZEIGE
-
 	TalentTranslator = {
 -- Warlock
 		{ id="suppression", translated="Unterdrück." },
@@ -665,6 +674,7 @@ TheoryCraft_Locale = {
 		{ id="Giantstalker", translated="Rüstung des Riesenjägers" },
 		{ id="Dragonstalker", translated="Rüstung des Drachenjägers" },
 	},
+
 }
 
 TheoryCraft_CheckButtons = {
@@ -692,8 +702,8 @@ TheoryCraft_CheckButtons = {
 	["dameff"] = 	{ hide = {"ROGUE", "WARRIOR"}, short = "+Schaden Effizienz", description = "The +damage system is based on 3.5 +damage = +1dps, before crits.\nIf the spell gets this, then the efficiency will be 100%." },
 	["damfinal"] = 	{ hide = {"ROGUE", "WARRIOR"}, short = "Gesamt +Schaden", description = "+Damage added to the spell after the +dam coefficient." },
 	["healanddamage"] = { hide = {"ROGUE", "WARRIOR", "MAGE", "SHAMAN", "HUNTER", "DRUID"}, short = "Zeige Heil Anteil", description = "If enabled spells that both damage and heal will\nhave both components listed seperately.\nNormally only the damage component will be shown." },
-	["nextagi"] = 	{ hide = {"MAGE", "WARLOCK", "PRIEST", "PALADIN", "SHAMAN" }, short = "+10 Beweglichkeit", description = "Zeigt um wieviel der Nahkampfschaden erhöht wird.", descriptionmelee = "Shows how much 10 agility will add to your average damage,\nalong with how much attack power would provide an equivelant boost." },
 	["nextstr"] = 	{ hide = {"MAGE", "WARLOCK", "PRIEST", "PALADIN", "SHAMAN" }, short = "+10 Stärke", description = "Zeigt um wieviel der Nahkampfschaden erhöht wird.", descriptionmelee = "Shows how much 10 strenght will add to your average damage,\nalong with how much attack power would provide an equivelant boost." },
+	["nextagi"] = 	{ hide = {"MAGE", "WARLOCK", "PRIEST", "PALADIN", "SHAMAN" }, short = "+10 Beweglichkeit", description = "Zeigt um wieviel der Nahkampfschaden erhöht wird.", descriptionmelee = "Shows how much 10 agility will add to your average damage,\nalong with how much attack power would provide an equivelant boost." },
 	["nextcrit"] = 	{ short = "+1% Krit", description = "Shows how much another 1% chance to crit will add to your *average damage*\nalong with how much +damage gear would be equivelant", descriptionmelee = "Shows how much +1% to crit will add to your average damage,\nalong with how much attack power would provide an equivelant boost." },
 	["nexthit"] = 	{ short = "+1% Treffer", description = "Shows how much another 1% chance to hit will add to your *average damage*\nalong with how much +damage gear would be equivelant.", descriptionmelee = "Shows how much +1% to hit will add to your average damage,\nalong with how much attack power would provide an equivelant boost." },
 	["nextpen"] = 	{ hide = {"ROGUE", "WARRIOR"}, short = "Next 10 Penetration", description = "If the target has a higher resistance score then your\npenetration score, your average damage will be\nlower then what TC says. Having an extra 10 penetration\nwill increase your actual average damage closer to TC's\ncalculated value, by the amount shown.\nTC will also tell you how much extra +damage\nwould increase your actual damage by the same amount." },
@@ -939,7 +949,7 @@ TheoryCraft_Sets = {
 -- Checks every line beginning with Equip: or Set: for these
 
 TheoryCraft_Equips = {
--- working (hope so)
+-- maybe working
 	-- schaden/heilung erhöhen
 	{ text="Erhöht durch Zauber und magische Effekte zugefügten Schaden und Heilung um bis zu (%d+)%.", type="All" },		-- Zauber und Heilung
 	{ text="Erhöht durch Zauber und Effekte verursachte Heilung um bis zu (%d+)%.", type="Healing" },	 					-- Heilung

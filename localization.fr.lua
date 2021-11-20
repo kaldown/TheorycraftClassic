@@ -1,26 +1,3 @@
---[[		AimedShot = "augmente les d\195\169g\195\162s \195\160 distance de %d+.",
-		ScatterShot = "deals 50%% weapon damage",
-		Ghostly = "inflige %d+%% des d\195\169g\195\162s de l'arme",
-		Backstab = "infligez %d+%% des d\195\169g\195\162s de l'arme plus %d+",
-		Claw = "causing %d+ additional damage",
-		Claw2 = "causing %d+ to %d+ additional damage",
-		Mortal = "les points de d\195\169g\195\162s de l'arme plus %d+",
-	-- Aimed Shot becomes hits for (mindamage) to (maxdamage) damage
-		hitsfor = "touche la cible et inflige ",
-	-- backstab becomes deals (mindamage) to (maxdamage) damage
-		deals = "inflige ",
-	-- would probably never happen - but it says dealing (mindamage) damage, in the case mindamage = maxdamage
-		dealing = "infligeant ",
-	-- ambush becomes causing (mindamage) to (maxdamage) damage
-		causing = "infligez ",
-		shred = "causing %d+%% damage plus %d+",
-	-- the part of the description that contains the +damage, eg from shred above plus %d+
-		plus = "plus %d+",
-		whirlwind = "d\195\169g\195\162s de l'arme \195\160",
-		damageto = " damage to ",
-		Sinister = "%d+ points de d\195\169g\195\162s en plus des d\195\169g\195\162s normaux de votre arme.",]]--
-
-
 if (GetLocale() == "frFR") then
 
 -- The format of the tooltip is defined below.
@@ -146,6 +123,7 @@ TheoryCraft_TooltipFormat = {
 	{show = "maxevoctime", 	left = "Degats totaux avec evoc + gemme : $maxevocoomdam$ ($maxevocoomdamtime$ secs)"},
 }
 
+
 TheoryCraft_MeleeComboEnergyConverter = "into (.-) additional"
 TheoryCraft_MeleeComboReader = "(%d+) point(.-): (%d+)%-(%d+) damage"
 TheoryCraft_MeleeComboReplaceWith = "$points$ point%1: %2%-%3 damage"
@@ -181,6 +159,7 @@ TheoryCraft_MeleeMinMaxReader = {
 		type={"addeddamage"} },
 
 }
+
 
 TheoryCraft_MeleeMinMaxReplacer = {
 	{ search = " causing %d+ to %d+ damage, modified by attack power, ",				-- Shield Slam
@@ -220,7 +199,9 @@ TheoryCraft_MeleeMinMaxReplacer = {
 	{ search = "that causes (%d+) damage,",								-- Mocking Blow
 	  replacewith = "that causes $damage$ damage," },
 	{ search = "and doing (%d+) damage to them",							-- Thunder Clap
-	  replacewith = "and doing $damage$ to them" },
+	  replacewith = "and doing $damage$ damage to them" },
+	{ search = " causing weapon damage ",						-- Whirlwind
+	  replacewith = " causing $damage$ damage " },
 }
 
 TheoryCraft_SpellMinMaxReader = {
@@ -238,9 +219,9 @@ TheoryCraft_SpellMinMaxReader = {
 	{ pattern = "horror for 3 sec and causes (%d+) Shadow damage",					-- Death Coil
 		type={"bothdamage"} },
 
-	{ pattern = "(%d+) \195\160 (%d+)(.+)puis (%d+) \195\160 (%d+)",						-- Generic Hybrid spell
+	{ pattern = "(%d+) \195\160 (%d+)(.+)puis (%d+) \195\160 (%d+)",					-- Generic Hybrid spell
 		type={"mindamage", "maxdamage", "tmptext", "dotmindamage", "dotmaxdamage"} },
-	{ pattern = "(%d+) \195\160 (%d+)(.+)puis (%d+)",							-- Generic Hybrid spell
+	{ pattern = "(%d+) \195\160 (%d+)(.+)puis (%d+)",						-- Generic Hybrid spell
 		type={"mindamage", "maxdamage", "tmptext", "dotbothdamage"} },
 
 	{ pattern = "(%d+) \195\160 (%d+)(.+)et (%d+) \195\160 (%d+)",					-- Generic Hybrid spell
@@ -303,25 +284,25 @@ TheoryCraft_Locale = {
 	ID_Beast	= "B\195\170te",
 	ID_Humanoid	= "Humano\195\175de",
 	ID_Giant	= "G\195\169ant",
-	ID_Dragonkin	= "Draconien",
+	ID_Dragonkin = "Draconien",
 	ID_Equip	= "Equip\195\169 : ",
 	ID_Set		= "Complet : ",
 	ID_Use		= "Use: ",
-	to		= " \195\160 ",
+	to			= " \195\160 ",
 	Attack		= "Attaque",
 	InstantCast	= "Instant cast",
 	SecCast		= " sec d'incantation",
 	Mana		= "Mana : ",
 	Cooldown	= " sec de recharge",
 	CooldownRem	= "Cooldown remaining: ",
-	Set		= "(%d+/%d+)",
+	Set			= "(%d+/%d+)",
 	LoadText	= "TheoryCraftClassic "..TheoryCraft_Version.." by Aelian, ported by Xodious-Whitemane. Type /tc for ui interface. Type /tc more for hidden features.",
 	lifetap		= "Life Tap",
 	MinMax  = {
 		autoshotbefore = "Shoots the target for ",
 		autoshotafter = ".",
 		shooterror = "No wand equipped.",
-		crusader = "granting %d+ attack power",
+		crusader = "granting %d+ melee attack power",
 	},
 	SpellTranslator = {
 		["Frostbolt"] = "Eclair de givre",
@@ -356,6 +337,7 @@ TheoryCraft_Locale = {
 		["Drain Life"] = "Drain de vie",
 		["Death Coil"] = "Voile mortel",
 		["Shadowburn"] = "Br\195\187lure de l'ombre",
+		["Life Tap"] = "Life Tap", -- TODO: translate
 
 		["Prayer of Healing"] = "Pri\195\168re de soins",
 		["Shadow Word: Pain"] = "Mot de l'ombre : Douleur",
@@ -447,6 +429,8 @@ TheoryCraft_Locale = {
 		["Attack"] = "Attack",
 		["Shoot"] = "Tir",
 	},
+	
+	
 -- Appears on the advanced tab, left side matches spell data (do not translate), right side equals display text
 	TalentTranslator = {
 -- Warlock
@@ -636,56 +620,51 @@ TheoryCraft_Locale = {
 		{ id="Giantstalker", translated="Giantstalker Armor" },
 		{ id="Dragonstalker", translated="Dragonstalker Armor" },
 	},
+
 }
 	
 TheoryCraft_CheckButtons = {
+	["embedstyle1"]	= { short = "DPS | Crit", description = "Adds an extra line in the middle of the tooltip,\nwith DPS/HPS on the left and Crit chance on the right.", descriptionmelee="For melee, will only show your crit chance above\nthe description of each ability." },
+	["embedstyle2"]	= { hide = {"ROGUE", "WARRIOR"}, short = "DPM | Crit", description = "Adds an extra line in the middle of the tooltip,\nwith DPM/HPM on the left and Crit chance on the right." },
+	["embedstyle3"]	= { hide = {"ROGUE", "WARRIOR"}, short = "DPS/HPM | Crit", description = "Adds an extra line in the middle of the tooltip,\nwith DPS/HPM on the left and Crit chance on the right." },
 	["titles"] = 	{ hide = {"ROGUE", "WARRIOR"}, short = "Titles", description = "Seperates the tooltip extended info in to seperate categories." },
 	["embed"] = 	{ short = "Embed", description = "Modifies the base description of your spell tooltips,\nto include the effects of gear.", descriptionmelee = "Modifies the base description of your ability tooltips\nto replace terms like 'weapon damage plus 160'\n with actual damage done." },
 	["crit"] = 	{ short = "Crit", description = "Adds your crit rate to your spell tooltips.\nIncludes talents, gear and base crit rate (int/$cr).", descriptionmelee = "Adds your crit damage and crit chance to your ability tooltips." },
 	["critdam"] = 	{ hide = {"ROGUE", "WARRIOR"}, short = "Crit Damage", description = "Shows the damage range of your critical strikes" },
-	["rollignites"]={ hide = {"ROGUE", "WARRIOR", "WARLOCK", "PRIEST", "DRUID", "PALADIN", "SHAMAN" }, short = "Rolling Ignites", description = "All calculations that include critical strikes\nwill factor in rolling ignites. That is where\nignite procs whilst ignite is already on the target,\nresetting the timer but adding to the damage." },
-	["sepignite"] = { hide = {"ROGUE", "WARRIOR", "WARLOCK", "PRIEST", "DRUID", "PALADIN", "SHAMAN" }, short = "Seperate Ignite", description = "Seperates the ignite component from your crit damage." },
-	["dps"] = 	{ short = "DPS", description = "Adds Damage per Second cast time to\nyour tooltips. For instant casts,\ncast time is taken as the length of\nthe global cooldown, 1.5 seconds.", descriptionmelee = "How much this ability increases your dps by, if you use it each time the timer is up." },
+	["rollignites"]	= { hide = {"ROGUE", "WARRIOR", "WARLOCK", "PRIEST", "DRUID", "PALADIN", "SHAMAN", "HUNTER" }, short = "Rolling Ignites", description = "All calculations that include critical strikes\nwill factor in rolling ignites. That is where\nignite procs whilst ignite is already on the target,\nresetting the timer but adding to the damage." },
+	["sepignite"] 	= { hide = {"ROGUE", "WARRIOR", "WARLOCK", "PRIEST", "DRUID", "PALADIN", "SHAMAN", "HUNTER" }, short = "Seperate Ignite", description = "Seperates the ignite component from your crit damage." },
+	["dps"] 	= { hide = {"ROGUE", "WARRIOR"}, short = "DPS", description = "Adds Damage per Second cast time to\nyour tooltips. For instant casts,\ncast time is taken as the length of\nthe global cooldown, 1.5 seconds.", descriptionmelee = "How much this ability increases your dps by, if you use it each time the timer is up." },
 	["combinedot"]= { hide = {"ROGUE", "WARRIOR"}, short = "Combine DoT", description = "If enabled, spells that have both a \ndirect component and an over time component will have\nthe DoT DPS expressed as (DPS+DoT)/Casttime\n rather then DoT/Duration." },
 	["dotoverct"] = { hide = {"ROGUE", "WARRIOR"}, short = "DoT over CT", description = "DoTs will have their DPS as Total Damage / Cast time, \nrather then Total Damage / DoT Duration" },
 	["hps"] = 	{ hide = {"ROGUE", "WARRIOR"}, short = "HPS", description = "Is calculated the same way as DPS,\nwith the same extended options." },
 	["dpsdam"] = 	{ hide = {"ROGUE", "WARRIOR"}, short = "DPS from +dam", description = "How much of your DPS/HPS is from your +damage gear." },
 	["averagedam"] ={short = "Average Hit", description = "Adds the spells average hit to your tooltips.", descriptionmelee = "Adds your average damage to your ability tooltips." },
-	["averagedamnocrit"] = {short = "Dont include crits", description = "If checked crits won't be included in the Average Hit value." },
 	["procs"] = 	{ hide = {"ROGUE", "WARRIOR"}, short = "Include Procs", description = "All Proc based effects (Wrath of Cenarius, Darkmoon Trinket, Netherwind)\neffects are averaged instead of only being applied while the buff is active." },
-	["plusdam"] = 	{ hide = {"ROGUE", "WARRIOR"}, short = "+Damage", description = "+Damage for that spell, before being multiplied by the +dam coefficient" },
+	["mitigation"] 	= { hide = {"STRIPPED"}, short = "Enable Mitigation", description = "If enabled your targets armor will be included in TC's calculations.\nYou can view a mobs armor by typing in /tc armor 'mob name', or\njust leaving it blank to list all known mobs." },
+	["resists"] 	= { hide = {"ROGUE", "WARRIOR"}, short = "Resists", description = "Adds a resists category to the tooltip.\nThis includes the resist rate of your *target* and\nyour dps after level-based resists are accounted for.\nIf you have any Spell Penetration gear it'll also\ntell you how much dps your penetration gear adds.\nNote that unless your target has a resist score equal to\nor higher then your penetration score, this dps\npenetrated won't be achieved." },
+	["averagethreat"] = { hide = {"ROGUE", "WARRIOR", "SHAMAN", "HUNTER", "DRUID", "WARLOCK", "PRIEST", "MAGE"}, short = "Average Threat", description = "The average threat caused by the attack." },
+	["plusdam"] 	= { hide = {"ROGUE", "WARRIOR"}, short = "+Damage", description = "+Damage for that spell, before being adjusted by the +dam coefficient." },
 	["damcoef"] = 	{ hide = {"ROGUE", "WARRIOR"}, short = "+Damage Coefficient", description = "+Damage coefficient for that spell.\nWill be modified by applicable talents." },
 	["dameff"] = 	{ hide = {"ROGUE", "WARRIOR"}, short = "+Damage Efficiency", description = "The +damage system is based on 3.5 +damage = +1dps, before crits.\nIf the spell gets this, then the efficiency will be 100%." },
 	["damfinal"] = 	{ hide = {"ROGUE", "WARRIOR"}, short = "Final +Damage", description = "+Damage added to the spell after the +dam coefficient." },
-	["averagethreat"] = { hide = {"ROGUE", "WARRIOR", "SHAMAN", "HUNTER", "DRUID", "WARLOCK", "PRIEST"}, short = "Average Threat", description = "The average threat caused by the attack." },
 	["healanddamage"] = { hide = {"ROGUE", "WARRIOR", "MAGE", "SHAMAN", "HUNTER", "DRUID"}, short = "Show Heal Component", description = "If enabled spells that both damage and heal will\nhave both components listed seperately.\nNormally only the damage component will be shown." },
-	["resists"] = 	{ hide = {"ROGUE", "WARRIOR"}, short = "Resists", description = "Adds a resists category to the tooltip.\nThis includes the resist rate of your *target* and\nyour dps after level-based resists are accounted for.\nIf you have any Spell Penetration gear it'll also\ntell you how much dps your penetration gear adds.\nNote that unless your target has a resist score equal to\nor higher then your penetration score, this dps\npenetrated won't be achieved." },
 	["nextstr"] = 	{ hide = {"MAGE", "WARLOCK", "PRIEST", "PALADIN", "SHAMAN" }, short = "Next 10 strength", description = "", descriptionmelee = "Shows how much 10 strength will add to your average damage,\nalong with how much attack power would provide an equivelant boost." },
 	["nextagi"] = 	{ hide = {"MAGE", "WARLOCK", "PRIEST", "PALADIN", "SHAMAN" }, short = "Next 10 agility", description = "", descriptionmelee = "Shows how much 10 agility will add to your average damage (including crits), and how much attack power would be needed to achieve the same increase." },
 	["nextcrit"] = 	{ short = "Next 1% to Crit", description = "Shows how much another 1% chance to crit will add to your *average damage*\nalong with how much +damage gear would be equivelant", descriptionmelee = "Shows how much +1% to crit will add to your average damage,\nalong with how much attack power would provide an equivelant boost." },
-	["nexthit"] = 	{ short = "Next 1% to Hit", description = "Shows how much another 1% chance to hit will add to your *average damage*\nalong with how much +damage gear would be equivelant.", descriptionmelee = "Shows how much +1% to hit will add to your average damage,\nalong with how much attack power would provide an equivelant boost." },
-	["nextpen"] = 	{ hide = {"ROGUE", "WARRIOR"}, short = "Next 10 Penetration", description = "Shows how much 10 penetration would add to your *average damage*\nalong with how much +damage gear would be equivelant.\nIt assumes that your target has an extra\n10 resistance score to be penetrated." },
+	["nexthit"] 	= { short = "Next 1% to Hit", description = "Shows how much another 1% chance to hit will add to your *average damage*\nalong with how much +damage gear would be equivelant. To have it incorporate\nyour targets level you must have 'Factor Resists' turned on.", descriptionmelee = "Shows how much +1% to hit will add to your average damage,\nalong with how much attack power would provide an equivelant boost." },
+	["nextpen"] 	= { hide = {"ROGUE", "WARRIOR"}, short = "Next 10 Penetration", description = "If the target has a higher resistance score then your\npenetration score, your average damage will be\nlower then what TC says. Having an extra 10 penetration\nwill increase your actual average damage closer to TC's\ncalculated value, by the amount shown.\nTC will also tell you how much extra +damage\nwould increase your actual damage by the same amount.\nIf you have Factor Resists turned on, it'll tell you exactly\nhow much damage it'll add and the equivelant +damage figure." },
 	["mana"] =	{ hide = {"ROGUE", "WARRIOR"}, short = "True Mana Cost", description = "Adds the true mana cost of your spell to the tooltip.\nIf a spell costs 30 mana, and you regenerate 40 mana\nwhilst casting it then this will be negative.\nIt is effected by things like mana regen whilst casting,\nshaman earthfury bonus, paladin's illumination talent, etc.\nAll internal calculations go off this value." },
 	["dpm"] = 	{ hide = {"ROGUE", "WARRIOR"}, short = "DPM", description = "Average Damage divided by True Mana Cost" },
-	["dontcritdpm"] = { hide = {"ROGUE", "WARRIOR"}, short = "Dont include crits", description = "If checked crits won't be included in the DPM value." },
 	["hpm"] = { hide = {"ROGUE", "WARRIOR"}, short = "HPM", description = "Average Heal divided by True Mana Cost" },
-	["dontcrithpm"] = { hide = {"ROGUE", "WARRIOR"}, short = "Dont include crits", description = "If checked crits won't be included in the HPM value." },
-	["showregendam"] = { hide = {"ROGUE", "WARRIOR"}, short = "Regen Damage", description = "Shows how much extra damage you could do\ngiven 10 seconds of normal regen, compared to\n10 seconds of regen whilst casting" },
-	["showregenheal"] = { hide = {"ROGUE", "WARRIOR"}, short = "Regen Healing", description = "Shows how much extra healing you could do\ngiven 10 seconds of normal regen, compared to\n10 seconds of regen whilst casting" },
-	["max"] = { hide = {"ROGUE", "WARRIOR"}, short = "Max til oom", description = "Shows how much damage/healing you can do before going oom,\nchaincasting the spell including all normal forms of regen and\ncritical strikes, but not including resists." },
-	["maxevoc"] 	= { hide = {"ROGUE", "WARRIOR", "WARLOCK", "PRIEST", "DRUID", "PALADIN", "SHAMAN" }, short = "Max til oom inc gem+evoc", description = "Same as 'Max til oom', but includes two mage abilities to regen mana." },
-	["maxtime"] 	= { hide = {"ROGUE", "WARRIOR"}, short = "Time taken to go oom", description = "Adds how long it takes to go oom, chain casting that spell." },
-	["lifetap"] 	= { hide = {"ROGUE", "WARRIOR", "MAGE", "SHAMAN", "HUNTER", "DRUID", "PRIEST"}, short = "Lifetap Values", description = "DPS, DPM, HPS, HPM if enabled will have/nan additional for if you're using Lifetap./nTakes in to account the global cooldown time needed/nto cast Lifetap." },
-	["embedstyle1"]	= { short = "DPS | Crit", description = "Adds an extra line in the middle of the tooltip,\nwith DPS/HPS on the left and Crit chance on the right.", descriptionmelee="For melee, will only show your crit chance above\nthe description of each ability." },
-	["embedstyle2"]	= { hide = {"ROGUE", "WARRIOR"}, short = "DPM | Crit", description = "Adds an extra line in the middle of the tooltip,\nwith DPM/HPM on the left and Crit chance on the right." },
-	["embedstyle3"]	= { hide = {"ROGUE", "WARRIOR"}, short = "DPS/HPM | Crit", description = "Adds an extra line in the middle of the tooltip,\nwith DPS/HPM on the left and Crit chance on the right." },
-	["buttontext"] 	= { short = "Enable Button Text", description = "TheoryCraft can show values on your Action Buttons.\nThis option will enable the feature.\n\nNote: Only supports the default Blizzard Action Bars and Spellbook." },
+	["max"] 	= { hide = {"ROGUE", "WARRIOR"}, short = "Max til oom", description = "Shows how much damage/healing you can do before going oom,\nchaincasting the spell including all normal forms of regen." },
+	["maxevoc"] 	= { hide = {"ROGUE", "WARRIOR", "WARLOCK", "PRIEST", "DRUID", "PALADIN", "SHAMAN", "HUNTER" }, short = "Max til oom (gem+evoc)", description = "Same as 'Max til oom', but includes two mage abilities to regen mana." },
+	["lifetap"] 	= { hide = {"ROGUE", "WARRIOR", "MAGE", "SHAMAN", "HUNTER", "DRUID", "PRIEST", "PALADIN"}, short = "Lifetap Values", description = "DPS, DPM, HPS, HPM if enabled will have\nadditional info for if you're using Lifetap.\nTakes in to account the global cooldown." },
+	["buttontext"] 	= { short = "Enable Button Text", description = "TheoryCraft can show values on your Action Buttons.\nThis option will enable the feature.\n\nNote: Only supports the default Blizzard, Discord, Nurfed and Flex Action Bars, along with the Spellbook." },
 	["tryfirst"] 	= { short = "Default Button Text", description = "The default value to show on your Action Buttons." },
 	["trysecond"] 	= { short = "Alt Button Text", description = "If the default value is nil, TheoryCraft will\ntry to show this value." },
 	["tryfirstsfg"]	= { short = "Default Significant Figures", description = "How much the text value should be rounded by.\nA value of 100 will show the number 353 as 400." },
 	["trysecondsfg"]= { short = "Alt Significant Figures", description = "How much the text value should be rounded by.\nA value of 100 will show the number 353 as 400." },
 	["outfit"] = { short = " ", tooltiptitle = "Outfit", description = "TheoryCraft allows you to test different sets of gear.\nAny of the 8-9 piece class sets can be tested (with\nyour gear making up the other slots), or you can\nmix and match gear of your choice by selecting\nthe 'Custom' set." },
-	["mitigation"] = { short = "Enable Mitigation", description = "If enabled your targets armor will be included in TC's calculations.\nYou can view a mobs armor by typing in /tc armor 'mob name', or\njust leaving it blank to list all known mobs." },
 	["showsimult"] = { short = "Compare Mode", description = "If checked, your current stats and your outfits/talents stats\nwill be shown simulatenously on the tooltip." },
 	["dontcrit"] 	= { hide = {"ROGUE", "WARRIOR"}, short = "Don't include crits", description = "If checked crits won't be included in calculated values (eg: dpm/hpm/dps).\nThis will also disable illumination, master of elements and natures grace bonuses." },
 	["dontresist"] 	= { hide = {"ROGUE", "WARRIOR"}, short = "Factor resists", description = "If checked, level-based and resistance-based resists will be factored\nfor all calculated values (eg: dpm/hpm/dps).\nResists can be set below." },
@@ -726,12 +705,14 @@ TheoryCraft_PrimarySchools = {
 -- Checks every buff for these
 
 TheoryCraft_Buffs = {
+	{ text="damage done increases by (%d+)%%", type="Damagebaseincrease", amount="n/100" },   							-- General buff in av
 	{ text="Ignore (%d+) of enem.+armor", type="Sunder" },   							-- Bonereaver's Edge
 	{ text="Increases Healing Wave's effect by up to (%d+)%%.", type="Healing Wavetalentmod", amount="n/100" },  	-- Healing Way
-	{ text="In addition, both the demon and master will inflict (%d+)%% more damage%.", type="Allbaseincrease", amount="n/100" },	-- Soul Link
 	{ text="Restores (%d+)%% of total Mana every 4 sec%.", type="FelEnergy", amount="n/100" },   			-- Fel Energy
+	{ text="Magical damage dealt.-increase.-(%d+)", type="All" },   						-- Very Berry/Eye of Moam
+	{ text="Magical resistances of your spell targets reduced by (%d+)", type="Allpenetration" },   		-- Eye of Moam
 	{ text="Increases damage and healing done by magical spells and effects by up to (%d+)%.", type="All" },   	-- Elements/Five Thunders
-	{ text="Attack power increased by (%d+).  Melee attacks are %d+%% faster, but deal less damage.", type="AttackPowerCrusader" }, -- Seal of the crusader
+	{ text="Melee attack power increased by (%d+)%.  Melee attacks are %d+%% faster, but deal less damage%.", type="AttackPowerCrusader" }, -- Seal of the crusader
 	{ text="(%d+) mana regen per tick%.", type="manaperfive" },							-- Warchief's blessing
 	{ text="Gain (%d+) mana every 2 seconds%.", type="manaperfive", amount="totem" },				-- Totems
 	{ text="Les sorts de Lumi\195\168re sacr\195\160e rendent jusqu'\195\169 (%d+) points de vie suppl\195\169mentaires", type="Holy Light", amount="hl", target = "target"},	-- Blessing of light
@@ -794,11 +775,11 @@ TheoryCraft_Debuffs = {
 
 TheoryCraft_DotDurations = {
 	{ text=" en (%d+) sec.", amount="n" },					-- Shadow Word: Pain, Corruption, Immolate, Renew
+	{ text="every second for (%d+) sec%.", amount="n" },			-- Volley
 	{ text="toutes les secondes pendant (%d+) sec.", amount="n" },		-- Arcane Missiles
 	{ text="Dure (%d+) sec.", amount="n" },					-- Drain and Siphon Life
 	{ text="apr\195\168s 1 min.", amount="60" },				-- Curse of Doom
-	{ text=" secondes pendant (%d+) sec.", amount="n" },				-- Tranquility
-	{ text="every second for (%d+) sec%.", amount="n" },			-- Volley
+	{ text=" secondes pendant (%d+) sec.", amount="n" },			-- Tranquility
 }
 
 -- Checks every line for these
@@ -806,33 +787,35 @@ TheoryCraft_DotDurations = {
 TheoryCraft_EquipEveryRight = {
 	{ text="^Vitesse (%d+%.?%d+)", type="OffhandSpeed", slot="SecondaryHand" },	-- Weapon Damage
 	{ text="^Vitesse (%d+%.?%d+)", type="MainSpeed", slot="MainHand" },		-- Weapon Damage
-	{ text="^Vitesse (%d+%.?%d+)", type="Rangedillum", slot="Ranged" },	-- Weapon Damage
-	{ text="^Dague", type="MeleeAPMult", amount="-0.7", slot="MainHand" },			-- Weapon Damage
-	{ text="^Vitesse (%d+%.?%d+)", type="RangedSpeed", slot="Ranged" },	-- Weapon Damage
-	{ text="^Dague", type="DaggerEquipped", amount=1, slot="MainHand" }	,		-- Used for dagger spec
-	{ text="^Arme de pugilat", type="FistEquipped", amount=1, slot="MainHand" },		-- Used for fist spec
-	{ text="^Hache", type="AxeEquipped", amount=1, slot="MainHand" },				-- Used for Axe Spec
-	{ text="^Arme d'hast", type="PolearmEquipped", amount=1, slot="MainHand" },			-- Used for Polearm Spec
+	{ text="^Vitesse (%d+%.?%d+)", type="Rangedillum", slot="Ranged" },		-- Weapon Damage
+	{ text="^Vitesse (%d+%.?%d+)", type="RangedSpeed", slot="Ranged" },		-- Weapon Damage
+	{ text="^Dague", type="MeleeAPMult", amount="-0.7", slot="MainHand" },		-- Weapon Damage
+	{ text="^Dague", type="DaggerEquipped", amount=1, slot="MainHand" }	,	-- Used for dagger spec
+	{ text="^Arme de pugilat", type="FistEquipped", amount=1, slot="MainHand" },	-- Used for fist spec
+	{ text="^Hache", type="AxeEquipped", amount=1, slot="MainHand" },		-- Used for Axe Spec
+	{ text="^Arme d'hast", type="PolearmEquipped", amount=1, slot="MainHand" },	-- Used for Polearm Spec
 	{ text="^Shield", type="ShieldEquipped", amount=1, slot="SecondaryHand" },	-- Used for Block
 }
 
 TheoryCraft_EquipEveryLine = {
+	{ text="%+(%d+) Healing Spells", type="Healing" },					-- of healing items
+	{ text=".+Block Value %+(%d+)", type="BlockValueReport" }, -- Block Value (ZG Enchant)
 	{ text="Ranged Attack Power %+(%d+)", type="RangedAttackPowerReport" }, 	-- Hunter Leg/Helm enchant
 	{ text="^(%d+) Block", type="BlockValueReport" }, 				-- Block Value (shield)
 
-	{ text="++(%d+) Attack Power", type="AttackPowerReport" }, 			-- Attack power
+	{ text="%+(%d+) Attack Power", type="AttackPowerReport" }, 			-- Attack power
 
 	{ text="Ajoute (%d+%.?%d+) d\195\169g\195\162ts par seconde", type="Ranged", slot="Ammo" },	-- Arrows
 
 	{ text="Main droite", type="MeleeAPMult", amount="2.4", slot="MainHand" },	-- Weapon Damage
 	{ text="A une main", type="MeleeAPMult", amount="2.4", slot="MainHand" },	-- Weapon Damage
 	{ text="Deux mains", type="MeleeAPMult", amount="3.3", slot="MainHand" },	-- Weapon Damage
-	{ text="(%d+) %- %d+", type="MeleeMin", slot="MainHand" },			-- Weapon Damage
-	{ text="%d+ %- (%d+)", type="MeleeMax", slot="MainHand" }, 			-- Weapon Damage
-	{ text="Scope %(%+(%d+) Damage%)", type="RangedMin", slot="Ranged" },		-- Weapon Damage enchant
-	{ text="Scope %(%+(%d+) Damage%)", type="RangedMax", slot="Ranged" },		-- Weapon Damage enchant
 	{ text="(%d+) %- %d+", type="RangedMin", slot="Ranged" },			-- Weapon Damage
 	{ text="%d+ %- (%d+)", type="RangedMax", slot="Ranged" }, 			-- Weapon Damage
+	{ text="Scope %(%+(%d+) Damage%)", type="RangedMin", slot="Ranged" },		-- Weapon Damage enchant
+	{ text="Scope %(%+(%d+) Damage%)", type="RangedMax", slot="Ranged" },		-- Weapon Damage enchant
+	{ text="(%d+) %- %d+", type="MeleeMin", slot="MainHand" },			-- Weapon Damage
+	{ text="%d+ %- (%d+)", type="MeleeMax", slot="MainHand" }, 			-- Weapon Damage
 	{ text="Weapon Damage %+(%d+)", type="MeleeMin", slot="MainHand" },		-- Weapon Damage enchant
 	{ text="Weapon Damage %+(%d+)", type="MeleeMax", slot="MainHand" },		-- Weapon Damage enchant
 	{ text="(%d+) %- %d+", type="OffhandMin", slot="SecondaryHand" },		-- Weapon Damage
@@ -840,13 +823,35 @@ TheoryCraft_EquipEveryLine = {
 	{ text="Weapon Damage %+(%d+)", type="OffhandMin", slot="SecondaryHand" },	-- Weapon Damage enchant
 	{ text="Weapon Damage %+(%d+)", type="OffhandMax", slot="SecondaryHand" },	-- Weapon Damage enchant
 
-	{ text="+(%d+) aux d\195\169g\195\162ts des sorts des arcanes", type="Arcane" },-- of wrath arcane
-	{ text="+(%d+) aux d\195\169g\195\162ts des sorts d'ombre", type="Shadow" },	-- of wrath shadow
+	{ text="+(%d+) aux d\195\169g\195\162ts des sorts des arcanes", type="Arcane" },	-- of wrath arcane
+	{ text="+(%d+) aux d\195\169g\195\162ts des sorts d'ombre", type="Shadow" },		-- of wrath shadow
 	{ text="+(%d+) aux d\195\169g\195\162ts des sorts du sacr\195\169", type="Holy" },	-- of wrath holy
 	{ text="+(%d+) aux d\195\169g\195\162ts des sorts de schoolname" },			-- of wrath items
 	{ text="D\195\169g\195\162ts de schoolname ++(%d+)" },				-- AQ Glove enchants
 	{ text="D\195\169g\195\162ts d'ombre ++(%d+)", type="Shadow" },			-- AQ Shadow Glove enchants
+	{ text="++(%d+) aux sorts de soins", type="Healing" },				-- of healing items
+	{ text="%+(%d+) Healing Spells", type="Healing" },				-- of healing items
+	{ text="++(%d+) D\195\169g\195\162ts et soins", type="All" },			-- of sorcery items
+	{ text="D\195\169g\195\162ts des sorts de schoolname ++(%d+)", me=1 }, 		-- Winter's Might
+	{ text="D\195\169g\195\162ts des sorts ++(%d+)", type="Damage", me=1 }, 	-- Spell Damage +30 enchant
+	{ text="Sorts de soins ++(%d+)", type="Healing" },				-- zg priest and healing enchant
 
+	{ text="Utiliser : Rend 375 \195\160 625 points de mana.", type="manarestore", amount="500" },-- Robe of the Archmage
+
+	{ text="Spell Hit %+(%d+)%%", type="Allhitchance" },				-- zg enchant
+	{ text="%/Hit %+(%d+)%%", type="Meleehitchance" },				-- Hunter Leg/Helm enchant
+
+	{ text="Soins et d\195\169g\195\162ts des sorts ++(%d+)", type="All", me=1 },	-- zg enchant
+	{ text="++(%d+) aux d\195\169g\195\162ts et aux sorts de soins", type="All" },	-- zg shoulder damage enchant
+
+	{ text="++(%d+) points de mana toutes les 5 sec.", type="manaperfive" },	-- of restoration
+	{ text="R\195\169cup. mana ++(%d+)/", type="manaperfive" },			-- zg enchant
+	{ text="R\195\169cup. mana (%d+)/5 sec.", type="manaperfive" },			-- bracers regen enchant
+
+	{ text="Sorts de soin ++(%d+)", type="Healing" },				-- bracers and weapon healing enchant
+	{ text="++(%d+) aux d\195\169g\195\162ts des sorts et aux soins", type="All" }, -- not sure
+
+	-- Enchanting oils
 	{ text="^Huile de mana brillante", type="manaperfive", amount="12" }, 		-- Enchanting oils
 	{ text="^Huile de mana brillante", type="Healing", amount="25", me=1 }, 	-- Enchanting oils
 	{ text="^Huile de sorcier brillante", type="Allcritchance", amount="1" }, 	-- Enchanting oils
@@ -856,23 +861,6 @@ TheoryCraft_EquipEveryLine = {
 	{ text="^Huile de sorcier mineure", type="Damage", amount="8" }, 		-- Enchanting oils
 	{ text="^Huile de sorcier inf\195\169rieure", type="Damage", amount="16" }, 	-- Enchanting oils
 	{ text="^Huile de sorcier", type="Damage", amount="24" }, 			-- Enchanting oils
-
-	{ text="Utiliser : Rend 375 \195\160 625 points de mana.", type="manarestore", amount="500" },-- Robe of the Archmage
-
-	{ text="Chances de toucher des sorts ++(%d+)%%", type="Allhitchance" },		-- zg enchant
-	{ text="Soins et d\195\169g\195\162ts des sorts ++(%d+)", type="All", me=1 },	-- zg enchant
-	{ text="++(%d+) aux d\195\169g\195\162ts et aux sorts de soins", type="All" },	-- zg shoulder damage enchant
-	{ text="++(%d+) aux sorts de soins", type="Healing" },				-- of healing items
-	{ text="%+(%d+) Healing Spells", type="Healing" },					-- of healing items
-	{ text="++(%d+) D\195\169g\195\162ts et soins", type="All" },			-- of sorcery items
-	{ text="R\195\169cup. mana ++(%d+)/", type="manaperfive" },			-- zg enchant
-	{ text="++(%d+) points de mana toutes les 5 sec.", type="manaperfive" },	-- of restoration
-	{ text="R\195\169cup. mana (%d+)/5 sec.", type="manaperfive" },			-- bracers regen enchant
-	{ text="D\195\169g\195\162ts des sorts de schoolname ++(%d+)", me=1 }, 		-- Winter's Might
-	{ text="D\195\169g\195\162ts des sorts ++(%d+)", type="Damage", me=1 }, 	-- Spell Damage +30 enchant
-	{ text="Sorts de soins ++(%d+)", type="Healing" },				-- zg priest and healing enchant
-	{ text="Sorts de soin ++(%d+)", type="Healing" },				-- bracers and weapon healing enchant
-	{ text="++(%d+) aux d\195\169g\195\162ts des sorts et aux soins", type="All" }, -- not sure
 }
 
 -- Won't check any lines containing the following words (for speed)
@@ -883,8 +871,6 @@ TheoryCraft_IgnoreLines = {
 	"^Baguette", "^Main gauche", "R\195\169sistance?$", "^%+%d+ Endurance", "^%+%d+ Intelligence",
 	"^%+%d+ Esprit", "^%+%d+ Agilit\195\169", "^%+%d+ Force"
 }
-
--- Checks every line beginning with Equip: or Set: for these
 
 -- These are handled specially
 
@@ -982,26 +968,5 @@ TheoryCraft_SlotNames = {
 	{ realslot="Ranged", slot="Ranged", text="A distance" },
 	{ realslot="Ranged", slot="Ranged", text="Thrown" },
 }
-
---
--- From here on *DOES NOT NEED TO BE TRANSLATED*
--- 
--- In fact, TC will work just fine with none of the text below.
---
--- It does not need to be modified, and is automatically generated.
--- 
--- The purpose of this function is simply to help TC work with set bonuses even
--- when run for the very first time. Contact Aelian/Mania if you wish
--- to provide a locale of the following.
---
--- Or you can simply use TC's automatically generated file in
--- World of Warcraft\Account Name\SavedVariables\TheoryCraft.lua
---
-
-function TheoryCraft_LoadDefaultSetData()
-
-TheoryCraft_SetBonuses = { }
-
-end
 
 end

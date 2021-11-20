@@ -1,4 +1,4 @@
-if (TheoryCraft_Locale == nil) then
+﻿if (TheoryCraft_Locale == nil) then
 
 -- The format of the tooltip is defined below.
 -- It looks ghastly complicated at first, but is quite straight forward.
@@ -159,6 +159,7 @@ TheoryCraft_MeleeMinMaxReader = {
 
 }
 
+
 TheoryCraft_MeleeMinMaxReplacer = {
 	{ search = " causing %d+ to %d+ damage, modified by attack power, ",				-- Shield Slam
 	  replacewith = " causing $damage$ damage " },
@@ -198,7 +199,7 @@ TheoryCraft_MeleeMinMaxReplacer = {
 	  replacewith = "that causes $damage$ damage," },
 	{ search = "and doing (%d+) damage to them",							-- Thunder Clap
 	  replacewith = "and doing $damage$ damage to them" },
-	{ search = " causing weapon damage ",						-- Whirlwind
+	{ search = " causing weapon damage ",								-- Whirlwind
 	  replacewith = " causing $damage$ damage " },
 }
 
@@ -288,18 +289,18 @@ TheoryCraft_Locale = {
 	ID_Beast	= "Beast",
 	ID_Humanoid	= "Humanoid",
 	ID_Giant	= "Giant",
-	ID_Dragonkin	= "Dragonkin",
+	ID_Dragonkin = "Dragonkin",
 	ID_Equip	= "Equip: ",
 	ID_Set		= "Set: ",
 	ID_Use		= "Use: ",
-	to		= " to ",
+	to			= " to ",
 	Attack		= "Attack",
 	InstantCast	= "Instant cast",
 	SecCast		= " sec cast",
 	Mana		= " Mana",
 	Cooldown	= " sec cooldown",
 	CooldownRem	= "Cooldown remaining: ",
-	Set		= "%(%d+/%d+%)",
+	Set			= "%(%d+/%d+%)",
 	LoadText	= "TheoryCraftClassic "..TheoryCraft_Version.." by Aelian, ported by Xodious-Whitemane. Type /tc for ui interface. Type /tc more for hidden features.",
 	lifetap		= "Life Tap",
 	MinMax  = {
@@ -433,6 +434,8 @@ TheoryCraft_Locale = {
 		["Attack"] = "Attack",
 		["Shoot"] = "Shoot",
 	},
+	
+	
 -- Appears on the advanced tab, left side matches spell data (do not translate), right side equals display text
 	TalentTranslator = {
 -- Warlock
@@ -519,7 +522,7 @@ TheoryCraft_Locale = {
 -- Warrior
 		{ id="impoverpower", translated="Overpower" },
 		{ id="impale", translated="Impale" },
-		{ id="twohandspec", translated="Twohnd Spec" },
+		{ id="twohandspec", translated="Twohand Spec" },
 		{ id="axespec", translated="Axe Spec" },
 		{ id="polearmspec", translated="Polearm Spec" },
 		{ id="cruelty", translated="Cruelty" },
@@ -645,13 +648,13 @@ TheoryCraft_CheckButtons = {
 	["mitigation"] 	= { hide = {"STRIPPED"}, short = "Enable Mitigation", description = "If enabled your targets armor will be included in TC's calculations.\nYou can view a mobs armor by typing in /tc armor 'mob name', or\njust leaving it blank to list all known mobs." },
 	["resists"] 	= { hide = {"ROGUE", "WARRIOR"}, short = "Resists", description = "Adds a resists category to the tooltip.\nThis includes the resist rate of your *target* and\nyour dps after level-based resists are accounted for.\nIf you have any Spell Penetration gear it'll also\ntell you how much dps your penetration gear adds.\nNote that unless your target has a resist score equal to\nor higher then your penetration score, this dps\npenetrated won't be achieved." },
 	["averagethreat"] = { hide = {"ROGUE", "WARRIOR", "SHAMAN", "HUNTER", "DRUID", "WARLOCK", "PRIEST", "MAGE"}, short = "Average Threat", description = "The average threat caused by the attack." },
-	["plusdam"] 	= { hide = {"ROGUE", "WARRIOR"}, short = "+Damage", description = "+Damage for that spell, before the +dam coefficient." },
+	["plusdam"] 	= { hide = {"ROGUE", "WARRIOR"}, short = "+Damage", description = "+Damage for that spell, before being adjusted by the +dam coefficient." },
 	["damcoef"] 	= { hide = {"ROGUE", "WARRIOR"}, short = "+Damage Coefficient", description = "+Damage coefficient for that spell.\nWill be modified by applicable talents." },
 	["dameff"] 	= { hide = {"ROGUE", "WARRIOR"}, short = "+Damage Efficiency", description = "The +damage system is based on 3.5 +damage = +1dps, before crits.\nIf the spell gets this, then the efficiency will be 100%." },
 	["damfinal"] 	= { hide = {"ROGUE", "WARRIOR"}, short = "Final +Damage", description = "+Damage added to the spell after the +dam coefficient." },
 	["healanddamage"] = { hide = {"ROGUE", "WARRIOR", "MAGE", "SHAMAN", "HUNTER", "DRUID"}, short = "Show Heal Component", description = "If enabled spells that both damage and heal will\nhave both components listed seperately.\nNormally only the damage component will be shown." },
-	["nextagi"] 	= { hide = {"MAGE", "WARLOCK", "PRIEST", "PALADIN", "SHAMAN" }, short = "Next 10 agility", description = "", descriptionmelee = "Shows how much 10 agility will add to your average damage,\nalong with how much attack power would provide an equivelant boost." },
 	["nextstr"] 	= { hide = {"MAGE", "WARLOCK", "PRIEST", "PALADIN", "SHAMAN" }, short = "Next 10 strength", description = "", descriptionmelee = "Shows how much 10 strength will add to your average damage,\nalong with how much attack power would provide an equivelant boost." },
+	["nextagi"] = 	{ hide = {"MAGE", "WARLOCK", "PRIEST", "PALADIN", "SHAMAN" }, short = "Next 10 agility", description = "", descriptionmelee = "Shows how much 10 agility will add to your average damage (including crits), and how much attack power would be needed to achieve the same increase." },
 	["nextcrit"] 	= { short = "Next 1% to Crit", description = "Shows how much another 1% chance to crit will add to your *average damage*\nalong with how much +damage gear would be equivelant", descriptionmelee = "Shows how much +1% to crit will add to your average damage,\nalong with how much attack power would provide an equivelant boost." },
 	["nexthit"] 	= { short = "Next 1% to Hit", description = "Shows how much another 1% chance to hit will add to your *average damage*\nalong with how much +damage gear would be equivelant. To have it incorporate\nyour targets level you must have 'Factor Resists' turned on.", descriptionmelee = "Shows how much +1% to hit will add to your average damage,\nalong with how much attack power would provide an equivelant boost." },
 	["nextpen"] 	= { hide = {"ROGUE", "WARRIOR"}, short = "Next 10 Penetration", description = "If the target has a higher resistance score then your\npenetration score, your average damage will be\nlower then what TC says. Having an extra 10 penetration\nwill increase your actual average damage closer to TC's\ncalculated value, by the amount shown.\nTC will also tell you how much extra +damage\nwould increase your actual damage by the same amount.\nIf you have Factor Resists turned on, it'll tell you exactly\nhow much damage it'll add and the equivelant +damage figure." },
@@ -770,7 +773,7 @@ TheoryCraft_Debuffs = {
 -- Dot Duration is read from here
 
 TheoryCraft_DotDurations = {
-	{ text=" over (%d+) sec", amount="n" },				-- Shadow Word: Pain, Corruption, Immolate, Renew
+	{ text=" over (%d+) sec", amount="n" },					-- Shadow Word: Pain, Corruption, Immolate, Renew
 	{ text="every second for (%d+) sec%.", amount="n" },			-- Volley
 	{ text=" seconds for (%d+) sec%.", amount="n" },			-- Tranquility
 	{ text="each second for (%d+) sec%.", amount="n" },			-- Arcane Missiles
@@ -831,12 +834,13 @@ TheoryCraft_EquipEveryLine = {
 	{ text="Use: Restores 375 to 625 mana%.", type="manarestore", amount="500" },    -- Robe of the Archmage
 
 	{ text="Spell Hit %+(%d+)%%", type="Allhitchance" },				-- zg enchant
-	{ text="%/Hit %+(%d+)%%", type="Meleehitchance" },					-- Hunter Leg/Helm enchant
+	{ text="%/Hit %+(%d+)%%", type="Meleehitchance" },				-- Hunter Leg/Helm enchant
 
 	{ text="^.(%d+) mana every 5 sec%.", type="manaperfive" },			-- of restoration
 	{ text="Mana Regen %+(%d+)/", type="manaperfive" },				-- zg enchant
 	{ text="Mana Regen (%d+) per 5 sec%.", type="manaperfive" },			-- bracers healing enchant
 
+	-- Enchanting oils
 	{ text="^Brilliant Mana Oil", type="manaperfive", amount="12" }, 		-- Enchanting oils
 	{ text="^Brilliant Mana Oil", type="Healing", amount="25" }, 			-- Enchanting oils
 	{ text="^Brilliant Wizard Oil", type="Allcritchance", amount="1" }, 		-- Enchanting oils
