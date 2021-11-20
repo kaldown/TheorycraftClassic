@@ -1107,39 +1107,43 @@ function TheoryCraft_OutfitChange(self)
 	end
 end
 
+-- TODO: There are 2 sets of text-boxes. Resistances and button_text
+--       these should probably be handled by separate functions, but for now this works.
 function TheoryCraft_UpdateEditBox(self)
-	local s = string.gsub(self:GetName(), "TheoryCraft", "")
-	local text = self:GetText()
+	-- TODO: maybe its a good idea to rename all the frame names to be TheoryCraft_resist_fire and TheoryCraft_dontcrit
+	--       that way its really easy to split the string instead of using strfind() and string.gsub()
+	--       maybe a universal helper function to remove the "TheoryCraft_" prefix?
+	local short_name = string.gsub(self:GetName(), "TheoryCraft", "")
+	local text       = self:GetText()
 
-	if text == "~" and strfind(s, "resist") then
-		TheoryCraft_Settings["resistscores"][string.gsub(s, "resist", "")] = "~"
-		TheoryCraft_DeleteTable(TheoryCraft_UpdatedButtons)
-		return
-	end
-	text = tonumber(text)
-	if text == nil and strfind(s, "resist")then
-		TheoryCraft_Settings["resistscores"][string.gsub(s, "resist", "")] = 0
-		TheoryCraft_DeleteTable(TheoryCraft_UpdatedButtons)
-		return
-	end
-	-- One of the many color boxes
-	if strfind(s, "Col") then
+	if strfind(short_name, "resist") then
+		local resist_type = string.gsub(short_name, "resist", "")
+
+		-- TODO: what the hell does "~" mean in the resist context?
+		if not (text == "~") then
+			text = tonumber(text)
+		end
 		if text == nil then
 			text = 0
-		elseif text > 255 then
-			text = 255
-		elseif text < 0 then
-			text = 0
 		end
-		text = text/255
-	end
-
-	if strfind(s, "resist") then
-		TheoryCraft_Settings["resistscores"][string.gsub(s, "resist", "")] = text
+		TheoryCraft_Settings["resistscores"][resist_type] = text
+		-- REM: actually "includeresists"
 		if TheoryCraft_Settings["dontresist"] then
 			TheoryCraft_DeleteTable(TheoryCraft_UpdatedButtons)
 		end
-	else
-		TheoryCraft_Settings[s] = text
+		return
 	end
+
+	-- One of the many color boxes
+	if strfind(short_name, "Col") then
+		text = tonumber(text)
+
+		if text == nil or text < 0 then
+			text = 0
+		elseif text > 255 then
+			text = 255
+		end
+		text = text/255
+	end
+	TheoryCraft_Settings[short_name] = text
 end
