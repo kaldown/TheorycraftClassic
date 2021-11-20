@@ -1,4 +1,4 @@
-## Interface: 11303
+## Interface: 20502
 ## Author: Endymon (older authors: Boothin, Scott - Xodious - Original Code by Aelian)
 ## Title: TheoryCraftClassic
 ## Notes: Tells you everything about an ability, right on the tooltip.
