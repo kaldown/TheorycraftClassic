@@ -1,8 +1,8 @@
 ## Interface: 11303
-## Author: Xodious (Original Code by Aelian)
-## Title: TheoryCraft Classic
+## Author: Endymon (older authors: Boothin, Scott - Xodious - Original Code by Aelian)
+## Title: TheoryCraftClassic
 ## Notes: Tells you everything about an ability, right on the tooltip.
-## Version: 1.17.2020
+## Version: 11.20.2021
 ## SavedVariablesPerCharacter: TheoryCraft_Settings
 ## SavedVariables: TheoryCraft_SetBonuses, TheoryCraft_MitigationMobs, TheoryCraft_MitigationPlayers
 ## DefaultState: enabled
