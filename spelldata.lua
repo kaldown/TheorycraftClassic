@@ -1,4 +1,3 @@
-﻿TheoryCraft_Version = "1.07.1"
 TheoryCraft_DataVersion = "1.06"
 
 -- All types mentioned in this file refer to the following:

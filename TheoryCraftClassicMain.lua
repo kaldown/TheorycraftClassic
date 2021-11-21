@@ -1,5 +1,8 @@
 -- self lua file is mostly used for initialization
 
+TheoryCraft_AddonName = "TheoryCraftClassic"
+TheoryCraft_Version   = GetAddOnMetadata("TheoryCraftClassic", "Version") -- Read from TOC file
+
 TheoryCraft_TooltipData = {}
 TheoryCraft_OldText = {}
 TheoryCraft_Data = {}
@@ -29,6 +32,7 @@ TheoryCraft_Data.Talents["intmultiplier"] = 1
 TheoryCraft_Data.Talents["spiritmultiplier"] = 1
 TheoryCraft_Data.Talents["manamultiplier"] = 1
 TheoryCraft_Data.Talents["healthmultiplier"] = 1
+
 local _, class = UnitClass("player")
 local _, race = UnitRace("player")
 if (race == "Gnome") then
@@ -66,7 +70,6 @@ if Bartender4 and LibStub then
 		LAB.RegisterCallback(lib, "OnButtonCreated", function(event, self)
 			TheoryCraft_SetUpButton(self:GetName(), "Normal")
 		end)
-		
 	end
 end
 
@@ -508,8 +511,8 @@ function TheoryCraft_OnLoad(self)
 		end
 		i = i + 1
 	end
-	
-	Print(TheoryCraft_Locale.LoadText)
+
+	Print(table.concat({TheoryCraft_AddonName, TheoryCraft_Version, TheoryCraft_Locale.LoadText}, ' '))
 end
 
 --- OnShow ---
