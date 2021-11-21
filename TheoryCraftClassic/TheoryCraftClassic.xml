@@ -168,7 +168,7 @@
 		</Scripts>
 	</CheckButton>
 
-	<!-- All Checkboxes in the first tab EXCEPT for "dont resist" -->
+	<!-- All Checkboxes -->
 	<CheckButton name="TheoryCraftCBTemplate" inherits="UICheckButtonTemplate" virtual="true">
 		<!-- NOTE: Alters the user input hit box for a frame. This makes the text work like an html label  -->
 		<HitRectInsets>
@@ -1003,18 +1003,16 @@
 									tileSize = 100,
 								})
 							</OnLoad>
+							<!-- NOTE: subframes OnShow events fire before the parent frame. -->
+							<!--OnShow></OnShow-->
 						</Scripts>
 						<Frames>
 							<!-- NOTE: this is to position the button_text within a spell icon. ~ TODO: fix the bounding box so it cannot be dragged outside the demo icon -->
 							<Frame name="TheoryCraftActionButtonTextPos" frameStrata="HIGH" enableMouse="true" movable="true" >
 								<Size x="10" y="10"/>
-								<!-- REM: this is only the default point. layout-local.txt overrides this setting if it was moved. -->
-								<Anchors>
-									<Anchor point="CENTER">
-										<Offset><AbsDimension x="0" y="0"/></Offset>
-									</Anchor>
-								</Anchors>
+								<!-- REM: <Anchor> tags can only set a default point. layout-local.txt can and does override any anchors set in the XML -->
 								<Scripts>
+									<!-- REM: Cannot set an <Anchor> tag because its position is stored in SavedVariables -->
 									<OnMouseDown>
 										TheoryCraft_RestrictDummyButtonText(self)
 										self:StartMoving()

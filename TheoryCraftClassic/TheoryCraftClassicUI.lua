@@ -12,6 +12,27 @@ local function findpattern(text, pattern, start)
 	end
 end
 
+-- /run TheoryCraft_DebugPoints('FrameGlobalName')
+function TheoryCraft_DebugPoints(name)
+	local frame = _G[name]
+	if frame == nil then
+		print('cannot find: ' .. name)
+		return
+	end
+	local n = frame:GetNumPoints()
+	DEFAULT_CHAT_FRAME:AddMessage('num points: '..n)
+	local point, relativeTo, relativePoint, xOfs, yOfs = frame:GetPoint(1)
+	local relativeName = 'Unknown'
+	if relativeTo ~= nil then
+		relativeName = relativeTo:GetName()
+	end
+	DEFAULT_CHAT_FRAME:AddMessage(point)
+	DEFAULT_CHAT_FRAME:AddMessage(relativeName)
+	DEFAULT_CHAT_FRAME:AddMessage(relativePoint)
+	DEFAULT_CHAT_FRAME:AddMessage(xOfs)
+	DEFAULT_CHAT_FRAME:AddMessage(yOfs)
+end
+
 -- REM: called from inside TheoryCraft_AddButtonText and from whatever bartender4 code exists
 function TheoryCraft_SetUpButton(parentname, type, specialid)
 	oldbutton = getglobal(parentname)
@@ -623,6 +644,7 @@ function TheoryCraft_RestrictDummyButtonText(this)
 	this:SetClampRectInsets(-offset_L, offset_R, offset_T, -offset_B)
 end
 
+
 -- NOTE: this is for positioning the button_text relative to the spell icons.
 function TheoryCraft_UpdateButtonTextPos(this)
 	local this_left, this_bottom = this:GetCenter()
@@ -640,6 +662,9 @@ function TheoryCraft_UpdateButtonTextPos(this)
 	-- anchor this frame (so if the whole TheoryCraft window moves, things don't get weird)
 	this:ClearAllPoints() -- May have already been done by the act of dragging it
 	this:SetPoint("CENTER", this:GetParent(), "BOTTOMLEFT", offset_x, offset_y)
+
+	-- Prevent this widget from being saved into layout-local.txt as it will break the anchoring at some point after OnLoad is fired.
+	this:SetUserPlaced(false);
 
 	-- also clear screen padding restrictions since the move is finished
 	this:SetClampRectInsets(0,0,0,0)
@@ -665,6 +690,23 @@ function TheoryCraft_InitButtonTextOpts()
 	TheoryCraftColB2:SetText(TheoryCraft_Settings["ColB2"]*255)
 
 	TheoryCraftFontSize:SetText(TheoryCraft_Settings["FontSize"])
+
+	-- Also need to restore the position for the dummy text widget
+	-- Since the dummy text is movable we cannot configure an anchor directly in the XML
+	local dummy_text = _G['TheoryCraftActionButtonTextPos']
+	local parent     = dummy_text:GetParent()
+
+	-- In theory these should always have a value (initial load should create one), but just in case.
+	local buttontextx = TheoryCraft_Settings["buttontextx"] or 0.5
+	local buttontexty = TheoryCraft_Settings["buttontexty"] or 0.5
+
+	local p_width, p_height = parent:GetSize()
+	p_width  = round(p_width)  -- weird decimals, need rounding
+	p_height = round(p_height)
+
+	-- Anchor the frame (so if the whole TheoryCraft window moves, things don't get weird)
+	dummy_text:ClearAllPoints() -- Just in case
+	dummy_text:SetPoint("CENTER", parent, "BOTTOMLEFT", buttontextx*p_width, buttontexty*p_height)
 end
 
 local function formattext(a, field, places)

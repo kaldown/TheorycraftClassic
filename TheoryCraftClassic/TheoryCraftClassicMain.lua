@@ -510,6 +510,7 @@ end
 
 --- OnShow ---
 
+-- REM: this is for tooltip only
 function TheoryCraft_OnShow()
    	TheoryCraft_AddTooltipInfo(GameTooltip)
 	--if (TheoryCraft_OnShow_Save) then
@@ -738,6 +739,7 @@ function TheoryCraft_CheckBoxToggle(self)
 	end
 
 	if name == "dontresist" then
+		-- REM: the setting has already been changed to the new setting by this point
 		if TheoryCraft_Settings["dontresist"] then
 			TheoryCraftresistArcane:Show()
 			TheoryCraftresistFire:Show()
