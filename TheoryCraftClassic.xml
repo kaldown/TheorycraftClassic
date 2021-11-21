@@ -1,8 +1,9 @@
 <Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/">
 	<Script file="spelldata.lua"/>
-	<Script file="localization.de.lua"/>
-	<Script file="localization.fr.lua"/>
-	<Script file="localization.lua"/>
+	<Script file="locale/deDE.lua"/>
+	<Script file="locale/frFR.lua"/>
+	<!-- REM: default locale loads last -->
+	<Script file="locale/enUS.lua"/>
 	<Script file="TheoryCraftClassicColours.lua"/>
 	<Script file="TheoryCraftClassicUI.lua"/>
 	<Script file="TheoryCraftClassicMain.lua"/>

@@ -1,5 +1,5 @@
-﻿if (GetLocale() == "deDE") then
---if true then
+﻿-- If this client isn't german, skip this localization file
+if (GetLocale() ~= "deDE") then return end
 
 -- The format of the tooltip is defined below.
 -- It looks ghastly complicated at first, but is quite straight forward.
@@ -1034,5 +1034,3 @@ TheoryCraft_SlotNames = {
 	{ realslot="Ranged", slot="Ranged", text="Distanz" },
 	{ realslot="Ranged", slot="Ranged", text="Geworfen" },
 }
-
-end
