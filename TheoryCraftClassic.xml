@@ -1,5 +1,5 @@
 <Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/">
-	<Script file="spelldata.lua"/>
+	<Script file="gamedata.lua"/>
 	<Script file="locale/deDE.lua"/>
 	<Script file="locale/frFR.lua"/>
 	<!-- REM: default locale loads last -->
