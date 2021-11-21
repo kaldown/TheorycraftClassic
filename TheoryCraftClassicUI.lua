@@ -3,7 +3,6 @@ local _BUTTONTEXTTAB = 2
 local _ADVANCEDTAB = 3
 --local _MITIGATIONTAB = 4
 local _, class = UnitClass("player")
-TheoryCraft_NotStripped = true
 
 local function findpattern(text, pattern, start)
 	if (text and pattern and (string.find(text, pattern, start))) then

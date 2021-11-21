@@ -312,9 +312,7 @@ local function SetDefaults()
 	TheoryCraft_Settings["healanddamage"] = true
 	TheoryCraft_Settings["embedstyle1"] = true
 	TheoryCraft_Settings["buttontext"] = true
-	if TheoryCraft_NotStripped then
-		TheoryCraft_Settings["mitigation"] = true
-	end
+	TheoryCraft_Settings["mitigation"] = true
 	TheoryCraft_Settings["tryfirst"] = "averagedam"
 	TheoryCraft_Settings["trysecond"] = "averagehealnocrit"
 	TheoryCraft_Settings["tryfirstsfg"] = 0
@@ -343,11 +341,6 @@ function TheoryCraft_SetItemRef(link, text, button)
 end
 
 function TheoryCraft_OnLoad(self)
-	if not TheoryCraft_NotStripped then
-		TheoryCraft_Locale.LoadText = string.gsub(TheoryCraft_Locale.LoadText, TheoryCraft_Version, TheoryCraft_Version.." STRIPPED")
-		TheoryCraft_DataVersion = TheoryCraft_DataVersion.." STRIPPED"
-		TheoryCraft_Version = TheoryCraft_Version.." STRIPPED"
-	end
 	TheoryCraft_MitigationMobs = {}
 	TheoryCraft_MitigationPlayers = {}
 	tinsert(UISpecialFrames,"TheoryCraft")
@@ -711,9 +704,11 @@ function TheoryCraft_CheckBoxSetText(self)
 	name = string.sub(name, 12)
 	if TheoryCraft_CheckButtons[name] == nil then return end
 
+	-- REM: hide is a table of class names for which a given checkbox option is to be disabled (because it doesn't apply to them)
 	if TheoryCraft_CheckButtons[name].hide then
 		for k,v in pairs(TheoryCraft_CheckButtons[name].hide) do
-			if (class == v) or ((v == "STRIPPED") and (not TheoryCraft_NotStripped)) then
+			-- REM: class is a global set at the top of UI.lua
+			if (class == v)) then
 				getglobal(self:GetName()):Disable()
 				getglobal(self:GetName().."Text"):SetTextColor(0.5, 0.5, 0.5)
 			end
@@ -769,11 +764,9 @@ end
 function TheoryCraft_Command(cmd)
 	if (cmd == "") then
 		if TheoryCraft_Data["firstrun"] == nil then
-			if TheoryCraft_NotStripped then
-				PanelTemplates_SetNumTabs(TheoryCraft, 3)
-				TheoryCraft.selectedTab=1
-				PanelTemplates_UpdateTabs(TheoryCraft)
-			end
+			PanelTemplates_SetNumTabs(TheoryCraft, 3)
+			TheoryCraft.selectedTab = 1
+			PanelTemplates_UpdateTabs(TheoryCraft)
 		end
 		TheoryCraft_Data["firstrun"] = 1
 
