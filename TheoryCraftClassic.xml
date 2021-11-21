@@ -2,7 +2,6 @@
 	<Script file="spelldata.lua"/>
 	<Script file="localization.de.lua"/>
 	<Script file="localization.fr.lua"/>
-	<Script file="localization.ko.lua"/>
 	<Script file="localization.lua"/>
 	<Script file="TheoryCraftClassicColours.lua"/>
 	<Script file="TheoryCraftClassicUI.lua"/>
