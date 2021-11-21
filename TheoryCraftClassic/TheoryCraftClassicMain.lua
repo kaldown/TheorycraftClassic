@@ -708,7 +708,7 @@ function TheoryCraft_CheckBoxSetText(self)
 	if TheoryCraft_CheckButtons[name].hide then
 		for k,v in pairs(TheoryCraft_CheckButtons[name].hide) do
 			-- REM: class is a global set at the top of UI.lua
-			if (class == v)) then
+			if (class == v) then
 				getglobal(self:GetName()):Disable()
 				getglobal(self:GetName().."Text"):SetTextColor(0.5, 0.5, 0.5)
 			end
