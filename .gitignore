@@ -333,3 +333,6 @@ ASALocalRun/
 
 # windows shortcuts
 *.lnk
+
+# Any generated zip files
+*.zip

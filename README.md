@@ -35,14 +35,17 @@ Changes already made from code I inherited from Boothin
 
 ## Other Known Issues
 
-- I've seen some taint issues. Not sure how to reproduce or resolve them at this time.
+- (Major) No melee ability currently has any tooltip updates performed.
+- +spell damage (and other stats) are not currently read correctly
 - Some slash commands may not function
 - Some checkboxes may have no effect
-- +spell damage is not currently read correctly
-- Button Text positioning widget may get unstuck from its parent frame somehow.
 - Some descriptive text may not be clear in its function.
 - Localizations are AS-IS, and will be worked on later if there is any interest.
 - Some elements of the TC frame have inconsistent z-index values.
-- There may be some initial game load lag. Probably related to stat scraping.
+- Anything else listed in the issues section of this repo.
 
 Please report any bugs you find
+
+## Curse
+
+https://www.curseforge.com/wow/addons/theorycraftclassic2
