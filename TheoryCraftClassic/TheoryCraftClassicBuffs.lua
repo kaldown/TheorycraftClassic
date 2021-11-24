@@ -13,7 +13,7 @@ end
 
 local function TheoryCraft_AddAllBuffs(target, data, buffs)
 	TheoryCraftTooltip:ClearLines()
-	local i, buff, a, defaulttarget, _, start, found, type
+	local i, buff, locale_table, defaulttarget, _, start, found, type
 	if target == "player" then
 		local _, _, _, _, _, _, meleemod = UnitDamage("player")
 		data["Meleemodifier"] = -1+meleemod
@@ -32,10 +32,10 @@ local function TheoryCraft_AddAllBuffs(target, data, buffs)
 		end
 	end
 	if buffs == "debuffs" then
-		a = TheoryCraft_Debuffs
+		locale_table = TheoryCraft_Debuffs
 		defaulttarget = "target"
 	else
-		a = TheoryCraft_Buffs
+		locale_table = TheoryCraft_Buffs
 		defaulttarget = "player"
 	end
 	for i = 1, 16 do
@@ -58,7 +58,8 @@ local function TheoryCraft_AddAllBuffs(target, data, buffs)
 			end
 			if (ltext) then ltext = ltext:GetText() end
 			if ltext then
-				for k, v in pairs(a) do
+				-- Each row in the table is a sub-table with 2-4 keys: text, type, amount, target
+				for k, v in pairs(locale_table) do
 					if ((not v.target) and (target == defaulttarget)) or (v.target == target) then
 						_, start, found = strfind(ltext, v.text)
 						if _ then
@@ -84,9 +85,10 @@ local function TheoryCraft_AddAllBuffs(target, data, buffs)
   	end
 end
 
-local old = {}
+local old  = {}
 local old2 = {}
 
+-- I believe this is called upon entering_world & whenever a player buff/debuff is changed (aura) & whenever target is changed.
 function TheoryCraft_UpdateBuffs(arg1, dontgen)
 	if (arg1 == "player") then
 		TheoryCraft_DeleteTable(TheoryCraft_Data.PlayerBuffs)
@@ -101,6 +103,7 @@ function TheoryCraft_UpdateBuffs(arg1, dontgen)
 			TheoryCraft_UpdateArmor()
 			TheoryCraft_GenerateAll()
 		end
+
 	elseif (arg1 == "target") then
 		TheoryCraft_DeleteTable(old)
 		TheoryCraft_CopyTable(TheoryCraft_Data.TargetBuffs, old)

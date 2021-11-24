@@ -1,6 +1,6 @@
 local _, class = UnitClass("player")
 local returndata = {}
-local summeddata = {}
+local summeddata = {} -- This is a temporary table
 
 local function findpattern(text, pattern, start)
 	if (text and pattern and (string.find(text, pattern, start))) then
@@ -16,55 +16,58 @@ local function round(arg1, decplaces)
 	return string.format ("%."..decplaces.."f", arg1)
 end
 
-local function TheoryCraft_AddData(arg1, data, summeddata)
+-- REM: spell_group could be the name of the spell as well. 
+local function TheoryCraft_AddData(spell_group, data, summeddata)
 	if data == nil then return end
-	summeddata["tmpincrease"] = summeddata["tmpincrease"] + (data[arg1.."modifier"] or 0)
-	summeddata["tmpincreaseupfront"] = summeddata["tmpincreaseupfront"] + (data[arg1.."UpFrontmodifier"] or 0)
+
+	summeddata["tmpincrease"]        = summeddata["tmpincrease"]        + (data[spell_group.."modifier"] or 0)
+	summeddata["tmpincreaseupfront"] = summeddata["tmpincreaseupfront"] + (data[spell_group.."UpFrontmodifier"] or 0)
 	if summeddata["baseincrease"] ~= 0 then
-		summeddata["baseincrease"] = summeddata["baseincrease"] * ((data[arg1.."baseincrease"] or 0)+1)
+		summeddata["baseincrease"] = summeddata["baseincrease"] * ((data[spell_group.."baseincrease"] or 0)+1)
 	else
-		summeddata["baseincrease"] = summeddata["baseincrease"] + (data[arg1.."baseincrease"] or 0)
+		summeddata["baseincrease"] = summeddata["baseincrease"] + (data[spell_group.."baseincrease"] or 0)
 	end
 	if summeddata["baseincreaseupfront"] ~= 0 then
-		summeddata["baseincreaseupfront"] = summeddata["baseincreaseupfront"] * ((data[arg1.."UpFrontbaseincrease"] or 0)+1)
+		summeddata["baseincreaseupfront"] = summeddata["baseincreaseupfront"] * ((data[spell_group.."UpFrontbaseincrease"] or 0)+1)
 	else
-		summeddata["baseincreaseupfront"] = summeddata["baseincreaseupfront"] + (data[arg1.."UpFrontbaseincrease"] or 0)
+		summeddata["baseincreaseupfront"] = summeddata["baseincreaseupfront"] + (data[spell_group.."UpFrontbaseincrease"] or 0)
 	end
-	summeddata["talentmod"] = summeddata["talentmod"] + (data[arg1.."talentmod"] or 0)
-	summeddata["talentmodupfront"] = summeddata["talentmodupfront"] + (data[arg1.."UpFronttalentmod"] or 0)
+	summeddata["talentmod"]        = summeddata["talentmod"]        + (data[spell_group.."talentmod"] or 0)
+	summeddata["talentmodupfront"] = summeddata["talentmodupfront"] + (data[spell_group.."UpFronttalentmod"] or 0)
 	if (summeddata["doshatter"] ~= 0) then
-		summeddata["critchance"] = summeddata["critchance"] + (data[arg1.."shatter"] or 0)
+		summeddata["critchance"] = summeddata["critchance"] + (data[spell_group.."shatter"] or 0)
 	end
-	summeddata["illum"] = summeddata["illum"] + (data[arg1.."illum"] or 0)
-	summeddata["plusdam"] = summeddata["plusdam"] + (data[arg1] or 0)
-	summeddata["manacostmod"] = summeddata["manacostmod"] + (data[arg1.."manacost"] or 0)
-	summeddata["critchance"] = summeddata["critchance"] + (data[arg1.."critchance"] or 0)
-	summeddata["critbonus"] = summeddata["critbonus"] + (data[arg1.."critbonus"] or 0)
-	summeddata["ignitemodifier"] = summeddata["ignitemodifier"] + (data[arg1.."ignitemodifier"] or 0)
-	summeddata["sepignite"] = summeddata["sepignite"] + (data[arg1.."sepignite"] or 0)
-	summeddata["hitbonus"] = summeddata["hitbonus"] - (data[arg1.."hitchance"] or 0)
-	summeddata["casttime"] = summeddata["casttime"] + (data[arg1.."casttime"] or 0)
-	summeddata["regencasttime"] = summeddata["regencasttime"] + (data[arg1.."casttime"] or 0)
-	summeddata["penetration"] = summeddata["penetration"] + (data[arg1.."penetration"] or 0)
-	summeddata["grace"] = summeddata["grace"] + (data[arg1.."grace"] or 0)
-	summeddata["threat"] = summeddata["threat"] + (data[arg1.."threat"] or 0)
-	if data[arg1.."Netherwind"] == 1 then
+	summeddata["illum"]          = summeddata["illum"]          + (data[spell_group.."illum"] or 0)
+	summeddata["plusdam"]        = summeddata["plusdam"]        + (data[spell_group] or 0)
+	summeddata["manacostmod"]    = summeddata["manacostmod"]    + (data[spell_group.."manacost"] or 0)
+	summeddata["critchance"]     = summeddata["critchance"]     + (data[spell_group.."critchance"] or 0)
+	summeddata["critbonus"]      = summeddata["critbonus"]      + (data[spell_group.."critbonus"] or 0)
+	summeddata["ignitemodifier"] = summeddata["ignitemodifier"] + (data[spell_group.."ignitemodifier"] or 0)
+	summeddata["sepignite"]      = summeddata["sepignite"]      + (data[spell_group.."sepignite"] or 0)
+	summeddata["hitbonus"]       = summeddata["hitbonus"]       - (data[spell_group.."hitchance"] or 0)
+	summeddata["casttime"]       = summeddata["casttime"]       + (data[spell_group.."casttime"] or 0)
+	summeddata["regencasttime"]  = summeddata["regencasttime"]  + (data[spell_group.."casttime"] or 0)
+	summeddata["penetration"]    = summeddata["penetration"]    + (data[spell_group.."penetration"] or 0)
+	summeddata["grace"]          = summeddata["grace"]          + (data[spell_group.."grace"] or 0)
+	summeddata["threat"]         = summeddata["threat"]         + (data[spell_group.."threat"] or 0)
+	if data[spell_group.."Netherwind"] == 1 then
 		summeddata["netherwind"] = 1
 	end
 end
 
-local function TheoryCraft_DoSchool(arg1, summeddata)
+-- REM: spell_group could be the name of the spell as well. 
+local function TheoryCraft_DoSchool(spell_group, summeddata)
 	if TheoryCraft_Data.Testing then
-		TheoryCraft_AddData(arg1, TheoryCraft_Data.TalentsTest, summeddata)
+		TheoryCraft_AddData(spell_group, TheoryCraft_Data.TalentsTest, summeddata)
 	else
-		TheoryCraft_AddData(arg1, TheoryCraft_Data.Talents, summeddata)
+		TheoryCraft_AddData(spell_group, TheoryCraft_Data.Talents, summeddata)
 	end
-	TheoryCraft_AddData(arg1, TheoryCraft_Data.BaseData, summeddata)
-	TheoryCraft_AddData(arg1, TheoryCraft_Data.Stats, summeddata)
-	TheoryCraft_AddData(arg1, TheoryCraft_Data.PlayerBuffs, summeddata)
-	TheoryCraft_AddData(arg1, TheoryCraft_Data.TargetBuffs, summeddata)
-	TheoryCraft_AddData(arg1, TheoryCraft_Data.EquipEffects, summeddata)
-	TheoryCraft_AddData(arg1, TheoryCraft_Data.Target, summeddata)
+	TheoryCraft_AddData(spell_group, TheoryCraft_Data.BaseData, summeddata)
+	TheoryCraft_AddData(spell_group, TheoryCraft_Data.Stats, summeddata)
+	TheoryCraft_AddData(spell_group, TheoryCraft_Data.PlayerBuffs, summeddata)
+	TheoryCraft_AddData(spell_group, TheoryCraft_Data.TargetBuffs, summeddata)
+	TheoryCraft_AddData(spell_group, TheoryCraft_Data.EquipEffects, summeddata)
+	TheoryCraft_AddData(spell_group, TheoryCraft_Data.Target, summeddata)
 end
 
 local function SummateData(name, schools)
@@ -90,9 +93,12 @@ local function SummateData(name, schools)
 	summeddata["grace"] = 0
 	summeddata["netherwind"] = 0
 	summeddata["threat"] = 0
+
+	-- summate all the modifications to this spell for all spell_schools it is a part of
 	for k, v in pairs (schools) do
 		TheoryCraft_DoSchool(v, summeddata)
 	end
+	-- summate to include any modifiers specific to this spell alone
 	TheoryCraft_DoSchool(name, summeddata)
 end
 
@@ -608,6 +614,7 @@ local function AddProcs(casttime, returndata, spelldata)
 	end
 end
 
+-- Removes irrelevant returndata fields based on configuration in spelldata
 local function CleanUp(spelldata, returndata)
 	if spelldata.percent == 0 then
 		returndata["plusdam"] = nil
@@ -640,6 +647,7 @@ local function CleanUp(spelldata, returndata)
 		returndata["nextpen"] = nil
 		returndata["penetration"] = nil
 	end
+	-- NOTE: there are currently ZERO petspells enabled.
 	if spelldata.petspell then
 		returndata["damcoef"] = nil
 		returndata["dpsdam"] = nil
@@ -698,14 +706,18 @@ end
 
 local function GenerateTooltip(frame, returndata, spelldata, spellrank)
 	if spellrank == nil then spellrank = 0 end
+
 	returndata["RangedAPMult"] = 2.8
-	--[[if (frame == nil) or (frame:NumLines() == 0) then
+	--[[
+	if (frame == nil) or (frame:NumLines() == 0) then
 		CleanUp(spelldata, returndata)
 		return
-	end]]--
+	end
+	--]]
+
 	if spelldata.evocation then
 		CleanUp(spelldata, returndata)
-		returndata["evocation"] = TheoryCraft_GetStat("maxtotalmana")-TheoryCraft_GetStat("totalmana")-1100
+		returndata["evocation"] = TheoryCraft_GetStat("maxtotalmana") - TheoryCraft_GetStat("totalmana") - 1100
 		return
 	end
 	if (spelldata.isranged) then
@@ -732,9 +744,10 @@ local function GenerateTooltip(frame, returndata, spelldata, spellrank)
 			return
 		end
 		local i = 1
-		returndata["critchance"] = TheoryCraft_Data.Stats["meleecritchance"]+TheoryCraft_GetStat(spelldata.id.."critchance")
+
+		returndata["critchance"] = TheoryCraft_Data.Stats["meleecritchance"] + TheoryCraft_GetStat(spelldata.id.."critchance")
 		while spelldata.Schools[i] do
-			returndata["critchance"] = returndata["critchance"]+TheoryCraft_GetStat(spelldata.Schools[i].."critchance")
+			returndata["critchance"] = returndata["critchance"] + TheoryCraft_GetStat(spelldata.Schools[i].."critchance")
 			i = i + 1
 		end
 	end
@@ -753,9 +766,10 @@ local function GenerateTooltip(frame, returndata, spelldata, spellrank)
 		end
 	end
 	if (spelldata.usemelee) then
-		returndata["critchance"] = (TheoryCraft_Data.Stats["meleecritchance"] or 0)+TheoryCraft_GetStat("Holycritchance")
+		returndata["critchance"] = (TheoryCraft_Data.Stats["meleecritchance"] or 0) + TheoryCraft_GetStat("Holycritchance")
 		returndata["critbonus"] = 1
 	end
+	-- Default for most classes is to use melee crit chance. But for hunters it is reversed.
 	if (spelldata.isranged) or ((class == "HUNTER") and (spelldata.ismelee == nil)) then
 		returndata["critchance"] = TheoryCraft_Data.Stats["rangedcritchance"]
 	end
@@ -767,6 +781,7 @@ local function GenerateTooltip(frame, returndata, spelldata, spellrank)
 	local spellCosts = GetSpellPowerCost(returndata["spellnumber"])
 	-- print(dump(spellCosts))
 	-- returndata["manacost"] = 0
+	-- If this spell has some sort of cost to it, find the mana-cost specifically
 	if spellCosts ~= nil then
 		for k, v in pairs(spellCosts) do
 			if v.name == "MANA" then
@@ -798,8 +813,11 @@ local function GenerateTooltip(frame, returndata, spelldata, spellrank)
 		if (returndata["casttime"] > 1.5) then returndata["casttime"] = (returndata["casttime"]-1.5)*0.9+1.5 end
 		if (returndata["regencasttime"] > 1.5) then returndata["regencasttime"] = (returndata["regencasttime"]-1.5)*0.9+1.5 end
 	end
+
+
 	local spelllevel = 60
 	local levelpercent = 1
+	-- This section finds the specific configuration per spell rank (if it exists)
 	returndata["manamultiplier"] = spelldata.manamultiplier
 	if (spelldata["level"..spellrank]) then spelllevel = spelldata["level"..spellrank] end
 	if (spelldata["level"..spellrank.."per"]) then levelpercent = spelldata["level"..spellrank.."per"];  end
@@ -883,12 +901,12 @@ local function GenerateTooltip(frame, returndata, spelldata, spellrank)
 	end
 
 	if spelldata.isheal == nil then
-		returndata["manacost"] = returndata["manacost"]-returndata["manacost"]*(TheoryCraft_Data.Talents["clearcast"] or 0)
+		returndata["manacost"] = returndata["manacost"] - returndata["manacost"]*(TheoryCraft_Data.Talents["clearcast"] or 0)
 	end
 	if (returndata["manamultiplier"]) then
 		returndata["manacost"] = returndata["manacost"]*returndata["manamultiplier"]
 	end
-	returndata["manacost"] = returndata["manacost"]-(TheoryCraft_Data.Stats["icregen"] or 0)*returndata["regencasttime"]
+	returndata["manacost"] = returndata["manacost"] - (TheoryCraft_Data.Stats["icregen"] or 0)*returndata["regencasttime"]
 	returndata["manacost"] = returndata["manacost"]*returndata["manacostmod"]
 
 	if (returndata["crithealchance"]) and (returndata["crithealchance"] > 100) then
@@ -1338,11 +1356,14 @@ function TheoryCraft_GenerateSpellData(spellId)
 
 
 	local spellName, _, _, castTime, minRange, maxRange = GetSpellInfo( spellId );
-	local spellDescription = GetSpellDescription(spellId);
-	local spellRank = GetSpellRankById(spellId);
+	local spellDescription  = GetSpellDescription(spellId);
+	local spellRank         = GetSpellRankById(spellId);
 	local cooldownMS, gcdMS = GetSpellBaseCooldown(spellId);
 	
 	local spellData = nil
+	-- TheoryCraft_Spells is a HASH keyed by each class name.
+	-- each class is an ARRAY of spells/abilities
+	-- and each spell/ability is a HASH defining the characteristics of that ability
 	for k, v in pairs(TheoryCraft_Spells[class]) do
 		if v.name == spellName then
 			spellData = v
@@ -1356,6 +1377,7 @@ function TheoryCraft_GenerateSpellData(spellId)
 	olddesc = spellDescription
 
 	-- Start unoptimized
+	-- REM: the id in this case is the spellName
 	SummateData(spellData.id, spellData.Schools)
 	
 	--[[descriptionLine = getglobal(GameTooltip:GetName().."TextLeft"..GameTooltip:NumLines());
@@ -1368,16 +1390,12 @@ function TheoryCraft_GenerateSpellData(spellId)
 		olddesc = ""
 	end]]--
 
-
-
-
 	-- Copies SummateData into the tooltipdata
 	TheoryCraft_CopyTable(summeddata, TheoryCraft_TooltipData[spellId])
 
 	if TheoryCraft_TooltipData[spellId]["schools"] == nil then
 		TheoryCraft_TooltipData[spellId]["schools"] = {}
 	end
-
 	TheoryCraft_CopyTable(spellData.Schools, TheoryCraft_TooltipData[spellId]["schools"])
 
 	TheoryCraft_TooltipData[spellId]["basedescription"] = olddesc
@@ -1389,7 +1407,8 @@ function TheoryCraft_GenerateSpellData(spellId)
 	--end
 	-- TheoryCraft_TooltipData[spellname.."("..spellrank..")"] = olddesc
 	
-	--[[if (spellData.shoot) or (spellData.ismelee) or (spellData.isranged) then
+	--[[
+	if (spellData.shoot) or (spellData.ismelee) or (spellData.isranged) then
 		if getglobal(GameTooltip:GetName().."TextLeft2") then
 			TheoryCraft_TooltipData[spellId]["wandlineleft2"] = getglobal(GameTooltip:GetName().."TextLeft2"):GetText()
 			-- print(TheoryCraft_TooltipData[spellId]["wandlineleft2"]) -- 30 yd
@@ -1412,15 +1431,18 @@ function TheoryCraft_GenerateSpellData(spellId)
 				print(TheoryCraft_TooltipData[spellId]["wandlineleft4"])
 			end
 		end
-	else]]--
-		--[[if getglobal(GameTooltip:GetName().."TextLeft3") then
+	else
+	--]]
+		--[[
+		if getglobal(GameTooltip:GetName().."TextLeft3") then
 			if (getglobal(GameTooltip:GetName().."TextLeft3"):GetText()) then
 				if (getglobal(GameTooltip:GetName().."TextLeft3"):GetText() ~= olddesc) and (strfind(getglobal(GameTooltip:GetName().."TextLeft3"):GetText(), (TheoryCraft_Locale.CooldownRem) or "Cooldown remaining: ") == nil) then
 					TheoryCraft_TooltipData[spellId]["basecasttime"] = getglobal(GameTooltip:GetName().."TextLeft3"):GetText()
 					print(TheoryCraft_TooltipData[spellId]["basecasttime"])
 				end
 			end
-		end ]]--
+		end
+		--]]
 
 		TheoryCraft_TooltipData[spellId]["basecasttime"] = (castTime / 1000).." sec cast" -- 3 sec, Instance Cast vs 3000, 0
 		if ((castTime / 1000) == 0) then
@@ -1428,10 +1450,12 @@ function TheoryCraft_GenerateSpellData(spellId)
 		end
 		--print(castTime)
 		--print(tonumber(TheoryCraft_TooltipData[spellId]["basecasttime"]))
-		--[[ if getglobal(GameTooltip:GetName().."TextRight2") and getglobal(GameTooltip:GetName().."TextRight2"):IsVisible() then
+		--[[
+		if getglobal(GameTooltip:GetName().."TextRight2") and getglobal(GameTooltip:GetName().."TextRight2"):IsVisible() then
 			TheoryCraft_TooltipData[spellId]["spellrange"] = getglobal(GameTooltip:GetName().."TextRight2"):GetText()
 			print(TheoryCraft_TooltipData[spellId]["spellrange"])
-		end ]]--
+		end
+		--]]
 
 		if (maxRange > 0) then 
 			TheoryCraft_TooltipData[spellId]["spellrange"] = ""..maxRange.." yd range" -- 40 Yard Range vs 40 
@@ -1441,7 +1465,8 @@ function TheoryCraft_GenerateSpellData(spellId)
 		-- print(TheoryCraft_TooltipData[spellId]["spellrange"]) 
 
 
-		--[[if getglobal(GameTooltip:GetName().."TextRight3") and getglobal(GameTooltip:GetName().."TextRight3"):IsVisible() then
+		--[[
+		if getglobal(GameTooltip:GetName().."TextRight3") and getglobal(GameTooltip:GetName().."TextRight3"):IsVisible() then
 			TheoryCraft_TooltipData[spellId]["cooldown"] = getglobal(GameTooltip:GetName().."TextRight3"):GetText()
 			print(TheoryCraft_TooltipData[spellId]["cooldown"] )
 			if (spellData.overcooldown) and (TheoryCraft_TooltipData[spellId]["averagedam"]) then
@@ -1453,7 +1478,8 @@ function TheoryCraft_GenerateSpellData(spellId)
 					print(TheoryCraft_TooltipData[spellId]["dps"])
 				end
 			end
-		end]]--
+		end
+		--]]
 		if cooldownMS > 0 then
 			-- Need time units here, need to read talented information here?
 			TheoryCraft_TooltipData[spellId]["cooldown"] = (cooldownMS / 1000).." sec cooldown"
@@ -2005,10 +2031,6 @@ function GetSpellRankById(spellId)
 	if spellSubtext == nil then return nil end
 	rank = string.match(spellSubtext, "%d+")
 	return rank
-end
-
-function TheoryCraft_GetSpellDataByFrame(frame, force)
-
 end
 
 --function TheoryCraft_GetSpellDataByName(spellname, spellrank, force, macro)

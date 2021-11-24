@@ -22,9 +22,10 @@ local returnvalue, colour
 
 function TheoryCraft_AddTooltipInfo(frame, dontshow)
 	if TheoryCraft_Settings["off"] then return frame end
-	--[[local tooltipdata = nil -- TheoryCraft_GetSpellDataByFrame(frame, true)
-	--if tooltipdata == nil then
-	--	if (frame:NumLines() == 1) and (getglobal(frame:GetName().."TextLeft1"):GetText() ~= "Attack") then
+	--[[
+	local tooltipdata = nil
+	if tooltipdata == nil then
+		if (frame:NumLines() == 1) and (getglobal(frame:GetName().."TextLeft1"):GetText() ~= "Attack") then
 			local _, _, name, rank = strfind(getglobal(frame:GetName().."TextLeft1"):GetText(), "(.+)%((%d+)%)")
 			print(name)
 			print(rank)
@@ -47,12 +48,14 @@ function TheoryCraft_AddTooltipInfo(frame, dontshow)
 
 			print(spellname)
 			print(spellrank)
---		end
---		frame:Show()
---		return frame
---	end]]--
+		end
+		frame:Show()
+		return frame
+	end
+--]]
 
-	spellName, spellID = GameTooltip:GetSpell();
+	-- Returns the name and ID of the item displayed on a GameTooltip. 
+	spellName, spellID = GameTooltip:GetSpell()
 
 	-- print(spellName..spellID)
 

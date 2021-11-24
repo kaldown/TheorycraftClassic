@@ -1,7 +1,7 @@
 local _TOOLTIPTAB = 1
 local _BUTTONTEXTTAB = 2
 local _ADVANCEDTAB = 3
---local _MITIGATIONTAB = 4
+
 local _, class = UnitClass("player")
 
 local function findpattern(text, pattern, start)
@@ -709,6 +709,7 @@ function TheoryCraft_InitButtonTextOpts()
 	dummy_text:SetPoint("CENTER", parent, "BOTTOMLEFT", buttontextx*p_width, buttontexty*p_height)
 end
 
+-- Format the action button_text based on the significant placevalue configuration dropdown selected.
 local function formattext(a, field, places)
 	if places == nil then
 		places = 0

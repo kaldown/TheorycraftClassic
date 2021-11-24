@@ -97,6 +97,7 @@ function Print(text, begin, spaces)
 	DEFAULT_CHAT_FRAME:AddMessage(text)
 end
 
+-- Recursively copy contents from tab1 into tab2
 function TheoryCraft_CopyTable(tab1, tab2)
 	for k, v in pairs(tab1) do
 		if type(v) == "table" then
@@ -727,10 +728,13 @@ function TheoryCraft_CheckBoxToggle(self)
 	local name = self:GetName()
 	name = string.sub(name, 12) -- TheoryCraft
 	if (name == "embedstyle1") or (name == "embedstyle2") or (name == "embedstyle3") then
+		-- Clear all
 		TheoryCraft_Settings["embedstyle1"] = nil
 		TheoryCraft_Settings["embedstyle2"] = nil
 		TheoryCraft_Settings["embedstyle3"] = nil
+		-- Set the one that was clicked
 		TheoryCraft_Settings[name] = onoff
+		-- Update the checkboxes in the UI
 		TheoryCraft_SetCheckBox("embedstyle1")
 		TheoryCraft_SetCheckBox("embedstyle2")
 		TheoryCraft_SetCheckBox("embedstyle3")
