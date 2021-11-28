@@ -1991,12 +1991,17 @@ end
 
 
 
-function TheoryCraft_GetSpellDataByAction(action)
-	if action == nil then return nil end
-	local type, id = GetActionInfo(action);
-	if (type == "macro") then
+function TheoryCraft_GetSpellDataByAction(action_slot)
+	if action_slot == nil then return nil end
+
+	local action_type, id = GetActionInfo(action_slot); -- TODO: also returns a subType
+
+	if (action_type == "macro") then
+		-- Change the macro_id into a spellID
 		id = GetMacroSpell(id)
-	else if (type ~= "spell") then 
+
+	-- including nil
+	else if (action_type ~= "spell") then 
 		return nil end
 	end
 	if (id == nil) then return end
@@ -2005,7 +2010,12 @@ function TheoryCraft_GetSpellDataByAction(action)
 end
 
 function TheoryCraft_GetSpellDataByName(name, rank)
-	if rank == nil or rank == 0 then rank = "" else rank = "Rank "..rank end
+	if rank == nil or rank == 0 then 
+		rank = ""
+	else
+		rank = "Rank "..rank
+	end
+
 	local name, rank, icon, castTime, minRange, maxRange, spellId = GetSpellInfo(name, rank)
 	if spellId == nil then return nil end
 	local spellData = TheoryCraft_GenerateSpellData(spellId);

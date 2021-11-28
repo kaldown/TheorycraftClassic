@@ -22,6 +22,7 @@ local returnvalue, colour
 
 function TheoryCraft_AddTooltipInfo(frame, dontshow)
 	if TheoryCraft_Settings["off"] then return frame end
+
 	--[[
 	local tooltipdata = nil
 	if tooltipdata == nil then

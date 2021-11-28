@@ -34,34 +34,37 @@ function TheoryCraft_DebugPoints(name)
 end
 
 -- REM: called from inside TheoryCraft_AddButtonText and from whatever bartender4 code exists
-function TheoryCraft_SetUpButton(parentname, type, specialid)
-	oldbutton = getglobal(parentname)
+function TheoryCraft_SetUpButton(parentname, button_type, specialid)
+	local parent_button = getglobal(parentname)
 
-	if not oldbutton then return nil end
+	if not parent_button then
+		return
+	end
 
 	-- If the text subframe has already been created, we're good to go
-	newbutton = getglobal(parentname.."_TCText")
-	if newbutton and newbutton.type then 
-		return newbutton
+	local button_tc_text = getglobal(parentname.."_TCText")
+	if button_tc_text and button_tc_text.type then 
+		return
 	end
 
 	-- Looks like this is creating the sub-frame FontString for each button, so it can be written later.
-	oldbutton:CreateFontString(parentname.."_TCText", "ARTWORK"); -- TODO: why artwork level, shouldn't it be OVERLAY?
-	newbutton = getglobal(parentname.."_TCText")
-	newbutton:SetFont("Fonts\\ARIALN.TTF", TheoryCraft_Settings["FontSize"], "OUTLINE")
+	-- ??? I guess this would overwrite one that already existed (but without type set?)
+	button_tc_text = parent_button:CreateFontString(parentname.."_TCText", "ARTWORK") -- TODO: why artwork level, shouldn't it be OVERLAY?
+
+	button_tc_text:SetFont("Fonts\\ARIALN.TTF", TheoryCraft_Settings["FontSize"], "OUTLINE")
 
 	-- NOTE: by calling SetPoint(TOPLEFT)
 	--       and        SetPoint(BOTTOMRIGHT)
 	--       in theory this is scaling self to the size of the parent.
 	--       see: https://wowpedia.fandom.com/wiki/API_Region_SetAllPoints
-	newbutton:SetPoint("TOPLEFT",     oldbutton, "TOPLEFT",     0, 0)
-	--newbutton:SetPoint("BOTTOMRIGHT", oldbutton, "BOTTOMRIGHT", 0, 0)
-	newbutton.type = type
-	newbutton.specialid = specialid
-	newbutton:SetText(" ")
-	newbutton:Show()
+	-- ??? SetPoint probably doesn't even matter at this point, it'll get overwritten when the actual settings are read
+	button_tc_text:SetPoint("TOPLEFT",     parent_button, "TOPLEFT",     0, 0)
+	--button_tc_text:SetPoint("BOTTOMRIGHT", parent_button, "BOTTOMRIGHT", 0, 0)
+	button_tc_text.type      = button_type
+	button_tc_text.specialid = specialid
+	button_tc_text:SetText(" ")
+	button_tc_text:Show()
 
-	return newbutton
 end
 
 local function round(arg1, decplaces)
@@ -806,6 +809,11 @@ function TheoryCraft_ButtonUpdate(this, ...)
 		return
 	end
 
+	if not TheoryCraft_Settings["buttontext"] then
+		buttontext:Hide()
+		return
+	end
+
 	-- font path is broken and not very useful
 --[[
 	if (buttontext.fontsize ~= TheoryCraft_Settings["FontSize"]) or
@@ -843,13 +851,9 @@ function TheoryCraft_ButtonUpdate(this, ...)
 		buttontext:SetPoint("CENTER", this, "BOTTOMLEFT", TheoryCraft_Settings["buttontextx"]*w, TheoryCraft_Settings["buttontexty"]*h)
 	end
 
-	if not TheoryCraft_Settings["buttontext"] then
-		buttontext:Hide()
-		return
-	end
-
 	-- Try to find the spell data lookup by the spell we have on the button
-	local tryfirst, trysecond, spelldata
+	local spelldata
+	-- REM: The ActionButtonID will be empty for spellbook items (obviously)
 	if buttontext.type == "SpellBook" then
 		local icon = getglobal(this:GetName().."SpellName")
 		local id = icon:GetText()
@@ -869,7 +873,7 @@ function TheoryCraft_ButtonUpdate(this, ...)
 	end
 	-- Must contain some properties to be valid
 	if spelldata then
-		tryfirst = formattext(spelldata, TheoryCraft_Settings["tryfirst"], TheoryCraft_Settings["tryfirstsfg"])
+		local tryfirst = formattext(spelldata, TheoryCraft_Settings["tryfirst"], TheoryCraft_Settings["tryfirstsfg"])
 		if tryfirst then
 			buttontext:SetText(tryfirst)
 			buttontext:SetTextColor(buttontext.colr, buttontext.colg, buttontext.colb)
@@ -877,7 +881,7 @@ function TheoryCraft_ButtonUpdate(this, ...)
 			if getglobal(this:GetName().."Name") then getglobal(this:GetName().."Name"):Hide() end
 			if getglobal(buttontext:GetParent():GetName().."_Rank") then getglobal(buttontext:GetParent():GetName().."_Rank"):Hide() end
 		else
-			trysecond = formattext(spelldata, TheoryCraft_Settings["trysecond"], TheoryCraft_Settings["trysecondsfg"])
+			local trysecond = formattext(spelldata, TheoryCraft_Settings["trysecond"], TheoryCraft_Settings["trysecondsfg"])
 			if trysecond then
 				buttontext:SetText(trysecond)
 				buttontext:SetTextColor(buttontext.colr2, buttontext.colg2, buttontext.colb2)
@@ -891,7 +895,9 @@ function TheoryCraft_ButtonUpdate(this, ...)
 			end
 		end
 	else
-		if getglobal(this:GetName().."Name") then getglobal(this:GetName().."Name"):Show() end
+		if getglobal(this:GetName().."Name") then
+			getglobal(this:GetName().."Name"):Show()
+		end
 		buttontext:Hide()
 	end
 

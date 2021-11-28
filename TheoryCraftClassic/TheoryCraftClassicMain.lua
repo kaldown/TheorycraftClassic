@@ -372,7 +372,7 @@ function TheoryCraft_OnLoad(self)
 		s2 = TheoryCraft_EquipEveryLine[i].text
 		if (strfind(TheoryCraft_EquipEveryLine[i].text, "schoolname")) then
 			local i2 = 1
-			local type = 1
+			--local type = 1
 			local s3 = 1
 			while TheoryCraft_PrimarySchools[i2] do
 				s3 = s2
@@ -413,7 +413,7 @@ function TheoryCraft_OnLoad(self)
 		s2 = TheoryCraft_EquipEveryRight[i].text
 		if (strfind(TheoryCraft_EquipEveryRight[i].text, "schoolname")) then
 			local i2 = 1
-			local type = 1
+			--local type = 1
 			local s3 = 1
 			while TheoryCraft_PrimarySchools[i2] do
 				s3 = s2
@@ -453,7 +453,7 @@ function TheoryCraft_OnLoad(self)
 		s2 = TheoryCraft_Equips[i].text
 		if (strfind(TheoryCraft_Equips[i].text, "schoolname")) then
 			local i2 = 1
-			local type = 1
+			--local type = 1
 			local s3 = 1
 			while TheoryCraft_PrimarySchools[i2] do
 				s3 = string.gsub(s2, "schoolname", TheoryCraft_PrimarySchools[i2].text)
@@ -596,6 +596,8 @@ function TheoryCraft_OnEvent(self, event, arg1)
 		self:UnregisterEvent("UNIT_POWER_UPDATE")
 		self:UnregisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
 		self:UnregisterEvent("PLAYER_REGEN_ENABLED")
+
+	-- Fired when the player enters the world, enters/leaves an instance, or respawns at a graveyard. Also fires any other time the player sees a loading screen. 
 	elseif event == "PLAYER_ENTERING_WORLD" then
 		self:RegisterEvent("UNIT_AURA")
 		self:RegisterEvent("UNIT_INVENTORY_CHANGED")
@@ -620,6 +622,7 @@ function TheoryCraft_OnEvent(self, event, arg1)
 		TheoryCraft_LoadStats()
 		-- TheoryCraft_GenerateAll()
 		TheoryCraft_UpdateAllButtonText()
+
 	elseif event == "COMBAT_LOG_EVENT_UNFILTERED" then
 		if TheoryCraft_ParseCombat then
 			TheoryCraft_ParseCombat(self, event)
@@ -628,11 +631,14 @@ function TheoryCraft_OnEvent(self, event, arg1)
 		TheoryCraft_WatchCritRate(arg1)
 	elseif event == "UNIT_INVENTORY_CHANGED" then
 		TheoryCraft_UpdateGear(arg1)
+
+	-- This occurs when you are not on the hate list of any NPC, or a few seconds after the latest pvp attack that you were involved with. 
 	elseif event == "PLAYER_REGEN_ENABLED" then
 		if TheoryCraft_Data.regenaftercombat then
 			TheoryCraft_Data.regenaftercombat = nil
 			TheoryCraft_UpdateGear("player", nil, true)
 		end
+
 	elseif event == "SPELLS_CHANGED" then
 		local autoshotname = TheoryCraft_Locale.SpellTranslator["Auto Shot"]
 		if autoshotname then
@@ -664,6 +670,7 @@ function TheoryCraft_OnEvent(self, event, arg1)
 			TheoryCraft_DeleteTable(TheoryCraft_UpdatedButtons)
 		end
 	end
+
 	if TheoryCraft_Settings["showmem"] then
 		Print(event..": "..gcinfo()-UIMem)
 	end

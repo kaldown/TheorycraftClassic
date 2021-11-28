@@ -254,9 +254,9 @@ function TheoryCraft_getMinMax(spelldata, returndata, frame)
 		for k, pattern in pairs(a) do
 			if strfind(returndata["description"], pattern.pattern) then
 				_, _, data[1], data[2], data[3], data[4], data[5], data[6] = strfind(returndata["description"], pattern.pattern)
-				for k, type in pairs(pattern.type) do
-					if (type == "mindamage") or (type == "maxdamage") then
-						returndata[type] = data[k]
+				for k, t in pairs(pattern.type) do
+					if (t == "mindamage") or (t == "maxdamage") then
+						returndata[t] = data[k]
 						range = true
 					end
 				end
@@ -271,11 +271,11 @@ function TheoryCraft_getMinMax(spelldata, returndata, frame)
 		for k, pattern in pairs(a) do
 			if strfind(returndata["description"], pattern.pattern) then
 				_, _, data[1], data[2], data[3], data[4], data[5], data[6] = strfind(returndata["description"], pattern.pattern)
-				for k, type in pairs(pattern.type) do
-					if (type == "backstabmult") or (type == "bloodthirstmult") then
-						returndata[type] = tonumber(data[k])/100
+				for k, t in pairs(pattern.type) do
+					if (t == "backstabmult") or (t == "bloodthirstmult") then
+						returndata[t] = tonumber(data[k])/100
 					else
-						returndata[type] = data[k]
+						returndata[t] = data[k]
 					end
 				end
 			end
@@ -466,16 +466,16 @@ function TheoryCraft_getMinMax(spelldata, returndata, frame)
 		for k, pattern in pairs(a) do
 			if strfind(returndata["description"], pattern.pattern) then
 				_, _, data[1], data[2], data[3], data[4], data[5], data[6] = strfind(returndata["description"], pattern.pattern)
-				for k, type in pairs(pattern.type) do
-					if type == "bothdamage" then
+				for k, t in pairs(pattern.type) do
+					if t == "bothdamage" then
 						returndata["mindamage"] = tonumber(data[k])
 						returndata["maxdamage"] = tonumber(data[k])
-					elseif type == "dotbothdamage" then
+					elseif t == "dotbothdamage" then
 						returndata["dotmindamage"] = tonumber(data[k])
 						returndata["dotmaxdamage"] = tonumber(data[k])
 					else
-						returndata[type] = data[k]
-						returndata[type] = data[k]
+						returndata[t] = data[k]
+						returndata[t] = data[k]
 					end
 				end
 				found = pattern
@@ -491,16 +491,16 @@ function TheoryCraft_getMinMax(spelldata, returndata, frame)
 		end
 
 			
-		for k, type in pairs(found.type) do
-			if type == "bothdamage" then
+		for k, t in pairs(found.type) do
+			if t == "bothdamage" then
 				data[k] = round(returndata["mindamage"])
-			elseif type == "dotbothdamage" then
+			elseif t == "dotbothdamage" then
 				data[k] = round(returndata["dotmindamage"])
 			else
-				if tonumber(returndata[type]) then
-					data[k] = round(returndata[type])
+				if tonumber(returndata[t]) then
+					data[k] = round(returndata[t])
 				else
-					data[k] = returndata[type]
+					data[k] = returndata[t]
 				end
 			end
 		end

@@ -63,19 +63,19 @@ local function TheoryCraft_AddAllBuffs(target, data, buffs)
 					if ((not v.target) and (target == defaulttarget)) or (v.target == target) then
 						_, start, found = strfind(ltext, v.text)
 						if _ then
-							type = v.type
+							t = v.type
 							if (v.amount == nil) then
-								data[type] = (data[type] or 0) + tonumber(found)
+								data[t] = (data[t] or 0) + tonumber(found)
 							elseif (v.amount == "n/100") then
-								data[type] = (data[type] or 0) + tonumber(found)/100
+								data[t] = (data[t] or 0) + tonumber(found)/100
 							elseif (v.amount == "totem") then
-								data[type] = (data[type] or 0) + tonumber(found)/2*5
+								data[t] = (data[t] or 0) + tonumber(found)/2*5
 							elseif (v.amount == "hl") then
-								data[type] = (data[type] or 0) + tonumber(found)/2.5*3.5
+								data[t] = (data[t] or 0) + tonumber(found)/2.5*3.5
 							elseif (v.amount == "fol") then
-								data[type] = (data[type] or 0) + tonumber(found)/1.5*3.5
+								data[t] = (data[t] or 0) + tonumber(found)/1.5*3.5
 							else
-								data[type] = (data[type] or 0) + v.amount
+								data[t] = (data[t] or 0) + v.amount
 							end
 						end
 					end
