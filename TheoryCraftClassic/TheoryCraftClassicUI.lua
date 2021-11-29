@@ -1,3 +1,9 @@
+
+-- Stores the MultiActionBarButton connected to its absolute slot_id
+-- NOTE: paginated ActionBars have their FrameName reused. So there is NEVER a 1-to-1 mapping of slot_id => frame_id
+-- See: TheoryCraft_FindActionButton
+local slot_id_action_bar_map = {}
+
 local _TOOLTIPTAB = 1
 local _BUTTONTEXTTAB = 2
 local _ADVANCEDTAB = 3
@@ -34,11 +40,17 @@ function TheoryCraft_DebugPoints(name)
 end
 
 -- REM: called from inside TheoryCraft_AddButtonText and from whatever bartender4 code exists
-function TheoryCraft_SetUpButton(parentname, button_type, specialid)
+-- REM: MultiActionBars will be setup even if they are not visible
+function TheoryCraft_SetUpButton(parentname, button_type, slot_id)
 	local parent_button = getglobal(parentname)
 
 	if not parent_button then
 		return
+	end
+
+	-- Only the MultiActionBar buttons need slot configurations
+	if slot_id ~= nil then
+		slot_id_action_bar_map[slot_id] = parent_button
 	end
 
 	-- If the text subframe has already been created, we're good to go
@@ -60,8 +72,9 @@ function TheoryCraft_SetUpButton(parentname, button_type, specialid)
 	-- ??? SetPoint probably doesn't even matter at this point, it'll get overwritten when the actual settings are read
 	button_tc_text:SetPoint("TOPLEFT",     parent_button, "TOPLEFT",     0, 0)
 	--button_tc_text:SetPoint("BOTTOMRIGHT", parent_button, "BOTTOMRIGHT", 0, 0)
+	-- NOTE: it looks like button_type is only used for checking whether this button is part of the SpellBook
 	button_tc_text.type      = button_type
-	button_tc_text.specialid = specialid
+	--button_tc_text.specialid = specialid
 	button_tc_text:SetText(" ")
 	button_tc_text:Show()
 
@@ -732,6 +745,9 @@ local function formattext(a, field, places)
 	return round(a[field]*10^places)/10^places
 end
 
+-- NOTE: ActionButtonX & SpellButtonX are blizzard created frames of one sort or another.
+
+-- This function creates the ButtonText font objects on each ActionButton that could possibly exist
 -- REM: called after VARIABLES_LOADED
 function TheoryCraft_AddButtonText(...)
 	-- 12 spells per spellbook-page
@@ -749,53 +765,107 @@ function TheoryCraft_AddButtonText(...)
 	end
 end
 
--- this will handle changing the button color and position
-function TheoryCraft_UpdateAllButtonText(...)
-	if not TheoryCraft_Data.TalentsHaveBeenRead then
-		return
-	end
-	local newbutton, oldbutton
-	local updatebutton = function(name)
-		local button = getglobal(name)
-		if button then
-			TheoryCraft_ButtonUpdate(button)
-		end
-	end
-
-	if SpellButton1 then
-		for i = 1,12 do updatebutton("SpellButton"..i, "SpellBook") end
-	end
-
-	if ActionButton1 then
-		for i = 1,12 do updatebutton("ActionButton"..i, "Flippable") end
-		for i = 1,12 do updatebutton("MultiBarRightButton"..i, "Special", 24+i) end
-		for i = 1,12 do updatebutton("MultiBarLeftButton"..i, "Special", 36+i) end
-		for i = 1,12 do updatebutton("MultiBarBottomRightButton"..i, "Special", 48+i) end
-		for i = 1,12 do updatebutton("MultiBarBottomLeftButton"..i, "Special", 60+i) end
-		for i = 1,12 do updatebutton("BonusActionButton"..i, "Bonus") end
-	end
-
-	if _G['Bartender4'] ~= nil then
-		for i = 1,120 do updatebutton("BT4Button"..i, "Normal") end
+-- Helper function, transform a button_name into the button_frame reference
+local function updatebutton(button_name)
+	local button = getglobal(button_name)
+	if button then
+		-- REM: TheoryCraft_SetUpButton uses 3 arguments, but since its already setup, we only need 1
+		TheoryCraft_ButtonUpdate(button)
 	end
 end
 
+-- Just the main actionbar
+-- REM: may be called many times due to changing pages.
+local function UpdateActionBarText()
+	if not TheoryCraft_Data.TalentsHaveBeenRead then
+		print("Skipped UpdateActionBarText - talents not ready")
+		return
+	end
 
+	if ActionButton1 then
+		for i = 1,12 do updatebutton("ActionButton"..i) end
+	end
+end
+
+-- Just the spellbook
+-- REM: may be called many times due to changing pages.
+local function UpdateSpellBookText()
+	if not TheoryCraft_Data.TalentsHaveBeenRead then
+		print("Skipped UpdateSpellBookText - talents not ready")
+		return
+	end
+
+	-- 12 spells per spellbook-page
+	if SpellButton1 then
+		for i = 1,12 do updatebutton("SpellButton"..i) end
+	end
+end
+
+-- This will handle changing the button color and position as well as what type of text should be shown
+function TheoryCraft_UpdateAllButtonText(txt)
+	if not TheoryCraft_Data.TalentsHaveBeenRead then
+		print("Skipped TheoryCraft_UpdateAllButtonText - talents not ready")
+		return
+	end
+
+	UpdateSpellBookText()
+	UpdateActionBarText()
+
+	if ActionButton1 then
+		for i = 1,12 do updatebutton("MultiBarRightButton"..i) end
+		for i = 1,12 do updatebutton("MultiBarLeftButton"..i) end -- ??? I think this is actually "Right2"
+		for i = 1,12 do updatebutton("MultiBarBottomRightButton"..i) end
+		for i = 1,12 do updatebutton("MultiBarBottomLeftButton"..i) end
+
+		for i = 1,12 do updatebutton("BonusActionButton"..i) end
+	end
+
+	if _G['Bartender4'] ~= nil then
+		for i = 1,120 do updatebutton("BT4Button"..i) end
+	end
+end
+
+-- Helper to determine which actual ActionBar/ActionButton a spell was placed in, for purposes of ButtonText
+-- This works by process of elimination
+function TheoryCraft_FindActionButton(slot_id)
+	local btn = slot_id_action_bar_map[slot_id] -- maybe nil
+	-- If the ActionBar that this slot would be assigned to is currently shown.
+	if btn ~= nil and btn:GetParent():IsVisible() then
+		-- use the btn as is.
+		return btn
+	end
+	-- otherwise, use the ActionButtonX
+	local i = slot_id % 12
+	return _G["ActionButton"..i]
+end
+
+
+-- NOTE: maybe this should be an event? ACTIONBAR_PAGE_CHANGED, what about UPDATE_BONUS_ACTIONBAR ?
 hooksecurefunc("ChangeActionBarPage", function(i)
-	CURRENT_ACTIONBAR_PAGE = i
-	TheoryCraft_UpdateAllButtonText()
+	--print("ChangeActionBarPage "..i)
+	UpdateActionBarText()
 end)
 
+
+-- Don't use this, it is very spammy
+-- NOTE: don't use OnUpdate, because that spams every frame (or something like that)
+--[[
 hooksecurefunc("ActionButton_Update", function(button)
+	--print("ActionButton_Update")
 	TheoryCraft_ButtonUpdate(button)
 end)
+--]]
 
+-- Looks like this is fired any time the spellbook page or tab is changed
 hooksecurefunc("SpellBookFrame_UpdateSpells", function(i)
-	TheoryCraft_UpdateAllButtonText()
+	--print("SpellBookFrame_UpdateSpells")
+	UpdateSpellBookText()
 end)
 
+-- Update a specific button's text (position, color) as well as for any stat/buff changes
 function TheoryCraft_ButtonUpdate(this, ...)
 	if not TheoryCraft_Data.TalentsHaveBeenRead then
+		--print("Skipped TheoryCraft_ButtonUpdate - talents not ready")
 		return
 	end
 

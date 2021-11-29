@@ -571,9 +571,10 @@ function TheoryCraft_OnEvent(self, event, arg1)
 		TheoryCraft_AddButtonText()
 
 		if TheoryCraft_Settings["off"] then
-			Print("TheoryCraft is currently switched off, type in '/tc on' to enabled")
+			Print("TheoryCraft is currently switched off, use '/tc on' to enabled")
 		end
 
+	-- Triggered immediately before PLAYER_ENTERING_WORLD on login and UI Reload, but NOT when entering/leaving instances. 
 	elseif event == "PLAYER_LOGIN" then
 		self:RegisterEvent("UNIT_AURA")
 		self:RegisterEvent("UNIT_INVENTORY_CHANGED")
@@ -585,7 +586,9 @@ function TheoryCraft_OnEvent(self, event, arg1)
 		self:RegisterEvent("UNIT_POWER_UPDATE")
 		self:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
 		self:RegisterEvent("PLAYER_REGEN_ENABLED")
-		self:RegisterEvent("SPELL_UPDATE_ICON")
+		self:RegisterEvent("ACTIONBAR_SLOT_CHANGED")
+		--self:RegisterEvent("SPELL_UPDATE_ICON")
+
 	elseif event == "PLAYER_LEAVING_WORLD" then
 		self:UnregisterEvent("UNIT_AURA")
 		self:UnregisterEvent("UNIT_INVENTORY_CHANGED")
@@ -596,6 +599,7 @@ function TheoryCraft_OnEvent(self, event, arg1)
 		self:UnregisterEvent("UNIT_POWER_UPDATE")
 		self:UnregisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
 		self:UnregisterEvent("PLAYER_REGEN_ENABLED")
+		self:UnregisterEvent("ACTIONBAR_SLOT_CHANGED")
 
 	-- Fired when the player enters the world, enters/leaves an instance, or respawns at a graveyard. Also fires any other time the player sees a loading screen. 
 	elseif event == "PLAYER_ENTERING_WORLD" then
@@ -609,7 +613,8 @@ function TheoryCraft_OnEvent(self, event, arg1)
 		self:RegisterEvent("UNIT_POWER_UPDATE")
 		self:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
 		self:RegisterEvent("PLAYER_REGEN_ENABLED")
-		self:RegisterEvent("SPELL_UPDATE_ICON")
+		self:RegisterEvent("ACTIONBAR_SLOT_CHANGED")
+		--self:RegisterEvent("SPELL_UPDATE_ICON")
 				
 		--[[if _G['Bartender4'] ~= nil then
 			for i = 1, 120 do TheoryCraft_SetUpButton("BT4Button"..i, "Normal") end
@@ -621,7 +626,7 @@ function TheoryCraft_OnEvent(self, event, arg1)
 		TheoryCraft_UpdateBuffs("target", true)
 		TheoryCraft_LoadStats()
 		-- TheoryCraft_GenerateAll()
-		TheoryCraft_UpdateAllButtonText()
+		TheoryCraft_UpdateAllButtonText('entering world')
 
 	elseif event == "COMBAT_LOG_EVENT_UNFILTERED" then
 		if TheoryCraft_ParseCombat then
@@ -655,7 +660,7 @@ function TheoryCraft_OnEvent(self, event, arg1)
 	elseif event == "PLAYER_TARGET_CHANGED" then
 		TheoryCraft_UpdateTarget()
 		TheoryCraft_UpdateBuffs("target")
-		TheoryCraft_UpdateAllButtonText()
+		TheoryCraft_UpdateAllButtonText('target changed')
 	elseif event == "UNIT_POWER_UPDATE" then
 
 	elseif (event == "UNIT_MANA") and (arg1 == "player") then
@@ -669,6 +674,13 @@ function TheoryCraft_OnEvent(self, event, arg1)
 		   ((TheoryCraft_Settings["tryfirst"] == "spellcasts") or (TheoryCraft_Settings["trysecond"] == "spellcasts")) then
 			TheoryCraft_DeleteTable(TheoryCraft_UpdatedButtons)
 		end
+
+	elseif (event == "ACTIONBAR_SLOT_CHANGED") then
+		-- arg1 in this case is the action_bar slot_number that changed
+
+		local button = TheoryCraft_FindActionButton(arg1)
+		print("ACTIONBAR_SLOT_CHANGED: "..arg1.. ' --> '..button:GetName())
+		TheoryCraft_ButtonUpdate(button)
 	end
 
 	if TheoryCraft_Settings["showmem"] then
@@ -1067,9 +1079,9 @@ function TheoryCraft_OutfitChange(self)
 		return
 	end
 	if (id == "TheoryCraftApplyButtonText") then
-		TheoryCraft_UpdateAllButtonText()
+		TheoryCraft_UpdateAllButtonText('apply')
 	end
-    -- TODO: defunct because outfits are disabled.
+	-- TODO: defunct because outfits are disabled.
 	if (id == "TheoryCraftClearButton") then
 		TheoryCraft_Settings["CustomOutfitName"] = "Custom"
 		TheoryCraft_Settings["CustomOutfit"] = nil
