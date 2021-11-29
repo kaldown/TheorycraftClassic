@@ -1785,7 +1785,8 @@
 			</OnLoad>	
 		</Scripts>
 	</GameTooltip>
-	<Frame name="TheoryCraftUpdater" parent="UIParent">
+	<!-- TODO: what is this? Maybe when you level up? or maybe nothing? -->
+	<!--Frame name="TheoryCraftUpdater" parent="UIParent">
 		<Anchors>
 			<Anchor point="TOP">
 				<Offset>
@@ -1805,10 +1806,10 @@
 					TheoryCraft_UpdateTalents()
 				end
 				if TheoryCraft_Data.TalentsHaveBeenRead then
-					TheoryCraft_UpdateAllButtonText()
+					TheoryCraft_UpdateAllButtonText('TheoryCraftUpdater')
 					self:SetScript("OnUpdate", nil)
 				end
 			</OnUpdate>
 		</Scripts>
-	</Frame>
+	</Frame-->
 </Ui> 
