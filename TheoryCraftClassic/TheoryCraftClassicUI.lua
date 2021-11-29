@@ -734,20 +734,18 @@ end
 
 -- REM: called after VARIABLES_LOADED
 function TheoryCraft_AddButtonText(...)
-	local newbutton, oldbutton
-	local setupbutton = TheoryCraft_SetUpButton
-
+	-- 12 spells per spellbook-page
 	if SpellButton1 then
-		for i = 1,12 do setupbutton("SpellButton"..i, "SpellBook") end
+		for i = 1,12 do TheoryCraft_SetUpButton("SpellButton"..i, "SpellBook") end
 	end
 
 	if ActionButton1 then
-		for i = 1,12 do setupbutton("ActionButton"..i, "Flippable") end
-		for i = 1,12 do setupbutton("MultiBarRightButton"..i, "Special", 24+i) end
-		for i = 1,12 do setupbutton("MultiBarLeftButton"..i, "Special", 36+i) end
-		for i = 1,12 do setupbutton("MultiBarBottomRightButton"..i, "Special", 48+i) end
-		for i = 1,12 do setupbutton("MultiBarBottomLeftButton"..i, "Special", 60+i) end
-		for i = 1,12 do setupbutton("BonusActionButton"..i, "Bonus") end
+		for i = 1,12 do TheoryCraft_SetUpButton("ActionButton"..i, "Flippable", i) end
+		for i = 1,12 do TheoryCraft_SetUpButton("MultiBarRightButton"..i, "Special", 24+i) end
+		for i = 1,12 do TheoryCraft_SetUpButton("MultiBarLeftButton"..i, "Special", 36+i) end
+		for i = 1,12 do TheoryCraft_SetUpButton("MultiBarBottomRightButton"..i, "Special", 48+i) end
+		for i = 1,12 do TheoryCraft_SetUpButton("MultiBarBottomLeftButton"..i, "Special", 60+i) end
+		for i = 1,12 do TheoryCraft_SetUpButton("BonusActionButton"..i, "Bonus") end
 	end
 end
 
@@ -857,11 +855,14 @@ function TheoryCraft_ButtonUpdate(this, ...)
 	if buttontext.type == "SpellBook" then
 		local icon = getglobal(this:GetName().."SpellName")
 		local id = icon:GetText()
-		local id2 = getglobal(this:GetName().."SubSpellName"):GetText()
-		if (not icon:IsShown() or not (getglobal(this:GetName().."SpellName"):IsShown())) or (id == nil) then
+
+		if (not icon:IsShown()) or (id == nil) then
 			buttontext:Hide()
 			id = nil
 		end
+		-- NOTE: id2 is the subtext "Rank 1" or "racial passive" or "journeyman" things like that.
+		local id2 = getglobal(this:GetName().."SubSpellName"):GetText()
+		--print('id2: '..(id2 or 'nil'))
 		if id then
 			id2 = tonumber(findpattern(id2, "%d+"))
 			if id2 == nil then id2 = 0 end

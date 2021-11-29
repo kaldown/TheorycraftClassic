@@ -411,7 +411,6 @@ local function GetCritChance(critreport)
 end
 
 function TheoryCraft_LoadStats(talents)
-	
 	if talents == nil then talents = TheoryCraft_Data.Talents end
 	if talents == nil then return end
 	-- TheoryCraft_DeleteTable(TheoryCraft_Data.Stats)
@@ -2001,8 +2000,8 @@ function TheoryCraft_GetSpellDataByAction(action_slot)
 		id = GetMacroSpell(id)
 
 	-- including nil
-	else if (action_type ~= "spell") then 
-		return nil end
+	elseif (action_type ~= "spell") then 
+		return nil
 	end
 	if (id == nil) then return end
 	local spellData = TheoryCraft_GenerateSpellData(id);

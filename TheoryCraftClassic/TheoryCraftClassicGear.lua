@@ -202,10 +202,12 @@ local function TheoryCraft_AddEquipEffect (slotname, test, data, equippedsets)
 	return true
 end
 
+-- Recursively merge values from tab2 into tab1 (adding numbers together)
 function TheoryCraft_CombineTables(tab1, tab2)
 	if tab2 == nil then tab2 = tab1 return end
 	for k,v in pairs(tab1) do
 		if type(v) == "table" then
+			-- This assumes that tab2[k] is also a table.
 			tab2[k] = TheoryCraft_CombineTables(v, tab2[k])
 		elseif tonumber(v) and tonumber(tab2[k] or 0) then
 			tab2[k] = v + (tab2[k] or 0)
