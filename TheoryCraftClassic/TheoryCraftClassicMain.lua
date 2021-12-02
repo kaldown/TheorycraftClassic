@@ -664,12 +664,10 @@ function TheoryCraft_OnEvent(self, event, arg1)
 	elseif event == "UNIT_POWER_UPDATE" then
 
 	elseif (event == "UNIT_MANA") and (arg1 == "player") then
-		if UnitClass("player") == "DRUID" then
-			local _, _, catform = GetShapeshiftFormInfo(3)
-			if catform then
+		if TCUtils.StanceFormName() == 'cat' then
 				TheoryCraft_DeleteTable(TheoryCraft_UpdatedButtons)
 			end
-		end
+
 		if ((string.find(TheoryCraft_Settings["tryfirst"], "remaining")) or (string.find(TheoryCraft_Settings["trysecond"], "remaining"))) or
 		   ((TheoryCraft_Settings["tryfirst"] == "spellcasts") or (TheoryCraft_Settings["trysecond"] == "spellcasts")) then
 			TheoryCraft_DeleteTable(TheoryCraft_UpdatedButtons)

@@ -16,17 +16,20 @@ local function TheoryCraft_AddAllBuffs(target, data, buffs)
 	local i, buff, locale_table, defaulttarget, _, start, found, type
 	if target == "player" then
 		local _, _, _, _, _, _, meleemod = UnitDamage("player")
-		data["Meleemodifier"] = -1+meleemod
+		data["Meleemodifier"]  = -1+meleemod
 		data["Rangedmodifier"] = -1+meleemod
 	end
 	if class == "DRUID" then
 		local oldstance = TheoryCraft_Data.currentstance
 		TheoryCraft_Data.currentstance = nil
-		local _, active
-		_, _, active = GetShapeshiftFormInfo(1)
-		if active then TheoryCraft_Data.currentstance = 1 end
-		_, _, active = GetShapeshiftFormInfo(3)
-		if active then TheoryCraft_Data.currentstance = 3 end
+
+		-- Other forms like travel/flight are ignored.
+		if TCUtils.StanceFormName() == 'bear' then
+			TheoryCraft_Data.currentstance = 1
+		elseif TCUtils.StanceFormName() == 'cat' then
+			TheoryCraft_Data.currentstance = 3
+		end
+
 		if TheoryCraft_Data.currentstance ~= oldstance then
 			TheoryCraft_Data.redotalents = true
 		end

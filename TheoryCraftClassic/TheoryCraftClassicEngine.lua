@@ -328,12 +328,10 @@ local function GetCritChance(critreport)
 	critChance = tonumber(critChance)
 	if critreport == nil then critreport = 0 end
 	if (critChance) and (critChance ~= critreport) then
+		-- I guess this means take weapon skill into account?
 		local doweaponskill = true
-		if class == "DRUID" then
- 			local _, _, active = GetShapeshiftFormInfo(1)
-			if active then doweaponskill = nil end
- 			local _, _, active = GetShapeshiftFormInfo(3)
-			if active then doweaponskill = nil end
+		if (TCUtils.StanceFormName() == 'bear') or (TCUtils.StanceFormName() == 'cat') then
+			doweaponskill = nil
 		end
 		if doweaponskill then
 			TheoryCraftTooltip:SetOwner(UIParent,"ANCHOR_NONE")
@@ -384,13 +382,12 @@ local function GetCritChance(critreport)
 		if doweaponskill == nil then
 			critChance = critChance + (TheoryCraft_Data.Talents["Formcritchance"] or 0)
 		end
-		if class == "WARRIOR" then
-			local _, _, active = GetShapeshiftFormInfo(3)
-			if active then
-				critchance2 = critchance2 - 3
-				remove = -3
-			end
+
+		if TCUtils.StanceFormName() == 'berserker' then
+			critchance2 = critchance2 - 3
+			remove = -3
 		end
+
 		if UnitLevel("player") == 60 then
 			if (class == "DRUID") then
 				if doweaponskill == nil then
@@ -435,29 +432,27 @@ function TheoryCraft_LoadStats(talents)
 	TheoryCraft_Data.Stats["spirit"] = tmp
 	TheoryCraft_Data.Stats["agipercrit"] = agipercrit()
 
-	local _, catform, bearform
+	-- default minimum values
+	TheoryCraft_Data.Stats["agilityapmelee"]  = 0
+	TheoryCraft_Data.Stats["agilityapranged"] = 0
+	TheoryCraft_Data.Stats["strengthapmelee"] = 1
+
+	local catform  = (TCUtils.StanceFormName() == 'cat')
+	local bearform = (TCUtils.StanceFormName() == 'bear')
+	
 	if class == "DRUID" then
-		_, _, bearform = GetShapeshiftFormInfo(1)
-		_, _, catform = GetShapeshiftFormInfo(3)
-		TheoryCraft_Data.Stats["agilityapranged"] = 2
-		TheoryCraft_Data.Stats["strengthapmelee"] = 2
+		TheoryCraft_Data.Stats["strengthapmelee"] = 2 -- yes even in elf form
 		if catform then
 			TheoryCraft_Data.Stats["agilityapmelee"] = 1
-		else
-			TheoryCraft_Data.Stats["agilityapmelee"] = 0
 		end
-	elseif (class == "WARRIOR") or (class == "PALADIN") or (class == "SHAMAN") then
-		TheoryCraft_Data.Stats["agilityapranged"] = 2
+	elseif (class == "WARRIOR") then
 		TheoryCraft_Data.Stats["strengthapmelee"] = 2
-		TheoryCraft_Data.Stats["agilityapmelee"] = 0
+		TheoryCraft_Data.Stats["agilityapranged"] = 2
+	elseif (class == "PALADIN") or (class == "SHAMAN") then
+		TheoryCraft_Data.Stats["strengthapmelee"] = 2
 	elseif (class == "ROGUE") or (class == "HUNTER") then
 		TheoryCraft_Data.Stats["agilityapranged"] = 2
-		TheoryCraft_Data.Stats["strengthapmelee"] = 1
 		TheoryCraft_Data.Stats["agilityapmelee"] = 1
-	else
-		TheoryCraft_Data.Stats["agilityapranged"] = 0
-		TheoryCraft_Data.Stats["strengthapmelee"] = 1
-		TheoryCraft_Data.Stats["agilityapmelee"] = 0
 	end
 
 	local base, pos, neg = UnitAttackPower("player")
@@ -517,7 +512,9 @@ function TheoryCraft_LoadStats(talents)
 		end
 	end
 
-	if catform or bearform then TheoryCraft_Data.Stats["attackpower"] = TheoryCraft_Data.Stats["attackpower"] + TheoryCraft_Data.Stats["formattackpower"] end
+	if catform or bearform then
+		TheoryCraft_Data.Stats["attackpower"] = TheoryCraft_Data.Stats["attackpower"] + TheoryCraft_Data.Stats["formattackpower"]
+	end
 	TheoryCraft_Data.Stats["strength"] = math.floor(TheoryCraft_Data.Stats["strength"] * talents["strmultiplier"])
 	TheoryCraft_Data.Stats["agility"] = math.floor(TheoryCraft_Data.Stats["agility"] * talents["agimultiplier"])
 	TheoryCraft_Data.Stats["rangedattackpower"] = math.floor(TheoryCraft_Data.Stats["rangedattackpower"]+TheoryCraft_Data.Stats["agilityapranged"]*TheoryCraft_Data.Stats["agility"])
@@ -714,56 +711,64 @@ local function GenerateTooltip(frame, returndata, spelldata, spellrank)
 	end
 	--]]
 
+	-- If spell is evocation...
 	if spelldata.evocation then
 		CleanUp(spelldata, returndata)
 		returndata["evocation"] = TheoryCraft_GetStat("maxtotalmana") - TheoryCraft_GetStat("totalmana") - 1100
 		return
 	end
+	-- If spell is a "ranged attack" and you have no ranged weapon equipped. Just return.
 	if (spelldata.isranged) then
 		if TheoryCraft_Data.EquipEffects["RangedSpeed"] == nil then
 			CleanUp(spelldata, returndata)
 			return
 		end
 	end
+	-- If spell is "a seal" and you have no mainhand weapon equipped. Just return.
 	if (spelldata.isseal) then
 		if TheoryCraft_Data.EquipEffects["MainSpeed"] == nil then
 			CleanUp(spelldata, returndata)
 			return
 		end
 	end
+	-- If spell is a type of backstab, and no dagger is equipped. Just return.
 	if (spelldata.id == "Backstab") then
 		if TheoryCraft_GetStat("DaggerEquipped") == 0 then
 			CleanUp(spelldata, returndata)
 			return
 		end
 	end
+	-- If spell is a melee attack... 
 	if (spelldata.ismelee) then
+		-- ... and you have no mainhand weapon equipped. Just return.
 		if TheoryCraft_Data.EquipEffects["MainSpeed"] == nil then
 			CleanUp(spelldata, returndata)
 			return
 		end
 		local i = 1
-
+		-- Crit chance is your sum-total of melee_crit + spell_specific_crit [+ spell_group_crit, ]
 		returndata["critchance"] = TheoryCraft_Data.Stats["meleecritchance"] + TheoryCraft_GetStat(spelldata.id.."critchance")
 		while spelldata.Schools[i] do
 			returndata["critchance"] = returndata["critchance"] + TheoryCraft_GetStat(spelldata.Schools[i].."critchance")
 			i = i + 1
 		end
 	end
+
 	if (spelldata.bearform) then
-		local _, _, active = GetShapeshiftFormInfo(1)
-		if active == nil then
+		if TCUtils.StanceFormName() ~= 'bear' then
 			CleanUp(spelldata, returndata)
 			return
 		end
 	end
 	if (spelldata.catform) then
-		local _, _, active = GetShapeshiftFormInfo(3)
-		if active == nil then
+		if TCUtils.StanceFormName() ~= 'cat' then
 			CleanUp(spelldata, returndata)
 			return
 		end
 	end
+
+	-- ----- End Special Cases -----
+
 	if (spelldata.usemelee) then
 		returndata["critchance"] = (TheoryCraft_Data.Stats["meleecritchance"] or 0) + TheoryCraft_GetStat("Holycritchance")
 		returndata["critbonus"] = 1
@@ -779,7 +784,8 @@ local function GenerateTooltip(frame, returndata, spelldata, spellrank)
 	
 	local spellCosts = GetSpellPowerCost(returndata["spellnumber"])
 	-- print(dump(spellCosts))
-	-- returndata["manacost"] = 0
+
+	returndata["manacost"] = 0
 	-- If this spell has some sort of cost to it, find the mana-cost specifically
 	if spellCosts ~= nil then
 		for k, v in pairs(spellCosts) do
@@ -789,8 +795,6 @@ local function GenerateTooltip(frame, returndata, spelldata, spellrank)
 			end
 		end
 	end
-
-	if not returndata["manacost"] then returndata["manacost"] = 0 end
 
 	-- print(returndata["manacost"])
 
@@ -818,8 +822,8 @@ local function GenerateTooltip(frame, returndata, spelldata, spellrank)
 	local levelpercent = 1
 	-- This section finds the specific configuration per spell rank (if it exists)
 	returndata["manamultiplier"] = spelldata.manamultiplier
-	if (spelldata["level"..spellrank]) then spelllevel = spelldata["level"..spellrank] end
-	if (spelldata["level"..spellrank.."per"]) then levelpercent = spelldata["level"..spellrank.."per"];  end
+	if (spelldata["level"..spellrank])             then spelllevel   = spelldata["level"..spellrank] end
+	if (spelldata["level"..spellrank.."per"])      then levelpercent = spelldata["level"..spellrank.."per"];  end
 	if (spelldata["level"..spellrank.."manamult"]) then returndata["manamultiplier"] = spelldata["level"..spellrank.."manamult"] end
 	if (spelldata["level"..spellrank.."ct"]) then 
 		returndata["casttime"] = spelldata["level"..spellrank.."ct"]
@@ -827,7 +831,7 @@ local function GenerateTooltip(frame, returndata, spelldata, spellrank)
 	end
 	if (spelllevel < 20) then
 		levelpercent = levelpercent*(0.0375*spelllevel+0.25)
-		-- should be apart of return data?
+		-- should be a part of return data?
 		spelldata.percent = levelpercent
 	end
 
@@ -835,17 +839,24 @@ local function GenerateTooltip(frame, returndata, spelldata, spellrank)
 
 	returndata["dotduration"] = TheoryCraft_getDotDuration(returndata["description"])
 	returndata["basedotduration"] = spelldata.basedotduration
+
+	-- if it isn't melee && isn't ranged
 	if (spelldata.ismelee == nil) and (spelldata.isranged == nil) then
+		-- if isn't a heal && talents are added before gear for this spell
 		if (spelldata.isheal == nil) and (spelldata.talentsbeforegear == nil) then
 			returndata["damcoef"] = spelldata.percent*returndata["tmpincrease"]*returndata["tmpincreaseupfront"]*levelpercent
 		else
 			returndata["damcoef"] = spelldata.percent*levelpercent
 		end
+
+		-- Specifically for seal of righteousness
 		if (spelldata.righteousness) then
 			if (TheoryCraft_Data.EquipEffects["MeleeAPMult"] >= 3) then
 				returndata["damcoef"] = spelldata.percent2*returndata["tmpincrease"]*levelpercent
 			end
 		end
+
+		-- if there is a dot component
 		if (spelldata.hasdot == 1) then
 			returndata["damcoef2"] = spelldata.percentdot
 			returndata["plusdam2"] = math.floor(returndata["plusdam"] * returndata["damcoef2"] * levelpercent)
@@ -863,15 +874,16 @@ local function GenerateTooltip(frame, returndata, spelldata, spellrank)
 	returndata["critbonus"] = returndata["critbonus"]+returndata["sepignite"]*(returndata["baseincrease"]+returndata["ignitemodifier"]-1)
 	returndata["sepignite"] = returndata["sepignite"]*returndata["baseincrease"]
 
-	returndata["talentbaseincrease"] = (1/returndata["tmpincrease"])*(returndata["talentmod"]+returndata["tmpincrease"])
+	returndata["talentbaseincrease"]        = (1/returndata["tmpincrease"])*(returndata["talentmod"]+returndata["tmpincrease"])
 	returndata["talentbaseincreaseupfront"] = (1/returndata["tmpincreaseupfront"])*(returndata["talentmodupfront"]+returndata["tmpincreaseupfront"])
 	if (spelldata.talentsbeforegear == nil) and (returndata["damcoef"]) then
 		returndata["damcoef"] = returndata["damcoef"]*returndata["talentbaseincrease"]*returndata["talentbaseincreaseupfront"]
 	end
+
+	-- Apply weapon speeds and AP multipliers for druid forms.
 	if class == "DRUID" then
-		local _, bearform, catform
-		_, _, bearform = GetShapeshiftFormInfo(1)
-		_, _, catform = GetShapeshiftFormInfo(3)
+		local bearform = (TCUtils.StanceFormName() == 'bear')
+		local catform  = (TCUtils.StanceFormName() == 'cat')
 		if catform then
 			TheoryCraft_Data.EquipEffects["MeleeAPMult"] = 1
 			TheoryCraft_Data.EquipEffects["MainSpeed"] = 1
@@ -879,7 +891,7 @@ local function GenerateTooltip(frame, returndata, spelldata, spellrank)
 			TheoryCraft_Data.EquipEffects["MeleeAPMult"] = 2.5
 			TheoryCraft_Data.EquipEffects["MainSpeed"] = 2.5
 		end
-		if (bearform) or (catform) then
+		if (bearform or catform) then
 			local lowDmg, hiDmg, offlowDmg, offhiDmg, posBuff, negBuff, percentmod = UnitDamage("player")
 			local base, pos, neg = UnitAttackPower("player")
 			base = (base+pos+neg)/14*TheoryCraft_Data.EquipEffects["MeleeAPMult"]
@@ -1346,6 +1358,8 @@ local function GenerateTooltip(frame, returndata, spelldata, spellrank)
 
 	return
 end
+
+-- -----------------------------------------
 
 function TheoryCraft_GenerateSpellData(spellId)
 

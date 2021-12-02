@@ -43,11 +43,8 @@ local function TheoryCraft_AddAllTalents(data, ignoreforce)
 	data["manamultiplierreal"] = data["manamultiplier"]
 	data["healthmultiplierreal"] = data["healthmultiplier"]
 
-	local _, catform, bearform
-	if class == "DRUID" then
-		_, _, bearform = GetShapeshiftFormInfo(1)
-		_, _, catform = GetShapeshiftFormInfo(3)
-	end
+	local catform  = (TCUtils.StanceFormName() == 'cat')
+	local bearform = (TCUtils.StanceFormName() == 'bear')
 
 	while (TheoryCraft_Talents[i]) do
 		if (class == TheoryCraft_Talents[i].class) then
