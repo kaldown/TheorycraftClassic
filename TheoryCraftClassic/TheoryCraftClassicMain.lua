@@ -127,6 +127,9 @@ local function round(arg1, decplaces)
 	return string.format ("%."..decplaces.."f", arg1)
 end
 
+-- This was apparently some kinda monitoring function to parse data about critical strike chances
+-- because some sorta internal wow data wasn't yet known.
+--[[
 function TheoryCraft_WatchCritRate(arg1)
 	local _, _, hit = strfind(arg1, "Your (.+) heals ")
 	local _, _, crit= strfind(arg1, "Your (.+) critically")
@@ -135,7 +138,7 @@ function TheoryCraft_WatchCritRate(arg1)
 	local foundcc
 	for k = 1,20 do
 		if TheoryCraft_TooltipData[hit.."("..k..")"] then
-			foundcc = TheoryCraft_TooltipData[TheoryCraft_TooltipData[hit.."("..k..")"]]["crithealchance"]
+			foundcc = TheoryCraft_TooltipData[ TheoryCraft_TooltipData[hit.."("..k..")"] ]["crithealchance"]
 		end
 	end
 	if foundcc == nil then
@@ -162,16 +165,12 @@ function TheoryCraft_WatchCritRate(arg1)
 		if (TheoryCraft_Settings["critchancedata"][tmp].casts == 15000) or ((TheoryCraft_Settings["critchancedata"][tmp].casts > 15000) and (math.floor(TheoryCraft_Settings["critchancedata"][tmp].casts/100) == TheoryCraft_Settings["critchancedata"][tmp].casts/100)) then
 			if TheoryCraft_Settings["hidecritdata"] then return end
 			local cc = (TheoryCraft_Settings["critchancedata"][tmp].crits/TheoryCraft_Settings["critchancedata"][tmp].casts-(foundcc-TheoryCraft_Data.Stats["critchance"])/100)*100
-			Print("You've cast "..TheoryCraft_Settings["critchancedata"][tmp].casts.." heals with "..tmp2.." intellect and +"..(foundcc-TheoryCraft_Data.Stats["critchance"]).." crit chance.")
-			Print("Over self you had a base crit rate of "..round((TheoryCraft_Settings["critchancedata"][tmp].crits/TheoryCraft_Settings["critchancedata"][tmp].casts-(foundcc-TheoryCraft_Data.Stats["critchance"])/100)*100,4).."%")
-			Print("TC was expecting a base crit rate of "..TheoryCraft_Data.Stats["critchance"].."%")
-			Print("*Please* post self info on the Curse Gaming message board for TheoryCraft, as self is a very significant amount of casts,")
-			Print("and currently the correct crit formula for Paladins is not known.")
-			Print("self message will show every 100 heals from now on.  To hide it, type")
-			Print("/tc hidecritdata")
+			-- Some kinda messaging to post your critical chance over how many casts you've made for data collection purposes.
+			-- I don't think this matters anymore.
 		end
 	end
 end
+--]]
 
 local function findpattern(text, pattern, start)
 	if (text and pattern and (string.find(text, pattern, start))) then
@@ -616,8 +615,9 @@ function TheoryCraft_OnEvent(self, event, arg1)
 		if TheoryCraft_ParseCombat then
 			TheoryCraft_ParseCombat(self, event)
 		end
-	elseif event == "CHAT_MSG_SPELL_SELF_BUFF" then
-		TheoryCraft_WatchCritRate(arg1)
+	-- TODO: this event no longer exists. Replaced with "COMBAT_LOG_EVENT" in 2.4.0
+	--elseif event == "CHAT_MSG_SPELL_SELF_BUFF" then
+	--	TheoryCraft_WatchCritRate(arg1)
 	elseif event == "UNIT_INVENTORY_CHANGED" then
 		TheoryCraft_UpdateGear(arg1)
 
