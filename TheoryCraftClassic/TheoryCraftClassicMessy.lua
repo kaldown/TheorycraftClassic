@@ -295,7 +295,7 @@ function TheoryCraft_getMinMax(spelldata, returndata, frame)
 		if returndata["backstabmult"] ~= 1 then
 			returndata["backstabmult"] = returndata["backstabmult"]/removetalents
 		end
---		Print("("..round(normalized).."+"..returndata["mindamage"]..")*"..returndata["backstabmult"].."+"..returndata["addeddamage"]..")*"..baseincrease)
+--		print("("..round(normalized).."+"..returndata["mindamage"]..")*"..returndata["backstabmult"].."+"..returndata["addeddamage"]..")*"..baseincrease)
 		local ranged
 		for k,v in pairs(returndata["schools"]) do
 			if v == "Ranged" then

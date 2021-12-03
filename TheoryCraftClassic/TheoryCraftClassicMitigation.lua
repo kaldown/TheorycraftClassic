@@ -122,9 +122,9 @@ function TheoryCraft_ParseCombat(self, arg1)
 			end
 			if (TheoryCraft_Settings["armorchanges"]) and (oldarmorvalue ~= TheoryCraft_MitigationPlayers[targetname][1]) then
 				if oldarmorvalue > TheoryCraft_MitigationPlayers[targetname][1] then
-					Print(targetname.." Armor "..TheoryCraft_MitigationPlayers[targetname][1].." (-"..oldarmorvalue-TheoryCraft_MitigationPlayers[targetname][1]..")")
+					print(targetname, "Armor", TheoryCraft_MitigationPlayers[targetname][1], "(-"..oldarmorvalue-TheoryCraft_MitigationPlayers[targetname][1]..")")
 				else
-					Print(targetname.." Armor "..TheoryCraft_MitigationPlayers[targetname][1].." (+"..TheoryCraft_MitigationPlayers[targetname][1]-oldarmorvalue..")")
+					print(targetname, "Armor", TheoryCraft_MitigationPlayers[targetname][1], "(+"..TheoryCraft_MitigationPlayers[targetname][1]-oldarmorvalue..")")
 				end
 			end
 			if UnitName("target") == targetname then
@@ -195,9 +195,9 @@ function TheoryCraft_ParseCombat(self, arg1)
 			end
 			if (TheoryCraft_Settings["armorchanges"]) and (oldarmorvalue ~= TheoryCraft_MitigationMobs[targetname][1]) then
 				if oldarmorvalue > TheoryCraft_MitigationMobs[targetname][1] then
-					Print(targetname.." Armor "..TheoryCraft_MitigationMobs[targetname][1].." (-"..oldarmorvalue-TheoryCraft_MitigationMobs[targetname][1]..")")
+					print(targetname, "Armor", TheoryCraft_MitigationMobs[targetname][1], "(-"..oldarmorvalue - TheoryCraft_MitigationMobs[targetname][1]..")")
 				else
-					Print(targetname.." Armor "..TheoryCraft_MitigationMobs[targetname][1].." (+"..TheoryCraft_MitigationMobs[targetname][1]-oldarmorvalue..")")
+					print(targetname, "Armor", TheoryCraft_MitigationMobs[targetname][1], "(+"..TheoryCraft_MitigationMobs[targetname][1]-oldarmorvalue..")")
 				end
 			end
 		end

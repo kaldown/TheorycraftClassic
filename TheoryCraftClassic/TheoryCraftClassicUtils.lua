@@ -73,17 +73,17 @@ TCUtils.DebugPoints = function(name)
 		return
 	end
 	local n = frame:GetNumPoints()
-	DEFAULT_CHAT_FRAME:AddMessage('num points: '..n)
+	print('num points: '..n)
 	local point, relativeTo, relativePoint, xOfs, yOfs = frame:GetPoint(1)
 	local relativeName = 'Unknown'
 	if relativeTo ~= nil then
 		relativeName = relativeTo:GetName()
 	end
-	DEFAULT_CHAT_FRAME:AddMessage(point)
-	DEFAULT_CHAT_FRAME:AddMessage(relativeName)
-	DEFAULT_CHAT_FRAME:AddMessage(relativePoint)
-	DEFAULT_CHAT_FRAME:AddMessage(xOfs)
-	DEFAULT_CHAT_FRAME:AddMessage(yOfs)
+	print(point)
+	print(relativeName)
+	print(relativePoint)
+	print(xOfs)
+	print(yOfs)
 end
 
 

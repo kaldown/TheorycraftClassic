@@ -75,30 +75,6 @@ if Bartender4 and LibStub then
 	end
 end
 
-
-function Print(text, begin, spaces)
-	if spaces and string.len(spaces) > 10 then
-		return
-	end
-	if text == nil then text = "nil" end
-	if text == true then text = "true" end
-	if text == false then text = "false" end
-	if type(text) == "function" then
-		text = "function ("..tostring(text)..")"
-	end
-	if type(text) == "table" then
-		for k, v in pairs(text) do
-			if type(v) == "table" then
-				Print(k..": (Table)", "", (spaces or "").."    ")
-			end
-			Print(v, k..": ", (spaces or "").."    ")
-		end
-		return
-	end
-	text = (spaces or "")..(begin or "")..text
-	DEFAULT_CHAT_FRAME:AddMessage(text)
-end
-
 -- Recursively copy contents from tab1 into tab2
 function TheoryCraft_CopyTable(tab1, tab2)
 	for k, v in pairs(tab1) do
@@ -470,26 +446,29 @@ function TheoryCraft_OnLoad(self)
 	i = 1
 	while TheoryCraft_Spells[class][i] do
 		if TheoryCraft_Spells[class][i].id then
+			-- Add these entries into MinMax{}
 			if TheoryCraft_Spells[class][i].id == "Aimed Shot" then
-				TheoryCraft_Locale.MinMax.aimedshotname = TheoryCraft_Locale.SpellTranslator[TheoryCraft_Spells[class][i].id]
+				TheoryCraft_Locale.MinMax.aimedshotname = TheoryCraft_Locale.SpellTranslator[ TheoryCraft_Spells[class][i].id ]
 			elseif TheoryCraft_Spells[class][i].id == "Multi-Shot" then
-				TheoryCraft_Locale.MinMax.multishotname = TheoryCraft_Locale.SpellTranslator[TheoryCraft_Spells[class][i].id]
+				TheoryCraft_Locale.MinMax.multishotname = TheoryCraft_Locale.SpellTranslator[ TheoryCraft_Spells[class][i].id ]
 			elseif TheoryCraft_Spells[class][i].id == "Arcane Shot" then
-				TheoryCraft_Locale.MinMax.arcaneshotname = TheoryCraft_Locale.SpellTranslator[TheoryCraft_Spells[class][i].id]
+				TheoryCraft_Locale.MinMax.arcaneshotname = TheoryCraft_Locale.SpellTranslator[ TheoryCraft_Spells[class][i].id ]
 			elseif TheoryCraft_Spells[class][i].id == "Auto Shot" then
-				TheoryCraft_Locale.MinMax.autoshotname = TheoryCraft_Locale.SpellTranslator[TheoryCraft_Spells[class][i].id]
+				TheoryCraft_Locale.MinMax.autoshotname = TheoryCraft_Locale.SpellTranslator[ TheoryCraft_Spells[class][i].id ]
 			end
+
 			if TheoryCraft_Locale.SpellTranslator[TheoryCraft_Spells[class][i].id] then
-				TheoryCraft_Spells[class][i].name = TheoryCraft_Locale.SpellTranslator[TheoryCraft_Spells[class][i].id]
+				TheoryCraft_Spells[class][i].name = TheoryCraft_Locale.SpellTranslator[ TheoryCraft_Spells[class][i].id ]
 			else
-				Print("TheoryCraft error, no translation found for: "..TheoryCraft_Spells[class][i].id)
+				-- use "id" as a default "name"
+				print("TheoryCraft error, no translation found for: "..TheoryCraft_Spells[class][i].id)
 				TheoryCraft_Spells[class][i].name = TheoryCraft_Spells[class][i].id
 			end
 		end
 		i = i + 1
 	end
 
-	Print(table.concat({TheoryCraft_AddonName, TheoryCraft_Version, TheoryCraft_Locale.LoadText}, ' '))
+	print(TheoryCraft_AddonName, TheoryCraft_Version, TheoryCraft_Locale.LoadText)
 end
 
 --- OnShow ---
@@ -554,7 +533,7 @@ function TheoryCraft_OnEvent(self, event, arg1)
 		TheoryCraft_AddButtonText()
 
 		if TheoryCraft_Settings["off"] then
-			Print("TheoryCraft is currently switched off, use '/tc on' to enabled")
+			print("TheoryCraft is currently switched off, use '/tc on' to enabled")
 		end
 
 	-- Triggered immediately before PLAYER_ENTERING_WORLD on login and UI Reload, but NOT when entering/leaving instances. 
@@ -666,7 +645,7 @@ function TheoryCraft_OnEvent(self, event, arg1)
 	end
 
 	if TheoryCraft_Settings["showmem"] then
-		Print(event..": "..gcinfo()-UIMem)
+		print(event..": "..gcinfo()-UIMem)
 	end
 end
 
@@ -854,7 +833,7 @@ function TheoryCraft_Command(cmd)
 	end
 	if (cmd == "calccrits") then
 		if TheoryCraft_Settings["critchancedata"] == nil then
-			Print("No crits found - self feature works for heals only")
+			print("No crits found - self feature works for heals only")
 			return
 		end
 		local _, critrate, int, gear
@@ -884,20 +863,20 @@ function TheoryCraft_Command(cmd)
 		end
 		mincrit = mincrit * 100
 		maxcrit = maxcrit * 100
-		Print("Int | Casts | Crit Chance")
+		print("Int | Casts | Crit Chance")
 		for k, v in crittable do
-			Print(k.." | "..v.casts.." | "..round(v.critrate*100,4).."%")
+			print(k.." | "..v.casts.." | "..round(v.critrate*100,4).."%")
 		end
 		if minint == 1000 then
-			Print("Insufficient data to calculate crit rates")
+			print("Insufficient data to calculate crit rates")
 		elseif minint == maxint then
-			Print("Insufficient range to calculate base crit, assuming 0")
-			Print("Int Per Crit = "..round(maxint/maxcrit,3))
-			Print("Base Crit = 0")
+			print("Insufficient range to calculate base crit, assuming 0")
+			print("Int Per Crit = "..round(maxint/maxcrit,3))
+			print("Base Crit = 0")
 		else
-			Print("Using self data:")
-			Print("Int Per Crit = "..round((maxint-minint)/(maxcrit-mincrit),3))
-			Print("Base Crit = "..round((mincrit-minint/((maxint-minint)/(maxcrit-mincrit))),3).."%")
+			print("Using self data:")
+			print("Int Per Crit = "..round((maxint-minint)/(maxcrit-mincrit),3))
+			print("Base Crit = "..round((mincrit-minint/((maxint-minint)/(maxcrit-mincrit))),3).."%")
 		end
 	end
 	if (cmd == "armor") or (cmd == "playerarmor") then
@@ -906,19 +885,19 @@ function TheoryCraft_Command(cmd)
 		local test = {}
 		local i = 1
 		local ul = UnitLevel("player")
-		Print(" ")
+		print(" ")
 		if cmd == "armor" then
 			for k, v in pairs(TheoryCraft_MitigationMobs) do
 				if strfind(string.upper(k), onoff) then
 					test[i] = round((v[1] / (85 * ul + 400 + v[1]))*100,1).." | "..v[1].." | "..k
 					i = i + 1
 					if i > 250 then
-						Print("Please limit your search - more than 250 mobs were found")
+						print("Please limit your search - more than 250 mobs were found")
 						return
 					end
 				end
 			end
-			Print("DR | Armor | Mob Name")
+			print("DR | Armor | Mob Name")
 		else
 			local classname, level, _
 			for k, v in pairs(TheoryCraft_MitigationPlayers) do
@@ -927,16 +906,16 @@ function TheoryCraft_Command(cmd)
 					test[i] = classname.." | "..level.." | "..v[1].." | "..round((v[1] / (85 * ul + 400 + v[1]))*100,1)
 					i = i + 1
 					if i > 250 then
-						Print("Please limit your search - more than 250 mobs were found")
+						print("Please limit your search - more than 250 mobs were found")
 						return
 					end
 				end
 			end
-			Print(" ")
-			Print("Class | Lvl | Armor | DR")
+			print(" ")
+			print("Class | Lvl | Armor | DR")
 			table.sort(test)
 			for k, v in pairs(test) do
-				Print(v)
+				print(v)
 			end
 			test = {}
 			for k, v in pairs(TheoryCraft_MitigationPlayers) do
@@ -944,44 +923,44 @@ function TheoryCraft_Command(cmd)
 					test[i] = round((v[1] / (85 * ul + 400 + v[1]))*100,1).." | "..v[1].." | "..k
 					i = i + 1
 					if i > 250 then
-						Print("Please limit your search - more than 250 mobs were found")
+						print("Please limit your search - more than 250 mobs were found")
 						return
 					end
 				end
 			end
-			Print(" ")
-			Print("DR | Armor | Player Name")
+			print(" ")
+			print("DR | Armor | Player Name")
 		end
 		table.sort(test)
 		for k, v in pairs(test) do
-			Print(v)
+			print(v)
 		end
 	end
 	if (cmd == "off") then
-		Print("TheoryCraft is now switched OFF")
+		print("TheoryCraft is now switched OFF")
 		TheoryCraft_Settings["off"] = true
 	end
 	if (cmd == "on") then
-		Print("TheoryCraft is now switched ON")
+		print("TheoryCraft is now switched ON")
 		TheoryCraft_Settings["off"] = nil
 	end
 	if (cmd == "more") then
-		Print("/tc showmem")
-		Print("    Debug infomation, shows the memory usage (in bytes) as each event occurs")
-		Print("/tc damtodouble")
-		Print("    Shows how much +damage/+heal is required to double a spells base damage")
-		Print("/tc dpsmana")
-		Print("    Adds a dps/mana field to the tooltip")
-		Print("/tc armorchanges")
-		Print("    Prints whenever the armor value of the target changes")
-		Print("/tc armor (mob name)")
-		Print("    Prints the mobs armor. Leave blank for all.")
-		Print("/tc playerarmor (player name, or class)")
-		Print("    Prints a players armor. Leave blank for all.")
-		Print("/tc calccrits")
-		Print("    Shows your actual crit rate, from combat. Only works for healers.")
-		Print("Macro Tooltips")
-		Print("    If you name a macro the same as the name of the spell, in the format: Pyroblast(x), where x is the rank (or 0 if N/A), TC will show the correct tooltip. If the spell name does not fit, only use as many characters as can fit without leaving the rank off.")
+		print("/tc showmem")
+		print("    Debug infomation, shows the memory usage (in bytes) as each event occurs")
+		print("/tc damtodouble")
+		print("    Shows how much +damage/+heal is required to double a spells base damage")
+		print("/tc dpsmana")
+		print("    Adds a dps/mana field to the tooltip")
+		print("/tc armorchanges")
+		print("    Prints whenever the armor value of the target changes")
+		print("/tc armor (mob name)")
+		print("    Prints the mobs armor. Leave blank for all.")
+		print("/tc playerarmor (player name, or class)")
+		print("    Prints a players armor. Leave blank for all.")
+		print("/tc calccrits")
+		print("    Shows your actual crit rate, from combat. Only works for healers.")
+		print("Macro Tooltips")
+		print("    If you name a macro the same as the name of the spell, in the format: Pyroblast(x), where x is the rank (or 0 if N/A), TC will show the correct tooltip. If the spell name does not fit, only use as many characters as can fit without leaving the rank off.")
 	end
 	if (cmd == "titles") or (cmd == "dpsmana") or (cmd == "damtodouble") or (cmd == "hidecritdata") or (cmd == "dpsdampercent") or (cmd == "armorchanges") or (cmd == "procs") or (cmd == "hideadvanced") or (cmd == "showregenheal") or (cmd == "showregendam") or (cmd == "hpm") or (cmd == "dpm") or (cmd == "dontcritdpm") or (cmd == "dontcrithpm") or (cmd == "nextagi") or (cmd == "nextpen") or (cmd == "embed") or (cmd == "dam") or (cmd == "averagedam") or (cmd == "averagedamnocrit") or (cmd == "crit") or (cmd == "critdam") or (cmd == "sepignite") or (cmd == "rollignites") or (cmd == "dps") or (cmd == "dpsdam") or (cmd == "resists") or (cmd == "timeit") or (cmd == "plusdam") or (cmd == "damcoef") or (cmd == "dameff") or (cmd == "damfinal") or (cmd == "nextcrit") or (cmd == "nexthit") or (cmd == "mana") or (cmd == "max") or (cmd == "maxevoc") or (cmd == "maxtime") or (cmd == "averagethreat") or (cmd == "healanddamage") or (cmd == "lifetap") or (cmd == "showmore") or (cmd == "showmem") then
 		if (TheoryCraft_Settings[cmd]) then
@@ -990,9 +969,9 @@ function TheoryCraft_Command(cmd)
 			onoff = true
 		end
 		if onoff then
-			DEFAULT_CHAT_FRAME:AddMessage(cmd.." is now set to 'on'")
+			print(cmd, "is now set to 'on'")
 		else
-			DEFAULT_CHAT_FRAME:AddMessage(cmd.." is now set to 'off'")
+			print(cmd, "is now set to 'off'")
 		end
 		TheoryCraft_Settings[cmd] = onoff
 	end
@@ -1034,8 +1013,8 @@ function TheoryCraft_OutfitChange(self)
 		TheoryCraft_UpdateGear("player", true)
 		TheoryCraft_LoadStats()
 		timer = round((GetTime()-timer)*1000)
-		Print(" ")
-		Print("TheoryCraft takes: "..timer.."ms to read your gear. self will only occur out of combat, and only when your gear changes.")
+		print(" ")
+		print("TheoryCraft takes:", timer, "ms to read your gear. self will only occur out of combat, and only when your gear changes.")
 		TheoryCraft_Data["reporttimes"] = true
 		TheoryCraft_Data["buttonsgenerated"] = 0
 		TheoryCraft_Data["timetaken"] = 0
