@@ -2,7 +2,7 @@
 ## Author: Endymon (older authors: Boothin, Scott, Xodious - Original Code by Aelian)
 ## Title: TheoryCraftClassic
 ## Notes: Tells you everything about an ability, right on the tooltip.
-## Version: 11.20.2021
+## Version: 12.02.2021
 ## SavedVariablesPerCharacter: TheoryCraft_Settings
 ## SavedVariables: TheoryCraft_SetBonuses, TheoryCraft_MitigationMobs, TheoryCraft_MitigationPlayers
 ## DefaultState: enabled
