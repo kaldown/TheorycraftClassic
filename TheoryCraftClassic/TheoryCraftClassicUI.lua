@@ -18,26 +18,6 @@ local function findpattern(text, pattern, start)
 	end
 end
 
--- /run TheoryCraft_DebugPoints('FrameGlobalName')
-function TheoryCraft_DebugPoints(name)
-	local frame = _G[name]
-	if frame == nil then
-		print('cannot find: ' .. name)
-		return
-	end
-	local n = frame:GetNumPoints()
-	DEFAULT_CHAT_FRAME:AddMessage('num points: '..n)
-	local point, relativeTo, relativePoint, xOfs, yOfs = frame:GetPoint(1)
-	local relativeName = 'Unknown'
-	if relativeTo ~= nil then
-		relativeName = relativeTo:GetName()
-	end
-	DEFAULT_CHAT_FRAME:AddMessage(point)
-	DEFAULT_CHAT_FRAME:AddMessage(relativeName)
-	DEFAULT_CHAT_FRAME:AddMessage(relativePoint)
-	DEFAULT_CHAT_FRAME:AddMessage(xOfs)
-	DEFAULT_CHAT_FRAME:AddMessage(yOfs)
-end
 
 -- REM: called from inside TheoryCraft_AddButtonText and from whatever bartender4 code exists
 -- REM: MultiActionBars will be setup even if they are not visible
