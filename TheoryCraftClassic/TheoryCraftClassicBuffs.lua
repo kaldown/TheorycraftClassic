@@ -3,14 +3,6 @@ local _, class = UnitClass("player")
 TheoryCraft_Data.TargetBuffs = {}
 TheoryCraft_Data.PlayerBuffs = {}
 
-local function findpattern(text, pattern, start)
-	if (text and pattern and (string.find(text, pattern, start))) then
-		return string.sub(text, string.find(text, pattern, start))
-	else
-		return ""
-	end
-end
-
 local function TheoryCraft_AddAllBuffs(target, data, buffs)
 	TheoryCraftTooltip:ClearLines()
 	local i, buff, locale_table, defaulttarget, _, start, found, type

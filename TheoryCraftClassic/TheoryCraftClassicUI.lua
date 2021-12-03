@@ -10,15 +10,6 @@ local _ADVANCEDTAB = 3
 
 local _, class = UnitClass("player")
 
-local function findpattern(text, pattern, start)
-	if (text and pattern and (string.find(text, pattern, start))) then
-		return string.sub(text, string.find(text, pattern, start))
-	else
-		return ""
-	end
-end
-
-
 -- REM: called from inside TheoryCraft_AddButtonText and from whatever bartender4 code exists
 -- REM: MultiActionBars will be setup even if they are not visible
 function TheoryCraft_SetUpButton(parentname, button_type, slot_id)
@@ -914,7 +905,7 @@ function TheoryCraft_ButtonUpdate(this, ...)
 		local id2 = getglobal(this:GetName().."SubSpellName"):GetText()
 		--print('id2: '..(id2 or 'nil'))
 		if id then
-			id2 = tonumber(findpattern(id2, "%d+"))
+			id2 = tonumber(TCUtils.findpattern(id2, "%d+"))
 			if id2 == nil then id2 = 0 end
 			spelldata = TheoryCraft_GetSpellDataByName(id, id2)
 		end

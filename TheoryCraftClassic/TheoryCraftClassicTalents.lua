@@ -1,14 +1,6 @@
 TheoryCraft_Data.Talents = {}
 local _, class = UnitClass("player")
 
-local function findpattern(text, pattern, start)
-	if (text and pattern and (string.find(text, pattern, start))) then
-		return string.sub(text, string.find(text, pattern, start))
-	else
-		return ""
-	end
-end
-
 local function TheoryCraft_AddAllTalents(data, ignoreforce)
 	local i = 1
 	local forcedrank = 0

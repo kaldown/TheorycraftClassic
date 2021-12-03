@@ -148,14 +148,6 @@ function TheoryCraft_WatchCritRate(arg1)
 end
 --]]
 
-local function findpattern(text, pattern, start)
-	if (text and pattern and (string.find(text, pattern, start))) then
-		return string.sub(text, string.find(text, pattern, start))
-	else
-		return ""
-	end
-end
-
 function TheoryCraft_UpdateArmor()
 	local oldmit = TheoryCraft_Data.armormultinternal
 	TheoryCraft_Data.armormultinternal = 1
@@ -990,7 +982,7 @@ function TheoryCraft_OutfitChange(self)
 		while (true) do
 			spellname, spellrank = GetSpellBookItemName(i,BOOKTYPE_SPELL)
 			if spellname == nil then break end
-			spellrank = tonumber(findpattern(spellrank, "%d+"))
+			spellrank = tonumber(TCUtils.findpattern(spellrank, "%d+"))
 			if spellrank == nil then spellrank = 0 end
 			i2 = 1
 			while (TheoryCraft_Spells[class][i2]) and (spellname ~= TheoryCraft_Spells[class][i2].name) do

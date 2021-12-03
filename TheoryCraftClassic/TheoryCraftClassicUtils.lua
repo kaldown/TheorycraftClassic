@@ -86,4 +86,11 @@ TCUtils.DebugPoints = function(name)
 	print(yOfs)
 end
 
+TCUtils.findpattern = function(text, pattern, start)
+	if (text and pattern and (string.find(text, pattern, start))) then
+		return string.sub(text, string.find(text, pattern, start))
+	else
+		return ""
+	end
+end
 

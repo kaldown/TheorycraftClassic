@@ -7,14 +7,6 @@ local function round(arg1, decplaces)
 	return string.format ("%."..decplaces.."f", arg1)
 end
 
-local function findpattern(text, pattern, start)
-	if (text and pattern and (string.find(text, pattern, start))) then
-		return string.sub(text, string.find(text, pattern, start))
-	else
-		return ""
-	end
-end
-
 local red, green, blue, first
 local a = TheoryCraft_TooltipOrs
 local leftline, rightline, rightlinewasnil, _, doheal, timer
@@ -38,7 +30,7 @@ function TheoryCraft_AddTooltipInfo(frame, dontshow)
 			while (true) do
 				spellname, spellrank = GetSpellBookItemName(i2,BOOKTYPE_SPELL)
 				if spellname == nil then return end
-				spellrank = tonumber(findpattern(spellrank2, "%d+"))
+				spellrank = tonumber(TCUtils.findpattern(spellrank2, "%d+"))
 				if spellrank == nil then spellrank2 = 0 end
 				if ((spellname == name) or (name == string.sub(spellname, 1, string.len(name)))) and (spellrank == rank) then 
 					frame:SetSpell(i2,BOOKTYPE_SPELL)
