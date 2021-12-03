@@ -35,6 +35,8 @@ TheoryCraft_Data.Talents["healthmultiplier"] = 1
 
 local _, class = UnitClass("player")
 local _, race = UnitRace("player")
+
+-- Racials
 if (race == "Gnome") then
 	TheoryCraft_Data.Talents["intmultiplier"] = 1.05
 end
@@ -117,24 +119,6 @@ function TheoryCraft_DeleteTable(tab1)
 			tab1[k] = nil
 		end
 	end
-end
-
-function TheoryCraftCast(spellname, overheal)
-	if UnitHealthMax("target") == 100 then
-		CastSpellByName(spellname)
-		return
-	end
-	if overheal == nil then overheal = 1 end
-	local u, highest, s = UnitHealthMax("target")-UnitHealth("target"), 1
-	u = u * overheal
-	for i = 1,20 do
-		s = TheoryCraft_GetSpellDataByName(spellname, i)
-		if (s) and (s.averagehealnocrit) and (s.averagehealnocrit > u) then
-			CastSpellByName(spellname.."(Rank "..i..")")
-			return
-		end
-	end
-	CastSpellByName(spellname)
 end
 
 local function round(arg1, decplaces)
@@ -998,8 +982,6 @@ function TheoryCraft_Command(cmd)
 		Print("    Shows your actual crit rate, from combat. Only works for healers.")
 		Print("Macro Tooltips")
 		Print("    If you name a macro the same as the name of the spell, in the format: Pyroblast(x), where x is the rank (or 0 if N/A), TC will show the correct tooltip. If the spell name does not fit, only use as many characters as can fit without leaving the rank off.")
-		Print('/script TheoryCraftCast("Greater Heal", 1)')
-		Print("    Casts the lowest rank Greater Heal that'll bring your target to full health.  The 1 represents overheal amount, eg change to 1.2 to attempt to overheal by 20% (to account for damage while casting). Can be used in macros.")
 	end
 	if (cmd == "titles") or (cmd == "dpsmana") or (cmd == "damtodouble") or (cmd == "hidecritdata") or (cmd == "dpsdampercent") or (cmd == "armorchanges") or (cmd == "procs") or (cmd == "hideadvanced") or (cmd == "showregenheal") or (cmd == "showregendam") or (cmd == "hpm") or (cmd == "dpm") or (cmd == "dontcritdpm") or (cmd == "dontcrithpm") or (cmd == "nextagi") or (cmd == "nextpen") or (cmd == "embed") or (cmd == "dam") or (cmd == "averagedam") or (cmd == "averagedamnocrit") or (cmd == "crit") or (cmd == "critdam") or (cmd == "sepignite") or (cmd == "rollignites") or (cmd == "dps") or (cmd == "dpsdam") or (cmd == "resists") or (cmd == "timeit") or (cmd == "plusdam") or (cmd == "damcoef") or (cmd == "dameff") or (cmd == "damfinal") or (cmd == "nextcrit") or (cmd == "nexthit") or (cmd == "mana") or (cmd == "max") or (cmd == "maxevoc") or (cmd == "maxtime") or (cmd == "averagethreat") or (cmd == "healanddamage") or (cmd == "lifetap") or (cmd == "showmore") or (cmd == "showmem") then
 		if (TheoryCraft_Settings[cmd]) then
