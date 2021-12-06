@@ -63,8 +63,8 @@ TheoryCraft_TooltipFormat = {
 	{show = true,         left = "#c1,1,1#$basecasttime$", right = "#c1,1,1#$cooldown$"},
 	{show = true,         left = "#c1,1,1#$cooldownremaining$",},
 
-	{show = "embed",                 left = "#c1,0.82745098,0##OR$description$/$basedescription$OR##WRAP#"},
-	{show = "embed", inverse = true, left = "#c1,0.82745098,0#$basedescription$#WRAP#"},
+	{show = "embed",                 left = "#c1,0.83,0##OR$description$/$basedescription$OR##WRAP#"},
+	{show = "embed", inverse = true, left = "#c1,0.83,0#$basedescription$#WRAP#"},
 
 	{show = true,         left = "#c1,0.5,1#$outfitname$"},
 	{show = true,         left = "Restores $evocation$ mana."},
@@ -108,6 +108,8 @@ TheoryCraft_TooltipFormat = {
 	{show = "dameff",      left = "+$damorheal$ Efficiency: $dameff,1$%"},
 	{show = "damtodouble", left = "+$damorheal$ to Double: $damtodouble$"},
 	{show = "damfinal",    left = "Final +$damorheal$: $damfinal$#IF, $damfinal2$IF#"},
+
+	-- ######## Resists ########
 	{show = "titles",      left = "#c1,1,1##TITLE=Resists:#"},
 	{show = "resists",     left = "Resist Rate ($resistlevel$): $resistrate$%"},
 	{show = "resists",     left = "After Level Resists: $dpsafterresists,1$ DPS"},
