@@ -457,10 +457,10 @@ TheoryCraft_Spells = {
 
 do
 
-local nakedint = 85
-local nakedcc = 3.6
-local fullint = 336
-local fullcc = 8.798
+--local nakedint = 85
+--local nakedcc = 3.6
+--local fullint = 336
+--local fullcc = 8.798
 
 TheoryCraft_CritChance = {
 	["HUNTER"] 	= { 52.91, 20, 0, 0 }, --0.3634
