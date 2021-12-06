@@ -1,18 +1,30 @@
 -- If another localization has already run, we can stop here
 if (TheoryCraft_Locale ~= nil) then return end
 
+TheoryCraft_TooltipOrs = {
+	hitorhealhit  = "hit",
+	hitorhealheal = "heal",
+	damorhealdam  = "Dam",
+	damorhealheal = "Heal",
+	damorapap     = "AP",
+	damorapdam    = "+dam",
+}
+
 -- The format of the tooltip is defined below.
 -- It looks ghastly complicated at first, but is quite straight forward.
 
--- show is which checkbox needs to be enabled for the line to show
+-- "show" is which checkbox needs to be enabled for the line to show
+-- if "true" it is always shown if possible. (not tied to a checkbox)
 
--- if inverse is true, then the checkbox needs to be unchecked
+-- if "inverse" is true, then the checkbox needs to be unchecked
 
--- left is what gets added to the left hand side of the toolip
--- right is what gets added to the right hand side of the tooltip
+-- "left"  is what gets added to the left  hand side of the tooltip
+-- "right" is what gets added to the right hand side of the tooltip
+
+-- variables are defined between two "$"  eg. $somevalue$ refers to somevalue
 
 -- If a value is not found, the entire line will be hidden.
--- to avoid this, put it in an if... eg the line:
+-- to avoid this, put it in an "if"... eg the line:
 --       "foo#IFbar lalala $invalidvalue$ no#"
 -- will just show the word "foo", as the invalid value will hide the entire
 -- if.
@@ -28,15 +40,12 @@ if (TheoryCraft_Locale ~= nil) then return end
 -- Format for IFs:
 --     "#IF text IF#"
 
-TheoryCraft_TooltipOrs = {
-	hitorhealhit = "hit",
-	hitorhealheal = "heal",
-	damorhealdam = "Dam",
-	damorhealheal = "Heal",
-	damorapap = "AP",
-	damorapdam = "+dam",
-}
+-- #cX,Y,Z# = color configuration
 
+
+-- REM: embedstyle1 => DPS | Crit
+--      embedstyle2 => DPM | Crit
+--      embedstyle3 => DPS/HPM | Crit
 TheoryCraft_TooltipFormat = {
 	{show = true, 		left = "#c1,1,1#$spellname$", 		right = "#c0.5,0.5,0.5#Rank $spellrank$"},
 	{show = true, 		left = "#c1,1,1#$wandlineleft2$", 	right = "#c1,1,1#$wandlineright2$"},
