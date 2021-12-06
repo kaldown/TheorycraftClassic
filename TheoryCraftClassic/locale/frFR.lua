@@ -66,7 +66,7 @@ TheoryCraft_TooltipFormat = {
 	{show = true,         left = "Avec ce sceau: $sealbuffed,1$ dps"},
 
 	-- ######## Healing Statistics ########
-	{show = "titles",     left = "#c1,1,1##TITLE=Statistiques des Soins#"},
+	{title = "Statistiques des Soins:"},
 
 	{show = "embed", inverse = true, left = "Soins: $healrange$"},
 
@@ -80,7 +80,7 @@ TheoryCraft_TooltipFormat = {
 	{show = "averagedam",       left = "Ticks: $averagehealtick$"},
 
 	-- ######## Damage Statistics ########
-	{show = "titles",     left = "#c1,1,1##TITLE=Statistiques des Degats#"},
+	{title = "Statistiques des Degats:"},
 
 	{show = "embed", inverse = true, left = "Degats: $dmgrange$"},
 
@@ -96,7 +96,7 @@ TheoryCraft_TooltipFormat = {
 	{show = "averagedam",       left = "Ticks: $averagedamtick$"},
 
 	-- ######## Multipliers ########
-	{show = "titles",      left = "#c1,1,1##TITLE=Multiplicateurs:#"},
+	{title = "Multiplicateurs:"},
 	{show = "plusdam",     left = "Base +$damorheal$: $plusdam$"},
 	{show = "damcoef",     left = "+$damorheal$ Coefficient: $damcoef,1$%#IF, $damcoef2,1$%IF#"},
 	{show = "dameff",      left = "+$damorheal$ Efficacite: $dameff,1$%"},
@@ -104,13 +104,13 @@ TheoryCraft_TooltipFormat = {
 	{show = "damfinal",    left = "Final +$damorheal$: $damfinal$#IF, $damfinal2$IF#"},
 
 	-- ######## Resists ########
-	{show = "titles",      left = "#c1,1,1##TITLE=Resistances:#"},
+	{title = "Resistances:"},
 	{show = "resists",     left = "Chances de Resist ($resistlevel$): $resistrate$%"},
 	{show = "resists",     left = "DPS apres Resistances: $dpsafterresists,1$ DPS"},
 	{show = "resists",     left = "Au maximum: $penetration,1$ DPS Penetres"},
 
 	-- ######## Comparisons ########
-	{show = "titles",     left = "#c1,1,1##TITLE=Comparaisons:#"},
+	{title = "Comparaisons:"},
 	{show = "nextcrit",   left = "1% crit: +$nextcritheal,2$ moyen (soit: $nextcrithealequive,2$ +heal)"},
 	{show = "nextstr",    left = "10 str: +$nextstrdam,2$ average $hitorheal$ (Eq: $nextstrdamequive,2$ $damorap$)"},
 	{show = "nextagi",    left = "10 agi: +$nextagidam,2$ $hitorheal$ moyen#IF (soit: $nextagidamequive,2$ $damorap$)IF#"},
@@ -119,19 +119,19 @@ TheoryCraft_TooltipFormat = {
 	{show = "nextpen",    left = "10 pen: #OR$dontshowupto$/Up to OR#+$nextpendam,2$ $hitorheal$ moyen#IF (soit: $nextpendamequive,2$ $damorap$)IF#"},
 
 	-- ######## Rotations ########
-	{show = "titles",     left = "#c1,1,1##TITLE=Rotations:#"},
+	{title = "Rotations:"},
 	{show = true,         left = "MS rot ($msrotationlength,1$ sec) dps: $msrotationdps,1$"},
 	{show = true,         left = "AS rot ($asrotationlength,1$ sec) dps: $asrotationdps,1$"},
 	{show = true,         left = "MS/Arcane rot dps: $arcrotationdps,1$"},
 
 	-- ######## Combined Comparisons ########
-	{show = "titles",   left = "#c1,1,1##TITLE=Comparisons combinees:#"},
+	{title = "Comparisons combinees:"},
 	{show = "nextagi",  left = "10 agi: +$nextagidps,2$ MS rot dps#IF (soit: $nextagidpsequive,2$ $damorap$)IF#"},
 	{show = "nextcrit", left = "1% crit: +$nextcritdps,2$ MS rot dps (soit: $nextcritdpsequive,2$ $damorap$)"},
 	{show = "nexthit",  left = "1% toucher: +$nexthitdps,2$ MS rot dps (soit: $nexthitdpsequive,2$ $damorap$)"},
 
 	-- ######## Efficiency ########
-	{show = "titles",        left = "#c1,1,1##TITLE=Efficacite:#"},
+	{title = "Efficacite:"},
 	{show = "mana",          left = "Cout reel en Mana : $manacost,1$"},
 	{show = "dpm",           left = "DPM: $dpm,2$#IF, $withdotdpm,2$IF#"},
 	{show = "dpsmana",       left = "DPS/Mana: $dpsmana,3$"},

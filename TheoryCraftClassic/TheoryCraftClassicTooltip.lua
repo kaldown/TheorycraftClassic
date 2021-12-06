@@ -263,113 +263,116 @@ function TheoryCraft_AddTooltipInfo(game_tooltip_frame, dontshow)
 	game_tooltip_frame:ClearLines()
 
 	local dr, dg, db = TheoryCraft_Colours["AddedLine"][1], TheoryCraft_Colours["AddedLine"][2], TheoryCraft_Colours["AddedLine"][3]
-	local _,  titletext -- titletext creates a line that will only be shown if one of the subsequent lines is also shown.
+	local _,  titletext
 	local tr, tg, tb, lr, lg, lb
 	for _, line in ipairs(TheoryCraft_TooltipFormat) do
-		local show
-
-		-- REM: can be either "true" or a string matching the condition that must be fulfilled
-		if line.show == true then
-			-- simplest case, always show.
-			show = true
-
-		elseif line.show == "critmelee" then
-			show = (TheoryCraft_Settings["crit"]) and ((tooltipdata.ismelee) or (tooltipdata.isranged))
-
-		elseif line.show == "critwithdam" then
-			show = (TheoryCraft_Settings["crit"] and TheoryCraft_Settings["critdam"]) and (tooltipdata.ismelee == nil) and (tooltipdata.isranged == nil)
-
-		elseif line.show == "critwithoutdam" then
-			show = (TheoryCraft_Settings["crit"] and (not TheoryCraft_Settings["critdam"])) and (tooltipdata.ismelee == nil) and (tooltipdata.isranged == nil)
-
-		elseif line.show == "averagedam" then
-			show = TheoryCraft_Settings["averagedam"] and (not TheoryCraft_Settings["averagedamnocrit"])
-
-		elseif line.show == "averagedamnocrit" then
-			show = TheoryCraft_Settings["averagedam"] and TheoryCraft_Settings["averagedamnocrit"]
-
-		elseif line.show == "max" then
-			show = TheoryCraft_Settings["max"] and (not TheoryCraft_Settings["maxtime"])
-
-		elseif line.show == "maxtime" then
-			show = TheoryCraft_Settings["max"] and TheoryCraft_Settings["maxtime"]
-
-		elseif line.show == "maxevoc" then
-			show = TheoryCraft_Settings["maxevoc"] and (not TheoryCraft_Settings["maxtime"])
-
-		elseif line.show == "maxevoctime" then
-			show = TheoryCraft_Settings["maxevoc"] and TheoryCraft_Settings["maxtime"]
-
+		-- Handle titles (special case)
+		if line.title then
+			-- Titles are stored until some line in their section is going to be displayed, and ONLY then displayed (once)
+			titletext = line.title
+			-- continue
 		else
-			-- get whatver the corresponding checkbox state is
-			show = TheoryCraft_Settings[line.show]
-		end
+			local show
 
-		-- invert whatever the resultant state is
-		if line.inverse then show = not show end
+			-- REM: can be either "true" or a string matching the condition that must be fulfilled
+			if line.show == true then
+				-- simplest case, always show.
+				show = true
 
-		-- Essentially a continue statement.
-		if (show) then
-			-- Handle left
-			leftline = line.left
-			if leftline then
-				leftline = string.gsub(leftline, "%$(.-)%$", dowork)
-				leftline = string.gsub(leftline, "#OR(.-)/(.-)OR#", door)
-				leftline = string.gsub(leftline, "#IF(.-)IF#", doif)
-			end
-			if leftline  and strfind(leftline,  "%$NOT FOUND%$") then leftline = nil end
+			elseif line.show == "critmelee" then
+				show = (TheoryCraft_Settings["crit"]) and ((tooltipdata.ismelee) or (tooltipdata.isranged))
 
-			-- Handle right
-			rightline = line.right
-			rightlinewasnil = (rightline == nil)
-			if rightline then
-				rightline = string.gsub(rightline, "%$(.-)%$", dowork)
-				rightline = string.gsub(rightline, "#OR(.-)/(.-)OR#", door)
-				rightline = string.gsub(rightline, "#IF(.-)IF#", doif)
-			end
-			if rightline and strfind(rightline, "%$NOT FOUND%$") then rightline = nil end
+			elseif line.show == "critwithdam" then
+				show = (TheoryCraft_Settings["crit"] and TheoryCraft_Settings["critdam"]) and (tooltipdata.ismelee == nil) and (tooltipdata.isranged == nil)
 
-			red, green, blue = dr, dg, db
-			first = true
-			if leftline then
-				-- REM: ".-" is a lazy match
-				leftline = string.gsub(leftline, "#c(.-),(.-),(.-)#", do_color)
-				-- set both left and right color to the same
-				lr, lg, lb = red, green, blue
-				rr, rg, rb = red, green, blue
-			end
-			if leftline and strfind(leftline, "#TITLE=(.-)#") then
-				_, _, titletext = strfind(leftline, "#TITLE=(.-)#")
-				tr = lr
-				tg = lg
-				tb = lb
-				leftline  = nil
-				rightline = nil
+			elseif line.show == "critwithoutdam" then
+				show = (TheoryCraft_Settings["crit"] and (not TheoryCraft_Settings["critdam"])) and (tooltipdata.ismelee == nil) and (tooltipdata.isranged == nil)
+
+			elseif line.show == "averagedam" then
+				show = TheoryCraft_Settings["averagedam"] and (not TheoryCraft_Settings["averagedamnocrit"])
+
+			elseif line.show == "averagedamnocrit" then
+				show = TheoryCraft_Settings["averagedam"] and TheoryCraft_Settings["averagedamnocrit"]
+
+			elseif line.show == "max" then
+				show = TheoryCraft_Settings["max"] and (not TheoryCraft_Settings["maxtime"])
+
+			elseif line.show == "maxtime" then
+				show = TheoryCraft_Settings["max"] and TheoryCraft_Settings["maxtime"]
+
+			elseif line.show == "maxevoc" then
+				show = TheoryCraft_Settings["maxevoc"] and (not TheoryCraft_Settings["maxtime"])
+
+			elseif line.show == "maxevoctime" then
+				show = TheoryCraft_Settings["maxevoc"] and TheoryCraft_Settings["maxtime"]
+
+			else
+				-- get whatver the corresponding checkbox state is
+				show = TheoryCraft_Settings[line.show]
 			end
 
-			first = true
-			if rightline then
-				rightline = string.gsub(rightline, "#c(.-),(.-),(.-)#", do_color)
-				rr, rg, rb = red, green, blue
-			end
+			-- invert whatever the resultant state is
+			if line.inverse then show = not show end
 
-			if leftline then
+			-- Essentially a continue statement if not to be shown
+			if (show) then
+				-- Handle title (as needed)
 				if titletext then
-					game_tooltip_frame:AddLine(titletext, tr, tg, tb)
+					if TheoryCraft_Settings["titles"] then
+						-- always white. TODO: do we want to configure this in Colours.lua?
+						game_tooltip_frame:AddLine(titletext, 1,1,1)
+					end
 					titletext = nil
 				end
 
-				if strfind(leftline, "#WRAP#") then
-					leftline = string.gsub(leftline, "#WRAP#", "")
-					game_tooltip_frame:AddLine(leftline, lr, lg, lb, true)
-				elseif rightline then
-					-- Adds Line to tooltip with textLeft on left side of line and textRight on right side 
-					game_tooltip_frame:AddDoubleLine(leftline, rightline, lr, lg, lb, rr, rg, rb)
-				else
-					game_tooltip_frame:AddLine(leftline, lr, lg, lb)
+				-- Handle left
+				leftline = line.left
+				if leftline then
+					leftline = string.gsub(leftline, "%$(.-)%$", dowork)
+					leftline = string.gsub(leftline, "#OR(.-)/(.-)OR#", door)
+					leftline = string.gsub(leftline, "#IF(.-)IF#", doif)
 				end
-			end
-		end -- end "continue"
+				if leftline  and strfind(leftline,  "%$NOT FOUND%$") then leftline = nil end
+
+				-- Handle right
+				rightline = line.right
+				rightlinewasnil = (rightline == nil)
+				if rightline then
+					rightline = string.gsub(rightline, "%$(.-)%$", dowork)
+					rightline = string.gsub(rightline, "#OR(.-)/(.-)OR#", door)
+					rightline = string.gsub(rightline, "#IF(.-)IF#", doif)
+				end
+				if rightline and strfind(rightline, "%$NOT FOUND%$") then rightline = nil end
+
+				red, green, blue = dr, dg, db
+				first = true
+				if leftline then
+					-- REM: ".-" is a lazy match
+					leftline = string.gsub(leftline, "#c(.-),(.-),(.-)#", do_color)
+					-- set both left and right color to the same
+					lr, lg, lb = red, green, blue
+					rr, rg, rb = red, green, blue
+				end
+
+				first = true
+				if rightline then
+					rightline = string.gsub(rightline, "#c(.-),(.-),(.-)#", do_color)
+					rr, rg, rb = red, green, blue
+				end
+
+				if leftline then
+					if strfind(leftline, "#WRAP#") then
+						leftline = string.gsub(leftline, "#WRAP#", "")
+						game_tooltip_frame:AddLine(leftline, lr, lg, lb, true)
+					elseif rightline then
+						-- Adds Line to tooltip with textLeft on left side of line and textRight on right side 
+						game_tooltip_frame:AddDoubleLine(leftline, rightline, lr, lg, lb, rr, rg, rb)
+					else
+						game_tooltip_frame:AddLine(leftline, lr, lg, lb)
+					end
+				end
+			end -- end "continue"
+		end
 	end -- end for pairs(TheoryCraft_TooltipFormat)
 
 	game_tooltip_frame:Show()
