@@ -1,4 +1,4 @@
-﻿-- If another localization has already run, we can stop here
+-- If another localization has already run, we can stop here
 if (TheoryCraft_Locale ~= nil) then return end
 
 -- The format of the tooltip is defined below.
@@ -784,6 +784,14 @@ TheoryCraft_DotDurations = {
 	{ text="after 1 min%.", amount="60" },					-- Curse of Doom
 }
 
+-- REM: Amount is essentially the units, seconds (usually)
+TheoryCraft_DotDurations_new = {
+	["overXsec"]  = {str=" over (%d+) sec" ,   amount="n"},  -- (most dots) ex: SW: Pain, Corruption, Immolate, Renew
+	["forXsec"]   = {str="for (%d+) sec%." ,   amount="n"},  -- ex: Volley, Tranquility, Arcane Missiles, searing totem
+	["lastXsec"]  = {str="Lasts (%d+) sec%." , amount="n"},  -- ex: Drain and Siphon Life
+	["after1min"] = {str="after 1 min%." ,     amount="60"}, -- Curse of Doom
+	["for1min"]   = {str="for 1 min that%",    amount="60"}, -- totems
+}
 -- Checks every line for these
 
 TheoryCraft_EquipEveryRight = {
