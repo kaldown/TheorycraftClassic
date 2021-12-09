@@ -12,6 +12,8 @@ TheoryCraft_TooltipOrs = {
 
 -- The format of the tooltip is defined below.
 -- It looks ghastly complicated at first, but is quite straight forward.
+-- FUTURE: refactor to remove conditional logic.
+--         Conditional logic should not be built into a string if at all possible.
 
 -- "show" is which checkbox needs to be enabled for the line to show
 -- if "true" it is always shown if possible. (not tied to a checkbox)
@@ -20,27 +22,28 @@ TheoryCraft_TooltipOrs = {
 
 -- "left"  is what gets added to the left  hand side of the tooltip
 -- "right" is what gets added to the right hand side of the tooltip
+-- "title" is a special title line for a section of tooltip lines. Only displayed if something in that section is.
 
 -- variables are defined between two "$"  eg. $somevalue$ refers to somevalue
+-- #cX,Y,Z# = color configuration
 
--- If a value is not found, the entire line will be hidden.
--- to avoid this, put it in an "if"... eg the line:
---       "foo#IFbar lalala $invalidvalue$ no#"
--- will just show the word "foo", as the invalid value will hide the entire
--- if.
+-- Lines that have variables resolved to undefined values (eg that variable is unavailable)
+-- will be skipped over.
 
--- Where you want one value to be shown, or if that isn't valid to show
--- another, use OR.  Eg on a spell with 1000 minimum damage:
---       "foo#ORthis is invalid$invalidvalue$/bar $mindamage$OR#"
--- will just show foobar 1000, however if the spell is a heal nothing
--- will be shown at all.
-
+-- An "OR" block is used to choose between 2 options for this line.
+-- Example: "foo #OR bar $option_A$/ baz $option_B$OR#"
+-- when option_A is available, the line will be printed as "foo bar $option_A$"
+-- if option_A is unavailable, then try to use option_B "foo baz $option_B$"
+-- If neither are available, the line will be completely skipped
 -- Format for ORs:
---     "#OR text / more text OR#"
+--     "#OR some text / other text OR#"
+
+-- An "IF" block is used to conditionally display text if its associated variable is available
+-- Example: "hello foo #IF bar $option_A$IF#"
+-- when option_A is available, the line will be printed as "hello foo bar $option_A$"
+-- however when option_A is unavailable, the line will be printed as "hello foo"
 -- Format for IFs:
 --     "#IF text IF#"
-
--- #cX,Y,Z# = color configuration
 
 
 -- REM: right MUST follow left.
@@ -65,8 +68,8 @@ TheoryCraft_TooltipFormat = {
 	{show = true,         left = "#c1,1,1#$cooldownremaining$",},
 
 	-- REM: these are not allowed to have rightside text
-	{show = "embed",                 left = "#c1,0.83,0##OR$description$/$basedescription$OR##WRAP#"},
-	{show = "embed", inverse = true, left = "#c1,0.83,0#$basedescription$#WRAP#"},
+	{show = "embed",                 left = "#c1,0.83,0##OR$description$/$basedescription$OR#", wrap = true},
+	{show = "embed", inverse = true, left = "#c1,0.83,0#$basedescription$", wrap = true},
 
 	{show = true,         left = "#c1,0.5,1#$outfitname$"},
 	{show = true,         left = "Restores $evocation$ mana."},

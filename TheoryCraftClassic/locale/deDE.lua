@@ -57,8 +57,8 @@ TheoryCraft_TooltipFormat = {
 	{show = true,         left = "#c1,1,1#$basecasttime$", right = "#c1,1,1#$cooldown$"},
 	{show = true,         left = "#c1,1,1#$cooldownremaining$",},
 
-	{show = "embed",                 left = "#c1,0.83,0##OR$description$/$basedescription$OR##WRAP#"},
-	{show = "embed", inverse = true, left = "#c1,0.83,0#$basedescription$#WRAP#"},
+	{show = "embed",                 left = "#c1,0.83,0##OR$description$/$basedescription$OR#", wrap=true},
+	{show = "embed", inverse = true, left = "#c1,0.83,0#$basedescription$", wrap=true},
 
 	{show = true,         left = "#c1,0.5,1#$outfitname$"},
 	{show = true,         left = "Stellt $evocation$ Mana her."},

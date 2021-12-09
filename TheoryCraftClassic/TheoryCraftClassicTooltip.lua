@@ -349,12 +349,7 @@ function TheoryCraft_AddTooltipInfo(game_tooltip_frame, dontshow)
 					-- Adds Line to tooltip with textLeft on left side of line and textRight on right side 
 					game_tooltip_frame:AddDoubleLine(leftline, rightline, l_rgb[1], l_rgb[2], l_rgb[3], r_rgb[1], r_rgb[2], r_rgb[3])
 				elseif leftline then
-					local wrap = false
-					if strfind(leftline, "#WRAP#") then
-						leftline = string.gsub(leftline, "#WRAP#", "")
-						wrap = true
-					end
-					game_tooltip_frame:AddLine(leftline, l_rgb[1], l_rgb[2], l_rgb[3], wrap)
+					game_tooltip_frame:AddLine(leftline, l_rgb[1], l_rgb[2], l_rgb[3], line.wrap)
 				end
 				-- If there is only a non-nil rightline, do nothing.
 			end -- end "continue"
