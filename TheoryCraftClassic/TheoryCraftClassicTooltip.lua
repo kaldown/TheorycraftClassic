@@ -13,8 +13,8 @@ end
 function TheoryCraft_AddTooltipInfo(game_tooltip_frame, dontshow)
 	if TheoryCraft_Settings["off"] then return end
 
-	local red, green, blue, first
-	local leftline, rightline, rightlinewasnil
+	local rgb -- This is for extracting colors from the capture groups during gsub (extra return values essentially)
+	local leftline, rightline
 
 	--[[
 	local tooltipdata = nil
@@ -81,12 +81,13 @@ function TheoryCraft_AddTooltipInfo(game_tooltip_frame, dontshow)
 		-- if out of range
 		if (r > 1) or (r < 0) or (g > 1) or (g < 0) or (b > 1) or (b < 0) then return "invalid colour" end
 
-		if first then
-			red   = r
-			green = g
-			blue  = b
-			first = false
+		-- Save the color, for future use, but NOT embed the color string within this section of the tooltip.
+		if true then
+			-- REM: declared at AddTooltipInfo level.
+			rgb = {r,g,b}
 			return ""
+
+		-- NOTE: This will never be hit, but maintained for future reference.
 		else
 			-- translate the decimal values into a string color escape sequence
 			return "|c"..string.format("%.2x", math.floor(r*255))..
@@ -140,24 +141,6 @@ function TheoryCraft_AddTooltipInfo(game_tooltip_frame, dontshow)
 			end
 			return tmp
 		end
-
---[[
-		if rightlinewasnil then
-			if tooltipdata["test"] then
-				local colour
-				if tooltipdata["test"][n] ~= tooltipdata[n] then
-					colour = "#c0.9,0.9,0#"
-				else
-					colour = "#c0.5,0.5,0.5#"
-				end
-				if rightline then
-					rightline = rightline.."#IF, $|test|"..n.."$IF#"
-				else
-					rightline = colour.."#IF$|test|"..n.."$IF#"
-				end
-			end
-		end
---]]
 
 		local _, _, roundfactor = strfind(n, ",(%d+)")
 		if roundfactor then roundfactor = tonumber(roundfactor) end
@@ -262,9 +245,7 @@ function TheoryCraft_AddTooltipInfo(game_tooltip_frame, dontshow)
 	-- Empty the entire tooltip, TC will repopulate it from scratch
 	game_tooltip_frame:ClearLines()
 
-	local dr, dg, db = TheoryCraft_Colours["AddedLine"][1], TheoryCraft_Colours["AddedLine"][2], TheoryCraft_Colours["AddedLine"][3]
 	local _,  titletext
-	local tr, tg, tb, lr, lg, lb
 	for _, line in ipairs(TheoryCraft_TooltipFormat) do
 		-- Handle titles (special case)
 		if line.title then
@@ -331,46 +312,51 @@ function TheoryCraft_AddTooltipInfo(game_tooltip_frame, dontshow)
 					leftline = string.gsub(leftline, "%$(.-)%$", dowork)
 					leftline = string.gsub(leftline, "#OR(.-)/(.-)OR#", door)
 					leftline = string.gsub(leftline, "#IF(.-)IF#", doif)
+					-- Nil it out if necessary
+					if strfind(leftline, "%$NOT FOUND%$") then leftline = nil end
 				end
-				if leftline  and strfind(leftline,  "%$NOT FOUND%$") then leftline = nil end
 
 				-- Handle right
 				rightline = line.right
-				rightlinewasnil = (rightline == nil)
 				if rightline then
 					rightline = string.gsub(rightline, "%$(.-)%$", dowork)
 					rightline = string.gsub(rightline, "#OR(.-)/(.-)OR#", door)
 					rightline = string.gsub(rightline, "#IF(.-)IF#", doif)
+					-- Nil it out if necessary
+					if strfind(rightline, "%$NOT FOUND%$") then rightline = nil end
 				end
-				if rightline and strfind(rightline, "%$NOT FOUND%$") then rightline = nil end
 
-				red, green, blue = dr, dg, db
-				first = true
+				-- Reset the color to default (may be overridden by line specific configs)
+				rgb = TheoryCraft_Colours["AddedLine"]
+				local l_rgb, r_rgb -- right and left specific override colors
 				if leftline then
 					-- REM: ".-" is a lazy match
+					-- REM: color captures are stored into "rgb"
 					leftline = string.gsub(leftline, "#c(.-),(.-),(.-)#", do_color)
 					-- set both left and right color to the same
-					lr, lg, lb = red, green, blue
-					rr, rg, rb = red, green, blue
+					l_rgb = rgb
+					r_rgb = rgb
 				end
 
-				first = true
 				if rightline then
+					-- REM: color captures are stored into "rgb"
 					rightline = string.gsub(rightline, "#c(.-),(.-),(.-)#", do_color)
-					rr, rg, rb = red, green, blue
+					r_rgb = rgb
 				end
-
-				if leftline then
+				
+				-- NOTE: Configs with right lines will never wrap
+				if leftline and rightline then
+					-- Adds Line to tooltip with textLeft on left side of line and textRight on right side 
+					game_tooltip_frame:AddDoubleLine(leftline, rightline, l_rgb[1], l_rgb[2], l_rgb[3], r_rgb[1], r_rgb[2], r_rgb[3])
+				elseif leftline then
+					local wrap = false
 					if strfind(leftline, "#WRAP#") then
 						leftline = string.gsub(leftline, "#WRAP#", "")
-						game_tooltip_frame:AddLine(leftline, lr, lg, lb, true)
-					elseif rightline then
-						-- Adds Line to tooltip with textLeft on left side of line and textRight on right side 
-						game_tooltip_frame:AddDoubleLine(leftline, rightline, lr, lg, lb, rr, rg, rb)
-					else
-						game_tooltip_frame:AddLine(leftline, lr, lg, lb)
+						wrap = true
 					end
+					game_tooltip_frame:AddLine(leftline, l_rgb[1], l_rgb[2], l_rgb[3], wrap)
 				end
+				-- If there is only a non-nil rightline, do nothing.
 			end -- end "continue"
 		end
 	end -- end for pairs(TheoryCraft_TooltipFormat)

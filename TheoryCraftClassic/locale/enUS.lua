@@ -43,6 +43,7 @@ TheoryCraft_TooltipOrs = {
 -- #cX,Y,Z# = color configuration
 
 
+-- REM: right MUST follow left.
 -- REM: embedstyle1 => DPS | Crit
 --      embedstyle2 => DPM | Crit
 --      embedstyle3 => DPS/HPM | Crit
@@ -63,6 +64,7 @@ TheoryCraft_TooltipFormat = {
 	{show = true,         left = "#c1,1,1#$basecasttime$", right = "#c1,1,1#$cooldown$"},
 	{show = true,         left = "#c1,1,1#$cooldownremaining$",},
 
+	-- REM: these are not allowed to have rightside text
 	{show = "embed",                 left = "#c1,0.83,0##OR$description$/$basedescription$OR##WRAP#"},
 	{show = "embed", inverse = true, left = "#c1,0.83,0#$basedescription$#WRAP#"},
 
