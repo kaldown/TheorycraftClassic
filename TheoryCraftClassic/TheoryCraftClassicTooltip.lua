@@ -72,6 +72,8 @@ function TheoryCraft_AddTooltipInfo(game_tooltip_frame, dontshow)
 	-- while the value that the function returns is used as the replacement string.
 	-- see: https://www.lua.org/pil/20.3.html
 
+	-- Execution order is replace_var, resolve_or, resolve_if, do_color
+
 	local function do_color(r, g, b)
 		r = tonumber(r)
 		g = tonumber(g)
@@ -96,7 +98,8 @@ function TheoryCraft_AddTooltipInfo(game_tooltip_frame, dontshow)
 		end
 	end
 
-	local function dowork(n)
+	-- $VAR$ as defined in the tooltip format strings
+	local function replace_var(n)
 		local returnvalue
 		local _, _, n2 = strfind(n, "|(.+)|")
 		n = string.gsub(n, "%|.+%|", "")
@@ -212,16 +215,16 @@ function TheoryCraft_AddTooltipInfo(game_tooltip_frame, dontshow)
 		else
 			return returnvalue
 		end
-	end -- dowork
+	end -- replace_var
 
-	-- REM: "%" is the escape character, so %% = %
-	local function door(first, second)
+	-- REM: "%" is the escape character, so %% = %, %$ = $
+	local function resolve_or(first, second)
 		if strfind(first,  "%$NOT FOUND%$") then first  = nil end
 		if strfind(second, "%$NOT FOUND%$") then second = nil end
 		return first or second or "$NOT FOUND$"
 	end
 
-	local function doif(line)
+	local function resolve_if(line)
 		if strfind(line, "%$NOT FOUND%$") then return "" end
 		return line
 	end
@@ -309,9 +312,9 @@ function TheoryCraft_AddTooltipInfo(game_tooltip_frame, dontshow)
 				-- Handle left
 				leftline = line.left
 				if leftline then
-					leftline = string.gsub(leftline, "%$(.-)%$", dowork)
-					leftline = string.gsub(leftline, "#OR(.-)/(.-)OR#", door)
-					leftline = string.gsub(leftline, "#IF(.-)IF#", doif)
+					leftline = string.gsub(leftline, "%$(.-)%$", replace_var)
+					leftline = string.gsub(leftline, "#OR(.-)/(.-)OR#", resolve_or)
+					leftline = string.gsub(leftline, "#IF(.-)IF#", resolve_if)
 					-- Nil it out if necessary
 					if strfind(leftline, "%$NOT FOUND%$") then leftline = nil end
 				end
@@ -319,9 +322,9 @@ function TheoryCraft_AddTooltipInfo(game_tooltip_frame, dontshow)
 				-- Handle right
 				rightline = line.right
 				if rightline then
-					rightline = string.gsub(rightline, "%$(.-)%$", dowork)
-					rightline = string.gsub(rightline, "#OR(.-)/(.-)OR#", door)
-					rightline = string.gsub(rightline, "#IF(.-)IF#", doif)
+					rightline = string.gsub(rightline, "%$(.-)%$", replace_var)
+					rightline = string.gsub(rightline, "#OR(.-)/(.-)OR#", resolve_or)
+					rightline = string.gsub(rightline, "#IF(.-)IF#", resolve_if)
 					-- Nil it out if necessary
 					if strfind(rightline, "%$NOT FOUND%$") then rightline = nil end
 				end
