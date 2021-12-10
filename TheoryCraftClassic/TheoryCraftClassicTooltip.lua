@@ -64,8 +64,12 @@ function TheoryCraft_AddTooltipInfo(game_tooltip_frame, dontshow)
 
 	--TCUtils.pretty_print(tooltipdata)
 
-	--local timer = GetTime()
-	local doheal = (tooltipdata["minheal"]) and (((tooltipdata["drain"] == nil) and (tooltipdata["holynova"] == nil)) or (TheoryCraft_Settings["healanddamage"]))
+	-- First does this spell have a healing component?
+	local show_heal_lines = (tooltipdata["minheal"] ~= nil)
+	-- Second, if its a drain or holynova type effect, do NOT display the healing portion of these spells UNLESS checkbox "both heal and damage" is active.
+	if ((tooltipdata["drain"] == 1) or (tooltipdata["holynova"] == 1)) and (not TheoryCraft_Settings["healanddamage"]) then
+		show_heal_lines = false
+	end
 
 	-- ~~~~~~~~~~ Gsub replacer functions ~~~~~~~~~~
 	-- When invoked as 3rd param to gusb, the function is called every time gsub finds a match; the arguments to this function are the captures,
@@ -99,19 +103,69 @@ function TheoryCraft_AddTooltipInfo(game_tooltip_frame, dontshow)
 	end
 
 	-- $VAR$ as defined in the tooltip format strings
-	local function replace_var(n)
+	local function replace_var(var)
 		local returnvalue
-		local _, _, n2 = strfind(n, "|(.+)|")
-		n = string.gsub(n, "%|.+%|", "")
+		-- n2 is the capture group
+		-- so save it, then delete it.
+		local _, _, n2 = strfind(var, "|(.+)|")
+		var = string.gsub(var, "%|.+%|", "")
 
-		if (not doheal) and ((n == "nextcritheal") or (n == "healrange") or (n == "hps") or (n == "hpsdam") or (n == "crithealrange")) then
+		-- any numeric var could be in this format "$critchance,1$"
+		-- So extract the numeric precision from the variable string.
+		local _, _, precision = strfind(var, ",(%d+)")
+		if precision then
+			precision = tonumber(precision)
+			var = string.gsub(var, ",%d+", "")
+		else
+			precision = 0
+		end
+
+		-- Text only replacements (not using calculated spell data)
+		local tmp
+		if var == "hitorheal" then
+			tmp = TheoryCraft_TooltipOrs.hitorhealhit
+			if tooltipdata.isheal then
+				tmp = TheoryCraft_TooltipOrs.hitorhealheal
+			end
+			return tmp
+		end
+		if var == "damorheal" then
+			tmp = TheoryCraft_TooltipOrs.damorhealdam
+			if tooltipdata.isheal then
+				tmp = TheoryCraft_TooltipOrs.damorhealheal
+			end
+			return tmp
+		end
+		if var == "damorap"   then
+			tmp = TheoryCraft_TooltipOrs.damorapdam
+			if tooltipdata.ismelee or tooltipdata.isranged then
+				tmp = TheoryCraft_TooltipOrs.damorapap 
+			end
+			return tmp
+		end
+
+		-- If the variable in this line is a healing type AND we aren't supposed to show healing lines, we can skip it
+		if (not show_heal_lines) and ((var == "nextcritheal") or (var == "healrange") or (var == "hps") or (var == "hpsdam") or (var == "crithealrange")) then
 			return "$NOT FOUND$"
 		end
-		if n == "spellrank" and tooltipdata.spellrank == 0 then
+
+		-- A spellrank of 0 means spell has no ranks, so skip it.
+		if var == "spellrank" and tooltipdata.spellrank == 0 then
 			return "$NOT FOUND$"
 		end
+
+		-- If spellpen is 0, skip it.
+		if var == "penetration" and tonumber(tooltipdata["penetration"]) == 0 then
+			return "$NOT FOUND$"
+		end
+		-- if mana-cost is skipped (autoshot only apparently)
+		if var == "basemanacost" and tooltipdata["dontshowmana"] then
+			return "$NOT FOUND$"
+		end
+
+		-- if an outfit is active, show that in the tooltip info
 		if TheoryCraft_Data["outfit"] ~= 1 then
-			if n == "outfitname" then
+			if var == "outfitname" then
 				if (TheoryCraft_Data["outfit"] == 2) and (TheoryCraft_Settings["CustomOutfitName"]) then
 					return TheoryCraft_Settings["CustomOutfitName"]
 				else
@@ -122,96 +176,73 @@ function TheoryCraft_AddTooltipInfo(game_tooltip_frame, dontshow)
 			end
 		end
 
-		local tmp
-		if n == "hitorheal" then
-			tmp = TheoryCraft_TooltipOrs.hitorhealhit
-			if tooltipdata.isheal then
-				tmp = TheoryCraft_TooltipOrs.hitorhealheal
+		-- This section handles ranges.
+		-- If (the min == the max) then only show a single number instead (not a range afterall)
+		-- TODO: ideally in the single number case, set "returnvalue", and let the final "return round()" do the work.
+
+		if var == "healrange" and tooltipdata["minheal"] then
+			if tooltipdata["minheal"] == tooltipdata["maxheal"] then
+				return round(tooltipdata["minheal"], precision)
+			else
+				return round(tooltipdata["minheal"], precision) .. TheoryCraft_Locale.to .. round(tooltipdata["maxheal"], precision)
 			end
-			return tmp
-		end
-		if n == "damorheal" then
-			tmp = TheoryCraft_TooltipOrs.damorhealdam
-			if tooltipdata.isheal then
-				tmp = TheoryCraft_TooltipOrs.damorhealheal
-			end
-			return tmp
-		end
-		if n == "damorap"   then
-			tmp = TheoryCraft_TooltipOrs.damorapdam
-			if tooltipdata.ismelee or tooltipdata.isranged then
-				tmp = TheoryCraft_TooltipOrs.damorapap 
-			end
-			return tmp
 		end
 
-		local _, _, roundfactor = strfind(n, ",(%d+)")
-		if roundfactor then roundfactor = tonumber(roundfactor) end
-		n = string.gsub(n, ",%d+", "")
-		if n == "penetration" and tonumber(tooltipdata["penetration"]) == 0 then
-			return "$NOT FOUND$"
-		end
-		if n == "basemanacost" and tooltipdata["dontshowmana"] then
-			return "$NOT FOUND$"
-		end
-		if n == "healrange" and tooltipdata["minheal"] then
-			if tooltipdata["minheal"] == tooltipdata["maxheal"] then
-				return round(tooltipdata["minheal"])
-			else
-				return round(tooltipdata["minheal"])..TheoryCraft_Locale.to..round(tooltipdata["maxheal"])
-			end
-		end
-		if n == "dmgrange" and tooltipdata["mindamage"] then
+		if var == "dmgrange" and tooltipdata["mindamage"] then
 			if tooltipdata["mindamage"] == tooltipdata["maxdamage"] then
-				return round(tooltipdata["mindamage"])
+				return round(tooltipdata["mindamage"], precision)
 			else
-				return round(tooltipdata["mindamage"])..TheoryCraft_Locale.to..round(tooltipdata["maxdamage"])
+				return round(tooltipdata["mindamage"], precision) .. TheoryCraft_Locale.to .. round(tooltipdata["maxdamage"], precision)
 			end
 		end
-		if ((n == "critdmgrange") or (n == "igniterange")) and (tooltipdata["critdmgmin"]) then
-			if ((TheoryCraft_Settings["sepignite"]) and (n == "critdmgrange")) and (tooltipdata["critdmgmaxminusignite"]) then
+
+		if ((var == "critdmgrange") or (var == "igniterange")) and (tooltipdata["critdmgmin"]) then
+			if ((TheoryCraft_Settings["sepignite"]) and (var == "critdmgrange")) and (tooltipdata["critdmgmaxminusignite"]) then
 				if tooltipdata["critdmgminminusignite"] == tooltipdata["critdmgmaxminusignite"] then
-					return round(tooltipdata["critdmgminminusignite"])
+					return round(tooltipdata["critdmgminminusignite"], precision)
 				else
-					return round(tooltipdata["critdmgminminusignite"])..TheoryCraft_Locale.to..round(tooltipdata["critdmgmaxminusignite"])
+					return round(tooltipdata["critdmgminminusignite"], precision) .. TheoryCraft_Locale.to .. round(tooltipdata["critdmgmaxminusignite"], precision)
 				end
 			else
-				if (tooltipdata["critdmgminminusignite"] == nil) and (n == "igniterange") then return "$NOT FOUND$" end
+				if (tooltipdata["critdmgminminusignite"] == nil) and (var == "igniterange") then
+					return "$NOT FOUND$"
+				end
 				if tooltipdata["critdmgmin"] == tooltipdata["critdmgmax"] then
-					return round(tooltipdata["critdmgmin"])
+					return round(tooltipdata["critdmgmin"], precision)
 				else
-					return round(tooltipdata["critdmgmin"])..TheoryCraft_Locale.to..round(tooltipdata["critdmgmax"])
+					return round(tooltipdata["critdmgmin"], precision) .. TheoryCraft_Locale.to .. round(tooltipdata["critdmgmax"], precision)
 				end
 			end
 		end
-		if ((n == "crithealrange") and (tooltipdata["crithealmin"])) then
+
+		if ((var == "crithealrange") and (tooltipdata["crithealmin"])) then
 			if tooltipdata["crithealmin"] == tooltipdata["crithealmax"] then
-				return round(tooltipdata["crithealmin"])
+				return round(tooltipdata["crithealmin"], precision)
 			else
-				return round(tooltipdata["crithealmin"])..TheoryCraft_Locale.to..round(tooltipdata["crithealmax"])
+				return round(tooltipdata["crithealmin"], precision) .. TheoryCraft_Locale.to .. round(tooltipdata["crithealmax"], precision)
 			end
 		end
 
 		if n2 then
-			if tooltipdata[n2]    == nil then return "$NOT FOUND$" end
-			if tooltipdata[n2][n] == nil then return "$NOT FOUND$" end
-			returnvalue = tooltipdata[n2][n]
+			if tooltipdata[n2]      == nil then return "$NOT FOUND$" end
+			if tooltipdata[n2][var] == nil then return "$NOT FOUND$" end
+			returnvalue = tooltipdata[n2][var]
 		else
-			if tooltipdata[n] == nil then return "$NOT FOUND$" end
-			returnvalue = tooltipdata[n]
+			-- catchall everything else that doesn't have special logic above.
+			if tooltipdata[var] == nil then return "$NOT FOUND$" end
+			returnvalue = tooltipdata[var]
 		end
 
-		if (n == "maxoomdam") or (n == "maxevocoomdam") or (n == "maxoomheal") or (n == "maxevocoodam") then
+		if (var == "maxoomdam") or (var == "maxevocoomdam") or (var == "maxoomheal") or (var == "maxevocoodam") then
 			if returnvalue < 0 then 
 				returnvalue = "Infinite"  
 			else 
 				returnvalue = round(returnvalue/1000, 2).."k"
 			end 
 		end
-		if (roundfactor) and (tonumber(returnvalue)) then
-			return round(returnvalue, roundfactor)
-		elseif (tonumber(returnvalue)) then
-			return round(returnvalue)
+
+		if (tonumber(returnvalue)) then
+			return round(returnvalue, precision)
 		else
 			return returnvalue
 		end
