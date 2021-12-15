@@ -619,13 +619,17 @@ function TheoryCraft_OnEvent(self, event, arg1)
 			end
 		end
 	elseif event == "UNIT_AURA" then
+		-- NOTE: we care about both "player" and "target"
 		TheoryCraft_UpdateBuffs(arg1)
+
 	elseif event == "CHARACTER_POINTS_CHANGED" then
 		TheoryCraft_UpdateTalents()
+
 	elseif event == "PLAYER_TARGET_CHANGED" then
 		TheoryCraft_UpdateTarget()
 		TheoryCraft_UpdateBuffs("target")
 		TheoryCraft_UpdateAllButtonText('target changed')
+
 	elseif event == "UNIT_POWER_UPDATE" then
 
 	elseif (event == "UNIT_MANA") and (arg1 == "player") then

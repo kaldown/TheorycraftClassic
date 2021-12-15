@@ -84,8 +84,8 @@ local old  = {}
 local old2 = {}
 
 -- I believe this is called upon entering_world & whenever a player buff/debuff is changed (aura) & whenever target is changed.
-function TheoryCraft_UpdateBuffs(arg1, dontgen)
-	if (arg1 == "player") then
+function TheoryCraft_UpdateBuffs(entity_unit_id, dontgen)
+	if (entity_unit_id == "player") then
 		TheoryCraft_DeleteTable(TheoryCraft_Data.PlayerBuffs)
 		TheoryCraft_AddAllBuffs("player", TheoryCraft_Data.PlayerBuffs)
 		TheoryCraft_AddAllBuffs("player", TheoryCraft_Data.PlayerBuffs, "debuffs")
@@ -99,7 +99,7 @@ function TheoryCraft_UpdateBuffs(arg1, dontgen)
 			TheoryCraft_GenerateAll()
 		end
 
-	elseif (arg1 == "target") then
+	elseif (entity_unit_id == "target") then
 		TheoryCraft_DeleteTable(old)
 		TheoryCraft_CopyTable(TheoryCraft_Data.TargetBuffs, old)
 		TheoryCraft_DeleteTable(TheoryCraft_Data.TargetBuffs)
