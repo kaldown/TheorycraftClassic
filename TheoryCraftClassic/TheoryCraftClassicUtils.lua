@@ -94,6 +94,13 @@ TCUtils.findpattern = function(text, pattern, start)
 	end
 end
 
+-- NOTE: this returns a string
+TCUtils.round = function(num, precision)
+	if (precision == nil) then precision = 0 end
+	if (num == nil) then num = 0 end
+	-- NOTE: There is not a Math function that does this.
+	return string.format("%."..precision.."f", num)
+end
 
 -- Quick and dirty way of testing if a value is found within an array-like table.
 -- We do this by transforming an array-like table {'a','b','c'}

@@ -1,12 +1,6 @@
 local _, class = UnitClass("PLAYER")
 --local armormult
 
-local function round(arg1, decplaces)
-	if (decplaces == nil) then decplaces = 0 end
-	if arg1 == nil then arg1 = 0 end
-	return string.format ("%."..decplaces.."f", arg1)
-end
-
 -- NOTE: this file only contains this one function (helpers ignored)
 
 
@@ -182,44 +176,44 @@ function TheoryCraft_AddTooltipInfo(game_tooltip_frame, dontshow)
 
 		if var == "healrange" and tooltipdata["minheal"] then
 			if tooltipdata["minheal"] == tooltipdata["maxheal"] then
-				return round(tooltipdata["minheal"], precision)
+				return TCUtils.round(tooltipdata["minheal"], precision)
 			else
-				return round(tooltipdata["minheal"], precision) .. TheoryCraft_Locale.to .. round(tooltipdata["maxheal"], precision)
+				return TCUtils.round(tooltipdata["minheal"], precision) .. TheoryCraft_Locale.to .. TCUtils.round(tooltipdata["maxheal"], precision)
 			end
 		end
 
 		if var == "dmgrange" and tooltipdata["mindamage"] then
 			if tooltipdata["mindamage"] == tooltipdata["maxdamage"] then
-				return round(tooltipdata["mindamage"], precision)
+				return TCUtils.round(tooltipdata["mindamage"], precision)
 			else
-				return round(tooltipdata["mindamage"], precision) .. TheoryCraft_Locale.to .. round(tooltipdata["maxdamage"], precision)
+				return TCUtils.round(tooltipdata["mindamage"], precision) .. TheoryCraft_Locale.to .. TCUtils.round(tooltipdata["maxdamage"], precision)
 			end
 		end
 
 		if ((var == "critdmgrange") or (var == "igniterange")) and (tooltipdata["critdmgmin"]) then
 			if ((TheoryCraft_Settings["sepignite"]) and (var == "critdmgrange")) and (tooltipdata["critdmgmaxminusignite"]) then
 				if tooltipdata["critdmgminminusignite"] == tooltipdata["critdmgmaxminusignite"] then
-					return round(tooltipdata["critdmgminminusignite"], precision)
+					return TCUtils.round(tooltipdata["critdmgminminusignite"], precision)
 				else
-					return round(tooltipdata["critdmgminminusignite"], precision) .. TheoryCraft_Locale.to .. round(tooltipdata["critdmgmaxminusignite"], precision)
+					return TCUtils.round(tooltipdata["critdmgminminusignite"], precision) .. TheoryCraft_Locale.to .. TCUtils.round(tooltipdata["critdmgmaxminusignite"], precision)
 				end
 			else
 				if (tooltipdata["critdmgminminusignite"] == nil) and (var == "igniterange") then
 					return "$NOT FOUND$"
 				end
 				if tooltipdata["critdmgmin"] == tooltipdata["critdmgmax"] then
-					return round(tooltipdata["critdmgmin"], precision)
+					return TCUtils.round(tooltipdata["critdmgmin"], precision)
 				else
-					return round(tooltipdata["critdmgmin"], precision) .. TheoryCraft_Locale.to .. round(tooltipdata["critdmgmax"], precision)
+					return TCUtils.round(tooltipdata["critdmgmin"], precision) .. TheoryCraft_Locale.to .. TCUtils.round(tooltipdata["critdmgmax"], precision)
 				end
 			end
 		end
 
 		if ((var == "crithealrange") and (tooltipdata["crithealmin"])) then
 			if tooltipdata["crithealmin"] == tooltipdata["crithealmax"] then
-				return round(tooltipdata["crithealmin"], precision)
+				return TCUtils.round(tooltipdata["crithealmin"], precision)
 			else
-				return round(tooltipdata["crithealmin"], precision) .. TheoryCraft_Locale.to .. round(tooltipdata["crithealmax"], precision)
+				return TCUtils.round(tooltipdata["crithealmin"], precision) .. TheoryCraft_Locale.to .. TCUtils.round(tooltipdata["crithealmax"], precision)
 			end
 		end
 
@@ -237,12 +231,12 @@ function TheoryCraft_AddTooltipInfo(game_tooltip_frame, dontshow)
 			if returnvalue < 0 then 
 				returnvalue = "Infinite"  
 			else 
-				returnvalue = round(returnvalue/1000, 2).."k"
+				returnvalue = TCUtils.round(returnvalue/1000, 2).."k"
 			end 
 		end
 
 		if (tonumber(returnvalue)) then
-			return round(returnvalue, precision)
+			return TCUtils.round(returnvalue, precision)
 		else
 			return returnvalue
 		end
