@@ -281,7 +281,7 @@ function TheoryCraft_AddTooltipInfo(game_tooltip_frame, dontshow)
 			titletext = line.title
 			-- continue
 		else
-			local show
+			local show = false
 
 			-- REM: can be either "true" or a string matching the condition that must be fulfilled
 			if line.show == true then
@@ -320,20 +320,12 @@ function TheoryCraft_AddTooltipInfo(game_tooltip_frame, dontshow)
 				show = TheoryCraft_Settings[line.show]
 			end
 
-			-- invert whatever the resultant state is
-			if line.inverse then show = not show end
+			-- invert whatever the resulting state is
+			if line.inverse then show = (not show) end
 
+			-- REM: can the line be shown according to checkbox settings & the most basic melee/ranged filtering
 			-- Essentially a continue statement if not to be shown
 			if (show) then
-				-- Handle title (as needed)
-				if titletext then
-					if TheoryCraft_Settings["titles"] then
-						-- always white. TODO: do we want to configure this in Colours.lua?
-						game_tooltip_frame:AddLine(titletext, 1,1,1)
-					end
-					titletext = nil
-				end
-
 				-- Handle left
 				leftline = line.left
 				if leftline then
@@ -371,7 +363,17 @@ function TheoryCraft_AddTooltipInfo(game_tooltip_frame, dontshow)
 					rightline = string.gsub(rightline, "#c(.-),(.-),(.-)#", do_color)
 					r_rgb = rgb
 				end
-				
+
+				-- Now that we know whether the line has data to be displayed
+				-- Handle title (as needed)
+				if titletext and leftline then
+					if TheoryCraft_Settings["titles"] then
+						-- always white. TODO: do we want to configure this in Colours.lua?
+						game_tooltip_frame:AddLine(titletext, 1,1,1)
+					end
+					titletext = nil
+				end
+
 				-- NOTE: Configs with right lines will never wrap
 				if leftline and rightline then
 					-- Adds Line to tooltip with textLeft on left side of line and textRight on right side 
