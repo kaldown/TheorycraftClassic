@@ -94,3 +94,24 @@ TCUtils.findpattern = function(text, pattern, start)
 	end
 end
 
+
+-- Quick and dirty way of testing if a value is found within an array-like table.
+-- We do this by transforming an array-like table {'a','b','c'}
+-- into a truth_table {'a'=true, 'b'=true, 'c'=true} so we can quickly tell that any key returning true exists.
+-- We then cache the result into truth_tables so that we only have to do this transformation once.
+local truth_tables = {}
+TCUtils.array_include = function(arr, val)
+	-- Since {'a', 'b'} ~= {'a', 'b'} in lua, we have to first stringify the table before using it as a key.
+	-- REM: order matters
+	local str = table.concat(arr, ',')
+	-- If the transformation hasn't already been done.
+	if not truth_tables[str] then
+		--print("Creating truthtable")
+		local tmp = {}
+		-- transform it into a truth_table
+		for _, l in ipairs(arr) do tmp[l] = true end
+		truth_tables[str] = tmp
+	end
+	-- using the truth_table as a proxy, does the value exist?
+	return truth_tables[str][val]
+end

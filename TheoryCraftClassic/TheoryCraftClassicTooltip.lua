@@ -233,7 +233,7 @@ function TheoryCraft_AddTooltipInfo(game_tooltip_frame, dontshow)
 			returnvalue = tooltipdata[var]
 		end
 
-		if (var == "maxoomdam") or (var == "maxevocoomdam") or (var == "maxoomheal") or (var == "maxevocoodam") then
+		if (TCUtils.array_include({"maxoomdam", "maxevocoomdam", "maxoomheal", "maxevocoodam"}, var)) then
 			if returnvalue < 0 then 
 				returnvalue = "Infinite"  
 			else 
