@@ -9,7 +9,7 @@ local function findpattern(text, pattern, start)
 	end
 end
 
-local function TheoryCraft_AddEquipEffect (slotname, test, data, equippedsets)
+local function TheoryCraft_AddEquipEffect(slotname, test, data, equippedsets)
 	if (test ~= "test") then
 		TheoryCraftTooltip:SetOwner(UIParent,"ANCHOR_NONE")
 		TheoryCraftTooltip:SetInventoryItem ("player", GetInventorySlotInfo(slotname.."Slot"))
@@ -467,11 +467,11 @@ end
 local old = {}
 local old2 = {}
 
-function TheoryCraft_UpdateGear(arg1, dontgen, force)
+function TheoryCraft_UpdateGear(dontgen, force)
 	if TheoryCraft_SetBonuses == nil then
 		TheoryCraft_SetBonuses = {}
 	end
-	if (arg1 ~= "player") then return end
+
 	if not force then
 		if UnitAffectingCombat("player") then
 			TheoryCraft_Data.regenaftercombat = true
@@ -548,7 +548,7 @@ function TheoryCraft_DequipSpecial(line, returndata)
 	return returndata
 end
 
-function TheoryCraft_DequipEffect (slotname, returndata, equippedsets)
+function TheoryCraft_DequipEffect(slotname, returndata, equippedsets)
 	if (slotname ~= "test") then
 		TheoryCraftTooltip:SetOwner(UIParent,"ANCHOR_NONE")
 		TheoryCraftTooltip:SetInventoryItem ("player", GetInventorySlotInfo(slotname.."Slot"))
@@ -634,7 +634,7 @@ function TheoryCraft_AddToCustom(linkid)
 	end
 	local itemdata = {}
 	local equippedsets = {}
-	TheoryCraft_AddEquipEffect (realslot, "test", itemdata, equippedsets)
+	TheoryCraft_AddEquipEffect(realslot, "test", itemdata, equippedsets)
 	TheoryCraft_Settings["CustomOutfit"].slots[found] = {}
 	TheoryCraft_Settings["CustomOutfit"].slots[found]["data"] = itemdata
 	TheoryCraft_Settings["CustomOutfit"].slots[found]["name"] = itemname

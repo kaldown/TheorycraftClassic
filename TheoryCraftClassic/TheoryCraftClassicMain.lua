@@ -284,7 +284,7 @@ end
 function TheoryCraft_SetItemRef(link, text, button)
 	if (IsAltKeyDown()) and (string.sub(link, 1, 4) == "item") then
 		TheoryCraft_AddToCustom(link)
-		TheoryCraft_UpdateGear("player", true)
+		TheoryCraft_UpdateGear(true)
 		TheoryCraft_LoadStats()
 		TheoryCraft_GenerateAll()
 	else
@@ -575,7 +575,7 @@ function TheoryCraft_OnEvent(self, event, arg1)
 		end]]--
 
 		TheoryCraft_UpdateTalents(true)
-		TheoryCraft_UpdateGear("player", true)
+		TheoryCraft_UpdateGear(true)
 		TheoryCraft_UpdateBuffs("player", true)
 		TheoryCraft_UpdateBuffs("target", true)
 		TheoryCraft_LoadStats()
@@ -589,17 +589,27 @@ function TheoryCraft_OnEvent(self, event, arg1)
 	-- TODO: this event no longer exists. Replaced with "COMBAT_LOG_EVENT" in 2.4.0
 	--elseif event == "CHAT_MSG_SPELL_SELF_BUFF" then
 	--	TheoryCraft_WatchCritRate(arg1)
+
+	-- Fired when:
+	--   the player/target/party-member equips or unequips an item.
+	--   a new item is placed in the player's containers, taking up a new slot (stack change excluded, moving between bags/bank excluded)
+	--   a temporary enhancement is applied to player's weapon
 	elseif event == "UNIT_INVENTORY_CHANGED" then
-		TheoryCraft_UpdateGear(arg1)
+		-- arg1 = UnitID of the entity  (see: https://wowwiki-archive.fandom.com/wiki/UnitId)
+		if (arg1 == "player") then
+			TheoryCraft_UpdateGear()
+		end
 
 	-- This occurs when you are not on the hate list of any NPC, or a few seconds after the latest pvp attack that you were involved with. 
 	elseif event == "PLAYER_REGEN_ENABLED" then
 		if TheoryCraft_Data.regenaftercombat then
 			TheoryCraft_Data.regenaftercombat = nil
-			TheoryCraft_UpdateGear("player", nil, true)
+			TheoryCraft_UpdateGear(nil, true)
 		end
 
+	-- Fires when spells in the spellbook change in any way. (but not when changing pages or tabs)
 	elseif event == "SPELLS_CHANGED" then
+		print('event SPELLS_CHANGED')
 		local autoshotname = TheoryCraft_Locale.SpellTranslator["Auto Shot"]
 		if autoshotname then
 			local olddesc = TheoryCraft_TooltipData[autoshotname.."(0)"]
@@ -1002,7 +1012,7 @@ function TheoryCraft_OutfitChange(self)
 	end
 	if (id == "TheoryCraftGenAll") then
 		local timer = GetTime()
-		TheoryCraft_UpdateGear("player", true)
+		TheoryCraft_UpdateGear(true)
 		TheoryCraft_LoadStats()
 		timer = round((GetTime()-timer)*1000)
 		print(" ")
@@ -1021,7 +1031,7 @@ function TheoryCraft_OutfitChange(self)
 			TheoryCraft_Talents[i].forceto = -1
 			i = i + 1
 		end
-		TheoryCraft_UpdateGear("player", true)
+		TheoryCraft_UpdateGear(true)
 		TheoryCraft_UpdateTalents(true)
 		TheoryCraft_LoadStats()
 		TheoryCraft_GenerateAll()
@@ -1036,7 +1046,7 @@ function TheoryCraft_OutfitChange(self)
 	if (id == "TheoryCraftClearButton") then
 		TheoryCraft_Settings["CustomOutfitName"] = "Custom"
 		TheoryCraft_Settings["CustomOutfit"] = nil
-		TheoryCraft_UpdateGear("player", true)
+		TheoryCraft_UpdateGear(true)
 		TheoryCraft_LoadStats()
 		TheoryCraft_GenerateAll()
 		return
@@ -1049,13 +1059,13 @@ function TheoryCraft_OutfitChange(self)
 		TheoryCraft_Settings["CustomOutfitName"] = UnitName("target")
 		TheoryCraft_Settings["CustomOutfit"] = nil
 		TheoryCraft_Data["outfit"] = 2
-		TheoryCraft_UpdateGear("player", true)
+		TheoryCraft_UpdateGear(true)
 		local i = 20
 		while i > 0 do
 			TheoryCraft_AddToCustom(GetInventoryItemLink("target", i))
 			i=i-1
 		end
-		TheoryCraft_UpdateGear("player", true)
+		TheoryCraft_UpdateGear(true)
 		TheoryCraft_LoadStats()
 		TheoryCraft_GenerateAll()
 		return
@@ -1063,7 +1073,7 @@ function TheoryCraft_OutfitChange(self)
 	if (id == "TheoryCraftEquipSelfButton") then
 		TheoryCraft_Settings["CustomOutfitName"] = "Self"
 		TheoryCraft_Settings["CustomOutfit"] = nil
-		TheoryCraft_UpdateGear("player", true)
+		TheoryCraft_UpdateGear(true)
 		TheoryCraft_LoadStats()
 		TheoryCraft_GenerateAll()
 		TheoryCraft_Data["outfit"] = 2
@@ -1072,7 +1082,7 @@ function TheoryCraft_OutfitChange(self)
 			TheoryCraft_AddToCustom(GetInventoryItemLink("player", i))
 			i=i-1
 		end
-		TheoryCraft_UpdateGear("player", true)
+		TheoryCraft_UpdateGear(true)
 		TheoryCraft_LoadStats()
 		TheoryCraft_GenerateAll()
 		return
