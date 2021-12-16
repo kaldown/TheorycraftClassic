@@ -46,6 +46,8 @@ function TheoryCraft_getMinMax(spelldata, returndata, frame)
 	local baseincrease = returndata["baseincrease"]
 	local dotbaseincrease = baseincrease
 	local gearbaseincrease = baseincrease
+
+	-- If its not a melee ability
 	if spelldata.ismelee == nil then
 		baseincrease = baseincrease*returndata["talentbaseincreaseupfront"]
 		if spelldata.talentsbeforegear == nil then
@@ -54,9 +56,11 @@ function TheoryCraft_getMinMax(spelldata, returndata, frame)
 		baseincrease = baseincrease*returndata["talentbaseincrease"]
 		dotbaseincrease = dotbaseincrease*returndata["talentbaseincrease"]
 	end
+
 	local plusdam = (returndata["damfinal"] or 0)*gearbaseincrease
 	local plusdam2 = returndata["plusdam2"] or 0
 	local to = TheoryCraft_Locale.to
+
 	returndata["backstabmult"] = 1
 
 	if spelldata.autoattack then
@@ -82,6 +86,7 @@ function TheoryCraft_getMinMax(spelldata, returndata, frame)
 		end
 		return
 	end
+
 	if spelldata.iscombo then
 		local _, convert
 		_, _, convert = strfind(returndata["description"], TheoryCraft_MeleeComboEnergyConverter)
@@ -91,6 +96,7 @@ function TheoryCraft_getMinMax(spelldata, returndata, frame)
 			returndata["combo"..points.."maxdamage"] = maxdamage
 		end
 		returndata["beforecombo"] = returndata["description"]
+
 	elseif spelldata.shoot then
 		local a = TheoryCraft_Locale.MinMax
 		if (TheoryCraft_Data.EquipEffects["RangedMin"]) and (TheoryCraft_Data.EquipEffects["RangedMin"] ~= 0) then
@@ -110,8 +116,9 @@ function TheoryCraft_getMinMax(spelldata, returndata, frame)
 		else
 			returndata["dps"] = 0
 		end
+
+	-- Autoshot is calculated here
 	elseif spelldata.autoshot then
--- Autoshot is calculated here
 		returndata["mindamage"] = TheoryCraft_GetStat("RangedMin")+TheoryCraft_Data.Stats["rangedattackpower"]/14*TheoryCraft_GetStat("RangedSpeed")
 		returndata["maxdamage"] = returndata["mindamage"]-TheoryCraft_GetStat("RangedMin")+TheoryCraft_GetStat("RangedMax")
 		baseincrease = TheoryCraft_GetStat("Rangedmodifier")+TheoryCraft_GetStat("Rangedtalentmod")
@@ -145,11 +152,11 @@ function TheoryCraft_getMinMax(spelldata, returndata, frame)
 --		speed = 2.19
 		returndata["dps"] = averageauto/speed
 
-		returndata["manacost"] = aimedmana+multimana
+		returndata["manacost"]     = aimedmana+multimana
 		returndata["basemanacost"] = aimedmana+multimana
 		returndata["dontshowmana"] = true
 
--- MS Rotation Calculated Here:
+		-- MS (multi shot) Rotation Calculated Here:
 
 		rotationlength1 = 10
 		rotationlength2 = math.ceil(7/speed)*speed+3
@@ -178,7 +185,7 @@ function TheoryCraft_getMinMax(spelldata, returndata, frame)
 		end
 		returndata["regencasttime"] = returndata["msrotationlength"]-3
 
--- AS Rotation Calculated Here:
+		-- AS (arcane shot) Rotation Calculated Here:
 
 		rotationlength1 = 9
 		rotationlength2 = math.ceil(6/speed)*speed+3
@@ -207,6 +214,7 @@ function TheoryCraft_getMinMax(spelldata, returndata, frame)
 
 		returndata["arcrotationdps"] = (averagearcane*10+averagemulti+averageauto*(10/speed))/10
 		returndata["arcmagicdps"] = averagearcane
+
 	elseif (spelldata.ismelee) or (spelldata.isranged) then
 		local normalized
 		if spelldata.noscale then
@@ -268,6 +276,7 @@ function TheoryCraft_getMinMax(spelldata, returndata, frame)
 			range = true
 			returndata["description"] = string.gsub(returndata["description"], "%d+"..to.."%d+", findpattern(findpattern(returndata["description"], "%d+"..to.."%d+"), "%d+"))
 		end
+
 		for k, pattern in pairs(a) do
 			if strfind(returndata["description"], pattern.pattern) then
 				_, _, data[1], data[2], data[3], data[4], data[5], data[6] = strfind(returndata["description"], pattern.pattern)
@@ -333,6 +342,8 @@ function TheoryCraft_getMinMax(spelldata, returndata, frame)
 			end
 		end
 		return
+
+	-- if this is a seal
 	elseif (spelldata.isseal) then
 		local a = TheoryCraft_Locale.MinMax
 		local alreadybuffedbonus = TheoryCraft_GetStat("AttackPowerCrusader")
@@ -348,6 +359,7 @@ function TheoryCraft_getMinMax(spelldata, returndata, frame)
 			baseincrease = baseincrease+TheoryCraft_GetStat(spelldata.Schools[i].."modifier")+TheoryCraft_GetStat(spelldata.Schools[i].."talentmod")
 			i = i + 1
 		end
+
 		if (spelldata.crusader) then
 			local lowDmg, hiDmg, offlowDmg, offhiDmg, posBuff, negBuff, percentmod = UnitDamage("player");
 			local attackspeed = UnitAttackSpeed("player")
@@ -367,6 +379,7 @@ function TheoryCraft_getMinMax(spelldata, returndata, frame)
 			local averagehit = (maxDamage+minDamage)/2*attackbaseincrease
 			averagehit = (averagehit + averagehit * TheoryCraft_Data.Stats["meleecritchance"]/100)/TheoryCraft_Data.EquipEffects["MainSpeed"]
 			returndata["sealbuffed"] = averagehit
+
 		elseif (spelldata.command) then
 			minDamage = findpattern(description, "%d+"..to.."%d+")
 			maxDamage = findpattern(minDamage, to.."%d+")
@@ -395,6 +408,7 @@ function TheoryCraft_getMinMax(spelldata, returndata, frame)
 			returndata["sealunbuffed"] = averagehit/TheoryCraft_Data.EquipEffects["MainSpeed"]
 			averagehit = averagehit+(7/(60/TheoryCraft_Data.EquipEffects["MainSpeed"])*0.7)*averagehit
 			returndata["sealbuffed"] = averagehit/TheoryCraft_Data.EquipEffects["MainSpeed"]
+
 		elseif (spelldata.righteousness) then
 			minDamage = findpattern(description, "%d+"..to.."%d+")
 			maxDamage = findpattern(minDamage, to.."%d+")
@@ -419,6 +433,8 @@ function TheoryCraft_getMinMax(spelldata, returndata, frame)
 			end
 		end
 		returndata["description"] = description
+
+	-- If this spell has the holynova attribute (holyshock or holynova)
 	elseif (spelldata.holynova) then
 		local minDamage = findpattern(description, "%d+"..to.."%d+")
 		
@@ -458,6 +474,8 @@ function TheoryCraft_getMinMax(spelldata, returndata, frame)
 		returndata["minheal"] = minHeal
 		returndata["maxheal"] = maxHeal
 		return
+
+	-- This is a regular spell
 	else
 		local a = TheoryCraft_SpellMinMaxReader
 		local _

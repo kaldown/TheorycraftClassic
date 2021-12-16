@@ -1,11 +1,14 @@
 -- If another localization has already run, we can stop here
 if (TheoryCraft_Locale ~= nil) then return end
 
+-- These are for $variables$ that get replaced by words instead of data.
 TheoryCraft_TooltipOrs = {
 	hitorhealhit  = "hit",
 	hitorhealheal = "heal",
+
 	damorhealdam  = "Dam",
 	damorhealheal = "Heal",
+
 	damorapap     = "AP",
 	damorapdam    = "+dam",
 }
@@ -835,6 +838,8 @@ TheoryCraft_EquipEveryRight = {
 	{ text="^Speed (%d+%.?%d+)", type="OffhandSpeed", slot="SecondaryHand" },	-- Weapon Damage
 	{ text="^Speed (%d+%.?%d+)", type="MainSpeed", slot="MainHand" },		-- Weapon Damage
 	{ text="^Speed (%d+%.?%d+)", type="RangedSpeed", slot="Ranged" },		-- Weapon Damage
+
+	-- REM: Daggers are normalized at 1.7 speed instead of 2.4, hence the negative number
 	{ text="^Dagger", type="MeleeAPMult", amount=-0.7, slot="MainHand" },		-- Weapon Damage
 	{ text="^Dagger", type="DaggerEquipped", amount=1, slot="MainHand" }	,	-- Used for dagger spec
 	{ text="^Fist Weapon", type="FistEquipped", amount=1, slot="MainHand" },	-- Used for fist spec
@@ -853,9 +858,11 @@ TheoryCraft_EquipEveryLine = {
 
 	{ text="Adds (%d+%.?%d+) damage per second", type="AmmoDPS", slot="Ammo" },	-- Arrows
 
+	-- NOTE: the normalized attack speed from which instant abilties have their AP contribution calculated.
 	{ text="Main Hand", type="MeleeAPMult", amount="2.4", slot="MainHand" },	-- Weapon Damage
 	{ text="One%-Hand", type="MeleeAPMult", amount="2.4", slot="MainHand" },	-- Weapon Damage
 	{ text="Two%-Hand", type="MeleeAPMult", amount="3.3", slot="MainHand" },	-- Weapon Damage
+
 	{ text="(%d+) %- %d+", type="RangedMin", slot="Ranged" },			-- Weapon Damage
 	{ text="%d+ %- (%d+)", type="RangedMax", slot="Ranged" }, 			-- Weapon Damage
 	{ text="Scope %(%+(%d+) Damage%)", type="RangedMin", slot="Ranged" },		-- Weapon Damage enchant

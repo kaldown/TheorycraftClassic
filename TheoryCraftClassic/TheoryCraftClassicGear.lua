@@ -1,4 +1,5 @@
 TheoryCraft_Data.EquipEffects = {}
+
 local _, class = UnitClass("player")
 
 local function findpattern(text, pattern, start)
@@ -9,10 +10,12 @@ local function findpattern(text, pattern, start)
 	end
 end
 
+-- REM: data == SlotData
+--      equippedsets == SetData
 local function TheoryCraft_AddEquipEffect(slotname, test, data, equippedsets)
 	if (test ~= "test") then
 		TheoryCraftTooltip:SetOwner(UIParent,"ANCHOR_NONE")
-		TheoryCraftTooltip:SetInventoryItem ("player", GetInventorySlotInfo(slotname.."Slot"))
+		TheoryCraftTooltip:SetInventoryItem("player", GetInventorySlotInfo(slotname.."Slot"))
 	end
 	if (getglobal("TheoryCraftTooltipTextLeft1") == nil) then
 		return
@@ -21,14 +24,17 @@ local function TheoryCraft_AddEquipEffect(slotname, test, data, equippedsets)
 	if (data["name"] == ltext) and (data["numlines"] == TheoryCraftTooltip:NumLines()) then
 		return
 	end
+	-- Nil out all values in data & equippedsets
 	for k,v in pairs(data) do
 		data[k] = nil
 	end
-	if data["procs"] == nil then data["procs"] = {} end
 	for k,v in pairs(equippedsets) do
 		equippedsets[k] = nil
 	end
-	data["name"] = ltext
+	-- Also nil out procs
+	if data["procs"] == nil then data["procs"] = {} end
+
+	data["name"]     = ltext
 	data["numlines"] = TheoryCraftTooltip:NumLines()
 	local index = 2
 	ltext = getglobal("TheoryCraftTooltipTextLeft"..index)
@@ -43,14 +49,19 @@ local function TheoryCraft_AddEquipEffect(slotname, test, data, equippedsets)
 			rtext = rtext:GetText()
 		end
 	end
-	local itemLink = GetInventoryItemLink("player",GetInventorySlotInfo(slotname.."Slot"))
-	if(itemLink) then
+
+	local itemLink = GetInventoryItemLink("player", GetInventorySlotInfo(slotname.."Slot"))
+	if (itemLink) then
 		stats = GetItemStats(itemLink)
 		if (stats) then
+			-- NOTE: defined in: Interface\FrameXML\GlobalStrings.lua
+			-- https://www.townlong-yak.com/framexml/beta/GlobalStrings.lua  <<< may not be 100% up to date
+			-- This is "Increases healing done by spells and effects by X"
 			local found = stats["ITEM_MOD_SPELL_HEALING_DONE_SHORT"] or 0
 			data["Healing"] = (data["Healing"] or 0) + found
 		end
 	end
+
 	local s2 = 1
 	local is = 1
 	local i2 = 1
@@ -248,6 +259,7 @@ local function TheoryCraft_AddAllEquips(outfit, force)
 			changed = TheoryCraft_AddEquipEffect(v, nil, TheoryCraft_Data["SlotData"][v], TheoryCraft_Data["SetData"][v])
 		end
 	end
+
 	if not TheoryCraft_Data.EquipEffects then
 		TheoryCraft_Data.EquipEffects  = {}
 	end
@@ -462,9 +474,9 @@ local function TheoryCraft_AddAllEquips(outfit, force)
 			end
 		end
 	end
-end
+end -- TheoryCraft_AddAllEquips
 
-local old = {}
+local old  = {}
 local old2 = {}
 
 function TheoryCraft_UpdateGear(dontgen, force)
@@ -472,23 +484,30 @@ function TheoryCraft_UpdateGear(dontgen, force)
 		TheoryCraft_SetBonuses = {}
 	end
 
-	if not force then
-		if UnitAffectingCombat("player") then
-			TheoryCraft_Data.regenaftercombat = true
-		end
+	if not force and UnitAffectingCombat("player") then
+		-- True if a unit is in combat or has aggro. 
+		TheoryCraft_Data.regenaftercombat = true
 	end
+
+	-- Copy EquipEffects => old
 	TheoryCraft_DeleteTable(old)
 	TheoryCraft_CopyTable(TheoryCraft_Data.EquipEffects, old)
+
 	TheoryCraft_AddAllEquips(TheoryCraft_Data["outfit"], force)
+
 	if TheoryCraft_Data.EquipEffects["MeleeAPMult"] == nil then
 		TheoryCraft_Data.EquipEffects["MeleeAPMult"] = 1
 	end
 	if (dontgen == nil) then
+		-- Copy Stats => old2
 		TheoryCraft_DeleteTable(old2)
 		TheoryCraft_CopyTable(TheoryCraft_Data.Stats, old2)
 		TheoryCraft_DeleteTable(TheoryCraft_Data.Stats)
+
 		TheoryCraft_LoadStats()
+		-- if something changed between the old and refreshed data...
 		if (TheoryCraft_IsDifferent(old, TheoryCraft_Data.EquipEffects)) or (TheoryCraft_IsDifferent(old2, TheoryCraft_Data.Stats)) then
+			-- UpdateOutfitTab, and whatever else that does
 			TheoryCraft_GenerateAll()
 		end
 	end

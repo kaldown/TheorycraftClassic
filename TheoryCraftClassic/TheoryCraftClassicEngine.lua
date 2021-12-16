@@ -428,8 +428,8 @@ function TheoryCraft_LoadStats(talents)
 	_, tmp = UnitStat("player", 4)
 	TheoryCraft_Data.Stats["intellect"] = tmp
 	_, tmp = UnitStat("player", 5)
-	-- print(tmp)
 	TheoryCraft_Data.Stats["spirit"] = tmp
+
 	TheoryCraft_Data.Stats["agipercrit"] = agipercrit()
 
 	-- default minimum values
@@ -703,7 +703,7 @@ end
 local function GenerateTooltip(frame, returndata, spelldata, spellrank)
 	if spellrank == nil then spellrank = 0 end
 
-	returndata["RangedAPMult"] = 2.8
+	returndata["RangedAPMult"] = 2.8 -- NOTE: the normalized attack speed from which instant abilties have their AP contribution calculated.
 	--[[
 	if (frame == nil) or (frame:NumLines() == 0) then
 		CleanUp(spelldata, returndata)
