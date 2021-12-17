@@ -213,7 +213,7 @@ local function TheoryCraft_AddEquipEffect(slotname, test, data, equippedsets)
 	return true
 end
 
--- Recursively merge values from tab2 into tab1 (adding numbers together)
+-- Recursively merge values from tab1 into tab2 (adding numbers together)
 function TheoryCraft_CombineTables(tab1, tab2)
 	if tab2 == nil then tab2 = tab1 return end
 	for k,v in pairs(tab1) do
@@ -476,10 +476,10 @@ local function TheoryCraft_AddAllEquips(outfit, force)
 	end
 end -- TheoryCraft_AddAllEquips
 
-local old  = {}
-local old2 = {}
-
 function TheoryCraft_UpdateGear(dontgen, force)
+	local old  = {}
+	local old2 = {}
+
 	if TheoryCraft_SetBonuses == nil then
 		TheoryCraft_SetBonuses = {}
 	end
@@ -490,7 +490,6 @@ function TheoryCraft_UpdateGear(dontgen, force)
 	end
 
 	-- Copy EquipEffects => old
-	TheoryCraft_DeleteTable(old)
 	TCUtils.MergeIntoTable(TheoryCraft_Data.EquipEffects, old)
 
 	TheoryCraft_AddAllEquips(TheoryCraft_Data["outfit"], force)
@@ -500,14 +499,13 @@ function TheoryCraft_UpdateGear(dontgen, force)
 	end
 	if (dontgen == nil) then
 		-- Copy Stats => old2
-		TheoryCraft_DeleteTable(old2)
 		TCUtils.MergeIntoTable(TheoryCraft_Data.Stats, old2)
 		TheoryCraft_DeleteTable(TheoryCraft_Data.Stats)
 
 		TheoryCraft_LoadStats()
 		-- if something changed between the old and refreshed data...
 		if (TheoryCraft_IsDifferent(old, TheoryCraft_Data.EquipEffects)) or (TheoryCraft_IsDifferent(old2, TheoryCraft_Data.Stats)) then
-			-- UpdateOutfitTab, and whatever else that does
+			-- UpdateOutfitTab, (which will only matter if its currently shown) and whatever else that does
 			TheoryCraft_GenerateAll()
 		end
 	end
