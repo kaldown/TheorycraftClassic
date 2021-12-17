@@ -101,7 +101,7 @@ function TheoryCraft_UpdateBuffs(entity_unit_id, dontgen)
 
 	elseif (entity_unit_id == "target") then
 		TheoryCraft_DeleteTable(old)
-		TheoryCraft_CopyTable(TheoryCraft_Data.TargetBuffs, old)
+		TCUtils.MergeIntoTable(TheoryCraft_Data.TargetBuffs, old)
 		TheoryCraft_DeleteTable(TheoryCraft_Data.TargetBuffs)
 		TheoryCraft_AddAllBuffs("target", TheoryCraft_Data.TargetBuffs)
 		TheoryCraft_AddAllBuffs("target", TheoryCraft_Data.TargetBuffs, "debuffs")
@@ -111,7 +111,7 @@ function TheoryCraft_UpdateBuffs(entity_unit_id, dontgen)
 				TheoryCraft_Data.redotalents = nil
 			end
 			TheoryCraft_DeleteTable(old2)
-			TheoryCraft_CopyTable(TheoryCraft_Data.Stats, old2)
+			TCUtils.MergeIntoTable(TheoryCraft_Data.Stats, old2)
 			TheoryCraft_LoadStats()
 			if (TheoryCraft_IsDifferent(old, TheoryCraft_Data.TargetBuffs)) or (TheoryCraft_IsDifferent(old2, TheoryCraft_Data.Stats)) then
 				TheoryCraft_UpdateArmor()

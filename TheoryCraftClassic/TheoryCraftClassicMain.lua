@@ -75,18 +75,7 @@ if Bartender4 and LibStub then
 	end
 end
 
--- Recursively copy contents from tab1 into tab2
-function TheoryCraft_CopyTable(tab1, tab2)
-	for k, v in pairs(tab1) do
-		if type(v) == "table" then
-			tab2[k] = {}
-			TheoryCraft_CopyTable(v, tab2[k])
-		else
-			tab2[k] = v
-		end
-	end
-end
-
+-- recursively nil every value in the table
 function TheoryCraft_DeleteTable(tab1)
 	for k, v in pairs(tab1) do
 		if type(v) == "table" then
@@ -191,14 +180,15 @@ local old = {}
 
 function TheoryCraft_UpdateTarget(dontgen)
 	TheoryCraft_DeleteTable(old)
-	TheoryCraft_CopyTable(TheoryCraft_Data.Target, old)
+	TCUtils.MergeIntoTable(TheoryCraft_Data.Target, old)
 	TheoryCraft_DeleteTable(TheoryCraft_Data.Target)
+
 	local race, raceen = UnitRace("player")
 	local racetar = UnitCreatureType("target")
 	if (raceen == "Troll") and (racetar == TheoryCraft_Locale.ID_Beast) then
 		TheoryCraft_Data.Target["Allbaseincrease"] = 0.05
-		TheoryCraft_Data.Target["Rangedmodifier"] = 0.05
-		TheoryCraft_Data.Target["Meleemodifier"] = 0.05
+		TheoryCraft_Data.Target["Rangedmodifier"]  = 0.05
+		TheoryCraft_Data.Target["Meleemodifier"]   = 0.05
 	end
 	local slaying = 0
 	if (racetar == TheoryCraft_Locale.ID_Humanoid) then
@@ -210,12 +200,14 @@ function TheoryCraft_UpdateTarget(dontgen)
 	if racetar then
 		TheoryCraft_Data.Target["All"] = TheoryCraft_GetStat(racetar)
 	end
+
 	TheoryCraft_Data.Target["Allbaseincrease"] = (TheoryCraft_Data.Target["Allbaseincrease"] or 0)+slaying
 	TheoryCraft_Data.Target["Rangedmodifier"] = (TheoryCraft_Data.Target["Rangedmodifier"] or 0)+slaying
 	TheoryCraft_Data.Target["Meleemodifier"] = (TheoryCraft_Data.Target["Meleemodifier"] or 0)+slaying
 	TheoryCraft_Data.Target["Allcritbonus"] = slaying
 	TheoryCraft_Data.Target["Rangedcritbonus"] = slaying
 	TheoryCraft_Data.Target["Meleecritbonus"] = slaying
+
 	if (dontgen == nil) and (TheoryCraft_IsDifferent(old, TheoryCraft_Data.Target)) then
 		TheoryCraft_GenerateAll()
 	end

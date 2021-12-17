@@ -172,3 +172,21 @@ TCUtils.array_include = function(arr, val)
 	-- using the truth_table as a proxy, does the value exist?
 	return truth_tables[str][val]
 end
+
+-- Recursively merge contents from tab1 into tab2
+TCUtils.MergeIntoTable = function(tab1, tab2)
+	for k, v in pairs(tab1) do
+		if type(v) == "table" then
+			-- If the destination value doesn't happen to be a table,
+			-- the best we can do is overwrite it with a new empty table.
+			if type(tab2[k] ~= "table") then
+				tab2[k] = {}
+			end
+			-- recursively continue the merge
+			TCUtils.MergeIntoTable(v, tab2[k])
+		else
+			tab2[k] = v
+		end
+	end
+end
+

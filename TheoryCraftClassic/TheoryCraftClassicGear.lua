@@ -491,7 +491,7 @@ function TheoryCraft_UpdateGear(dontgen, force)
 
 	-- Copy EquipEffects => old
 	TheoryCraft_DeleteTable(old)
-	TheoryCraft_CopyTable(TheoryCraft_Data.EquipEffects, old)
+	TCUtils.MergeIntoTable(TheoryCraft_Data.EquipEffects, old)
 
 	TheoryCraft_AddAllEquips(TheoryCraft_Data["outfit"], force)
 
@@ -501,7 +501,7 @@ function TheoryCraft_UpdateGear(dontgen, force)
 	if (dontgen == nil) then
 		-- Copy Stats => old2
 		TheoryCraft_DeleteTable(old2)
-		TheoryCraft_CopyTable(TheoryCraft_Data.Stats, old2)
+		TCUtils.MergeIntoTable(TheoryCraft_Data.Stats, old2)
 		TheoryCraft_DeleteTable(TheoryCraft_Data.Stats)
 
 		TheoryCraft_LoadStats()

@@ -1404,12 +1404,12 @@ function TheoryCraft_GenerateSpellData(spellId)
 	end]]--
 
 	-- Copies SummateData into the tooltipdata
-	TheoryCraft_CopyTable(summeddata, TheoryCraft_TooltipData[spellId])
+	TCUtils.MergeIntoTable(summeddata, TheoryCraft_TooltipData[spellId])
 
 	if TheoryCraft_TooltipData[spellId]["schools"] == nil then
 		TheoryCraft_TooltipData[spellId]["schools"] = {}
 	end
-	TheoryCraft_CopyTable(spellData.Schools, TheoryCraft_TooltipData[spellId]["schools"])
+	TCUtils.MergeIntoTable(spellData.Schools, TheoryCraft_TooltipData[spellId]["schools"])
 
 	TheoryCraft_TooltipData[spellId]["basedescription"] = olddesc
 
@@ -1664,11 +1664,11 @@ function TheoryCraft_GenerateTooltip(frame, spellname, spellrank, i2, showonbutt
 		TheoryCraft_TooltipData[olddesc] = {}
 	end
 	TheoryCraft_DeleteTable(TheoryCraft_TooltipData[olddesc])
-	TheoryCraft_CopyTable(summeddata, TheoryCraft_TooltipData[olddesc])
+	TCUtils.MergeIntoTable(summeddata, TheoryCraft_TooltipData[olddesc])
 	if TheoryCraft_TooltipData[olddesc]["schools"] == nil then
 		TheoryCraft_TooltipData[olddesc]["schools"] = {}
 	end
-	TheoryCraft_CopyTable(i.Schools, TheoryCraft_TooltipData[olddesc]["schools"])
+	TCUtils.MergeIntoTable(i.Schools, TheoryCraft_TooltipData[olddesc]["schools"])
 	GenerateTooltip(frame, TheoryCraft_TooltipData[olddesc], i, spellrank)
 	if macro then
 		TheoryCraft_TooltipData[oldspellname.."MACRO("..spellrank..")"] = olddesc
@@ -1793,7 +1793,7 @@ local function UpdateTarget(data)
 	if data["isheal"] then return end
 	if data["armor"] and TheoryCraft_Settings["mitigation"] then
 		TheoryCraft_DeleteTable(data2)
-		TheoryCraft_CopyTable(data, data2)
+		TCUtils.MergeIntoTable(data, data2)
 		data = data2
 
 		local armormult = TheoryCraft_Data.armormultinternal
@@ -1942,7 +1942,7 @@ local function UpdateTarget(data)
 		return
 	end
 	TheoryCraft_DeleteTable(data2)
-	TheoryCraft_CopyTable(data, data2)
+	TCUtils.MergeIntoTable(data, data2)
 	data = data2
 
 	local resistmult = (1-data["resistscore"])
