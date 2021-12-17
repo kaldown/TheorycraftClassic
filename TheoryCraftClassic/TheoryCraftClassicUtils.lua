@@ -86,6 +86,56 @@ TCUtils.DebugPoints = function(name)
 	print(yOfs)
 end
 
+-- Recursively writes table data in a lua parsable format.
+TCUtils.dump = function(o)
+	if type(o) == 'table' then
+	   local s = '{ '
+	   for k,v in pairs(o) do
+		  if type(k) ~= 'number' then k = '"'..k..'"' end
+		  s = s .. '['..k..'] = ' .. TCUtils.dump(v) .. ','
+	   end
+	   return s .. '} '
+	else
+	   return tostring(o)
+	end
+end
+
+-- testdata
+-- local xyz = { a="foobar", b=100, c={'x', 'y', 'z'}, d={h="hello", i={j="jello", k={l="lunatic", m={n="nope"}}, x="be with you" }}, e="egg"}; TCUtils.pretty_print(xyz)
+-- local xyz = { a=TCUtils.dump,  b=100, d={}, x="sukoshi"}; TCUtils.pretty_print(xyz)
+TCUtils.pretty_print = function(tbl, indent)
+	indent = indent or ""
+	-- 3 layers deep max
+	if string.len(indent) > 9 then
+		print(indent, '[[maximum depth]]')
+		return
+	end
+	-- NOTE: at the top level, we expect to recieve a table as input... but just in case
+	if type(tbl) ~= 'table' then
+		print(indent, tostring(tbl))
+		return
+	end
+
+	-- First use a temp table to sort the keys
+	local tkeys = {}
+	for k in pairs(tbl) do table.insert(tkeys, k) end
+	table.sort(tkeys)
+
+	for _, k in ipairs(tkeys) do
+		local v = tbl[k]
+		if type(v) == 'table' then
+			print(indent, tostring(k)..': (table)')
+			-- increase indent by 3 for the next recursion
+			TCUtils.pretty_print(v, indent.."   ")
+
+		elseif type(v) == 'function' then
+			print(indent, tostring(k)..': (func)')
+		else
+			print(indent, tostring(k)..':', tostring(v))
+		end
+	end
+end
+
 TCUtils.findpattern = function(text, pattern, start)
 	if (text and pattern and (string.find(text, pattern, start))) then
 		return string.sub(text, string.find(text, pattern, start))
