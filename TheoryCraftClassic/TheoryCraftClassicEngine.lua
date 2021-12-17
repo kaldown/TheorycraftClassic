@@ -886,28 +886,33 @@ local function GenerateTooltip(frame, returndata, spelldata, spellrank)
 		local catform  = (TCUtils.StanceFormName() == 'cat')
 		if catform then
 			TheoryCraft_Data.EquipEffects["MeleeAPMult"] = 1
-			TheoryCraft_Data.EquipEffects["MainSpeed"] = 1
+			TheoryCraft_Data.EquipEffects["MainSpeed"]   = 1
 		elseif bearform then
 			TheoryCraft_Data.EquipEffects["MeleeAPMult"] = 2.5
-			TheoryCraft_Data.EquipEffects["MainSpeed"] = 2.5
+			TheoryCraft_Data.EquipEffects["MainSpeed"]   = 2.5
 		end
 		if (bearform or catform) then
-			local lowDmg, hiDmg, offlowDmg, offhiDmg, posBuff, negBuff, percentmod = UnitDamage("player")
+			local lowDmg, highDmg, _, _, _, _, _ = UnitDamage("player")
 			local base, pos, neg = UnitAttackPower("player")
-			base = (base+pos+neg)/14*TheoryCraft_Data.EquipEffects["MeleeAPMult"]
-			TheoryCraft_Data.EquipEffects["MeleeMin"] = lowDmg-base
-			TheoryCraft_Data.EquipEffects["MeleeMax"] = hiDmg-lowDmg+TheoryCraft_Data.EquipEffects["MeleeMin"]
+			local total_ap = base+pos+neg
+			local damage_from_ap = (total_ap/14) * TheoryCraft_Data.EquipEffects["MeleeAPMult"]
+			-- Get the virtual feral weapon damage range
+			TheoryCraft_Data.EquipEffects["MeleeMin"] = lowDmg  - damage_from_ap
+			TheoryCraft_Data.EquipEffects["MeleeMax"] = highDmg - damage_from_ap
 		end
 	end
+
 	TheoryCraft_getMinMax(spelldata, returndata, frame)
+
+
 	if spelldata.cancrit then
 		if spelldata.drain then
-			returndata["critdmgchance"] = returndata["critchance"]
+			returndata["critdmgchance"]  = returndata["critchance"]
 			returndata["crithealchance"] = returndata["critchance"]
 		elseif spelldata.isheal then
 			returndata["crithealchance"] = returndata["critchance"]
 		else
-			returndata["critdmgchance"] = returndata["critchance"]
+			returndata["critdmgchance"]  = returndata["critchance"]
 		end
 	end
 

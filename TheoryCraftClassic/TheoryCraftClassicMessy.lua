@@ -64,20 +64,28 @@ function TheoryCraft_getMinMax(spelldata, returndata, frame)
 	returndata["backstabmult"] = 1
 
 	if spelldata.autoattack then
-		returndata["mindamage"] = (TheoryCraft_GetStat("MeleeMin")+(TheoryCraft_Data.Stats["attackpower"]/14)*TheoryCraft_GetStat("MainSpeed"))
-		returndata["maxdamage"] = returndata["mindamage"]-TheoryCraft_GetStat("MeleeMin")+TheoryCraft_GetStat("MeleeMax")
+		local damage_from_ap = (TheoryCraft_Data.Stats["attackpower"] / 14) * TheoryCraft_GetStat("MainSpeed")
+		returndata["mindamage"] = TheoryCraft_GetStat("MeleeMin") + damage_from_ap
+		returndata["maxdamage"] = TheoryCraft_GetStat("MeleeMax") + damage_from_ap
+
 		baseincrease = TheoryCraft_GetStat("Meleemodifier")+TheoryCraft_GetStat("Meleetalentmod")
 		returndata["mindamage"] = returndata["mindamage"]*baseincrease
 		returndata["maxdamage"] = returndata["maxdamage"]*baseincrease
 		returndata["critdmgchance"] = TheoryCraft_Data.Stats["meleecritchance"]/100
+
 		if TheoryCraft_GetStat("OffhandMin") == 0 then
 			returndata["description"] = "Attacks the target for "..math.floor(returndata["mindamage"]).." to "..math.floor(returndata["maxdamage"]).."."
 		else
-			returndata["offhandmindamage"] = (TheoryCraft_GetStat("OffhandMin")+(TheoryCraft_Data.Stats["attackpower"]/14)*TheoryCraft_GetStat("OffhandSpeed"))
-			returndata["offhandmaxdamage"] = returndata["offhandmindamage"]-TheoryCraft_GetStat("OffhandMin")+TheoryCraft_GetStat("OffhandMax")
+			local damage_from_ap = (TheoryCraft_Data.Stats["attackpower"] / 14) * TheoryCraft_GetStat("OffhandSpeed")
+			returndata["offhandmindamage"] = TheoryCraft_GetStat("OffhandMin") + damage_from_ap
+			returndata["offhandmaxdamage"] = TheoryCraft_GetStat("OffhandMax") + damage_from_ap
+
+			-- REM: offhand does 50% of normal damage.
 			local offhandbaseincrease = baseincrease/2
 			returndata["offhandmindamage"] = returndata["offhandmindamage"]*offhandbaseincrease
 			returndata["offhandmaxdamage"] = returndata["offhandmaxdamage"]*offhandbaseincrease
+
+			-- If there is only an offhand.
 			if TheoryCraft_GetStat("MeleeMin") == 0 then
 				returndata["description"] = "Off-hand attacks for "..math.floor(returndata["offhandmindamage"]).." to "..math.floor(returndata["offhandmaxdamage"]).."."
 			else
@@ -361,10 +369,10 @@ function TheoryCraft_getMinMax(spelldata, returndata, frame)
 		end
 
 		if (spelldata.crusader) then
-			local lowDmg, hiDmg, offlowDmg, offhiDmg, posBuff, negBuff, percentmod = UnitDamage("player");
+			local lowDmg, highDmg, _, _, _, _, _ = UnitDamage("player");
 			local attackspeed = UnitAttackSpeed("player")
-			lowDmg = lowDmg/attackspeed
-			hiDmg = hiDmg/attackspeed
+			lowDmg  = lowDmg/attackspeed  -- dps
+			highDmg = highDmg/attackspeed -- dps
 			local apbonus = findpattern(description, a.crusader)
 			apbonus = tonumber(findpattern(apbonus, "%d+")) or 0
 
