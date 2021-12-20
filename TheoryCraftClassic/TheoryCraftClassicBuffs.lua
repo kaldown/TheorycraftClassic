@@ -47,6 +47,7 @@ local function TheoryCraft_AddAllBuffs(target, data, buffs)
 			else
 				TheoryCraftTooltip:SetUnitBuff(target, i)
 			end
+			-- TODO: SetUnitBuff and SetUnitDebuff have a 3rd argument which is some sort of "filter" (possibly limited to buffs/debuffs the player can do something about, cast or dispell. Function is unclear.)
 			ltext = TheoryCraftTooltipTextLeft2
 			if (ltext) and (not ltext:IsVisible()) then
 				ltext = nil

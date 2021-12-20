@@ -28,7 +28,7 @@ function TheoryCraft_AddTooltipInfo(game_tooltip_frame, dontshow)
 				spellrank = tonumber(TCUtils.findpattern(spellrank2, "%d+"))
 				if spellrank == nil then spellrank2 = 0 end
 				if ((spellname == name) or (name == string.sub(spellname, 1, string.len(name)))) and (spellrank == rank) then 
-					game_tooltip_frame:SetSpell(i2,BOOKTYPE_SPELL)
+					game_tooltip_frame:SetSpell(i2,BOOKTYPE_SPELL) -- NOTE: this method no longer exists. See SetSpellByID
 					return game_tooltip_frame
 				end
 				i2 = i2 + 1

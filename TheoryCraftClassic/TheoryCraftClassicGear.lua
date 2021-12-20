@@ -15,7 +15,7 @@ end
 local function TheoryCraft_AddEquipEffect(slotname, test, data, equippedsets)
 	if (test ~= "test") then
 		TheoryCraftTooltip:SetOwner(UIParent,"ANCHOR_NONE")
-		TheoryCraftTooltip:SetInventoryItem("player", GetInventorySlotInfo(slotname.."Slot"))
+		TheoryCraftTooltip:SetInventoryItem("player", GetInventorySlotInfo(slotname.."Slot"), false, false)
 	end
 	if (getglobal("TheoryCraftTooltipTextLeft1") == nil) then
 		return
@@ -568,7 +568,7 @@ end
 function TheoryCraft_DequipEffect(slotname, returndata, equippedsets)
 	if (slotname ~= "test") then
 		TheoryCraftTooltip:SetOwner(UIParent,"ANCHOR_NONE")
-		TheoryCraftTooltip:SetInventoryItem ("player", GetInventorySlotInfo(slotname.."Slot"))
+		TheoryCraftTooltip:SetInventoryItem("player", GetInventorySlotInfo(slotname.."Slot"), false, false)
 	end
 	local index = 1
 	local i, found
@@ -632,9 +632,9 @@ function TheoryCraft_AddToCustom(linkid)
 						TheoryCraft_Settings["CustomOutfit"].slots[TheoryCraft_SlotNames[i].slot] = TheoryCraft_Settings["CustomOutfit"].slots[found]
 					end
 				else
-					found = TheoryCraft_SlotNames[i].slot
+					found    = TheoryCraft_SlotNames[i].slot
 					realslot = TheoryCraft_SlotNames[i].realslot
-					both = TheoryCraft_SlotNames[i].both
+					both     = TheoryCraft_SlotNames[i].both
 				end
 			end
 			i = i + 1

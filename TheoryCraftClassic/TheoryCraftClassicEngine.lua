@@ -253,7 +253,7 @@ end
 
 local function TheoryCraft_GetRangedSpeed()
 	TheoryCraftTooltip:SetOwner(UIParent,"ANCHOR_NONE")
-	TheoryCraftTooltip:SetInventoryItem ("player", GetInventorySlotInfo("RangedSlot"))
+	TheoryCraftTooltip:SetInventoryItem("player", GetInventorySlotInfo("RangedSlot"), false, false)
 	local index = 1
 	ltext = getglobal(TheoryCraftTooltip:GetName().."TextLeft"..index)
 	rtext = getglobal(TheoryCraftTooltip:GetName().."TextRight"..index)
@@ -335,7 +335,7 @@ local function GetCritChance(critreport)
 		end
 		if doweaponskill then
 			TheoryCraftTooltip:SetOwner(UIParent,"ANCHOR_NONE")
-			TheoryCraftTooltip:SetInventoryItem ("player", GetInventorySlotInfo("MainHandSlot"))
+			TheoryCraftTooltip:SetInventoryItem("player", GetInventorySlotInfo("MainHandSlot"), false, false)
 			local i, i2 = 1
 			local ltext = getglobal(TheoryCraftTooltip:GetName().."TextLeft"..i):GetText()
 			local rtext = getglobal(TheoryCraftTooltip:GetName().."TextRight"..i):GetText()
