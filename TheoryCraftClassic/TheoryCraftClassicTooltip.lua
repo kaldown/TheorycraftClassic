@@ -232,7 +232,7 @@ function TheoryCraft_AddTooltipInfo(game_tooltip_frame, dontshow)
 				returnvalue = "Infinite"  
 			else 
 				returnvalue = TCUtils.round(returnvalue/1000, 2).."k"
-			end 
+			end
 		end
 
 		if (tonumber(returnvalue)) then

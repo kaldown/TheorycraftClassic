@@ -469,12 +469,21 @@ end
 --- OnShow ---
 
 -- REM: this is for tooltip only
-function TheoryCraft_OnShow()
+-- NOTE: this is not yet restricted to action bar tooltips, this applies to everything. Players, npcs, campfires, chat buttons... etc.
+function TheoryCraft_OnTooltipShow()
+	--print('TheoryCraft_OnTooltipShow')
    	TheoryCraft_AddTooltipInfo(GameTooltip)
-	--if (TheoryCraft_OnShow_Save) then
-	--   	TheoryCraft_OnShow_Save()
+end
+
+--[[
+function TheoryCraft_OnUpdate()
+	print('TheoryCraft_OnUpdate')
+   	TheoryCraft_AddTooltipInfo(GameTooltip)
+	--if (TheoryCraft_OnTooltipShow_Save) then
+	--   	TheoryCraft_OnTooltipShow_Save()
 	--end
 end
+--]]
 
 function TheoryCraft_OnEvent(self, event, arg1)
 	--print(event)
@@ -490,15 +499,17 @@ function TheoryCraft_OnEvent(self, event, arg1)
 		--TheoryCraft_Data["SetItemRef"] = SetItemRef
 		--SetItemRef = TheoryCraft_SetItemRef
 
-		-- TODO: what the heck does this mean?
-		if TheoryCraft_OnShow_Save ~= nil then
-			return
-		end
+		-- NOTE: OnShow is for ANY tooltip in the world, not just spells
+		GameTooltip:HookScript("OnShow", TheoryCraft_OnTooltipShow)
+		--GameTooltip:HookScript("OnTooltipSetSpell", TheoryCraft_OnTooltipShow)
+		-- NOTE: OnTooltipSetSpell is only for spell tooltips, but for some reason is spammed when moused over spells that cannot be moved. (stance bar & talent tree)
+		-- TODO: I guess OnTooltip<function> hooks, the function names are probably from this list: https://wowpedia.fandom.com/wiki/Widget_API#GameTooltip
+		-- NOTE: this is another possible option, but has its own problems.
+		--     hooksecurefunc(GameTooltip, 'SetTalent', function(self, spellID, isInspect, talentGroup) end)
 
-		--hooking GameTooltip's OnShow
-		TheoryCraft_OnShow_Save = GameTooltip:GetScript("OnShow")
-		GameTooltip:SetScript( "OnShow", TheoryCraft_OnShow )
-		GameTooltip:SetScript( "OnUpdate", TheoryCraft_OnShow ) -- always show?
+		--GameTooltip:HookScript("OnUpdate", TheoryCraft_OnUpdate)
+		-- DO not use OnUpdate, this is spammed constantly (probably every frame?)
+		-- abilities that cannot currently be cast, spam nil update events, whereas allowed abilities spam non-nil update events.
 
 		if (TheoryCraft_Settings["dataversion"] ~= TheoryCraft_DataVersion) then
 			SetDefaults()
