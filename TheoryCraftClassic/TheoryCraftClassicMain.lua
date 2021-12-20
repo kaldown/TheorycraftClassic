@@ -276,6 +276,10 @@ local function SetDefaults()
 	TheoryCraft_Settings["resistscores"]["Shadow"] = 0
 end
 
+-- Something to do with custom gear sets. Kill it for now.
+-- Maybe use: frame:SetScript("OnHyperlinkClick", ChatFrame_OnHyperlinkShow)
+--            or ChatFrame_OnHyperlinkShow() 
+--[[
 function TheoryCraft_SetItemRef(link, text, button)
 	if (IsAltKeyDown()) and (string.sub(link, 1, 4) == "item") then
 		TheoryCraft_AddToCustom(link)
@@ -286,6 +290,7 @@ function TheoryCraft_SetItemRef(link, text, button)
 		TheoryCraft_Data["SetItemRef"](link, text, button)
 	end
 end
+--]]
 
 function TheoryCraft_OnLoad(self)
 	TheoryCraft_MitigationMobs    = {}
@@ -481,8 +486,9 @@ function TheoryCraft_OnEvent(self, event, arg1)
 	if event == "VARIABLES_LOADED" then
 		--print('Theorycraft Variables Loaded')
 
-		TheoryCraft_Data["SetItemRef"] = SetItemRef
-		SetItemRef = TheoryCraft_SetItemRef
+		-- NOTE: disabled for now.
+		--TheoryCraft_Data["SetItemRef"] = SetItemRef
+		--SetItemRef = TheoryCraft_SetItemRef
 
 		-- TODO: what the heck does this mean?
 		if TheoryCraft_OnShow_Save ~= nil then
