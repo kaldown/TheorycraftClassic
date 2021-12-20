@@ -14,6 +14,7 @@
 	<Script file="TheoryCraftClassicTooltip.lua"/>
 	<Script file="TheoryCraftClassicMessy.lua"/>
 	<Script file="TheoryCraftClassicMitigation.lua"/>
+	<Script file="TheoryCraftClassicUtils.lua"/>
 
 	<!-- NOTE: this template is used for input.type=text boxes -->
 	<EditBox name="TheoryCraft_EditBoxTemplate" autoFocus="false" inherits="InputBoxTemplate" justifyH="CENTER" frameStrata="HIGH" virtual="true">
