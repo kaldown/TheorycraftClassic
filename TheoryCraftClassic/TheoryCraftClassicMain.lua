@@ -481,7 +481,6 @@ function TheoryCraft_OnEvent(self, event, arg1)
 	if event == "VARIABLES_LOADED" then
 		--print('Theorycraft Variables Loaded')
 
-		TheoryCraft_Mitigation = nil
 		TheoryCraft_Data["SetItemRef"] = SetItemRef
 		SetItemRef = TheoryCraft_SetItemRef
 
@@ -495,9 +494,6 @@ function TheoryCraft_OnEvent(self, event, arg1)
 		GameTooltip:SetScript( "OnShow", TheoryCraft_OnShow )
 		GameTooltip:SetScript( "OnUpdate", TheoryCraft_OnShow ) -- always show?
 
-		if TheoryCraft_Mitigation == nil then
-			TheoryCraft_Mitigation = {}
-		end
 		if (TheoryCraft_Settings["dataversion"] ~= TheoryCraft_DataVersion) then
 			SetDefaults()
 		end
