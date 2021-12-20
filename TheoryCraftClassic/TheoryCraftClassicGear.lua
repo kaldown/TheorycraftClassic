@@ -20,7 +20,9 @@ local function TheoryCraft_AddEquipEffect(slotname, test, data, equippedsets)
 	if (getglobal("TheoryCraftTooltipTextLeft1") == nil) then
 		return
 	end
+	-- Get the first line in the tooltip (should be item name)
 	local ltext = getglobal(TheoryCraftTooltip:GetName().."TextLeft1"):GetText()
+	-- If data[name] matches the current item's name && the tooltip is the same length as before (eg, not newly enchanted), skip it
 	if (data["name"] == ltext) and (data["numlines"] == TheoryCraftTooltip:NumLines()) then
 		return
 	end
@@ -34,13 +36,17 @@ local function TheoryCraft_AddEquipEffect(slotname, test, data, equippedsets)
 	-- Also nil out procs
 	if data["procs"] == nil then data["procs"] = {} end
 
+	-- set the item name and the tooltip line length for future comparison for early exit.
 	data["name"]     = ltext
 	data["numlines"] = TheoryCraftTooltip:NumLines()
+
+	-- Start actual tooltip processing at line 2
 	local index = 2
 	ltext = getglobal("TheoryCraftTooltipTextLeft"..index)
 	if ltext then
 		ltext = ltext:GetText()
 	end
+	-- NOTE: Most lines won't have right text.
 	rtext = getglobal("TheoryCraftTooltipTextRight"..index)
 	if rtext then
 		if (not getglobal("TheoryCraftTooltipTextRight"..index):IsVisible()) then
@@ -116,6 +122,8 @@ local function TheoryCraft_AddEquipEffect(slotname, test, data, equippedsets)
 			TheoryCraft_SetBonuses[setname] = newbonuses
 			break
 		end
+
+		-- if the line starts with "Equip: " (like Equip + 1% crit... etc)
 		if (strfind(ltext, "^"..TheoryCraft_Locale.ID_Equip)) then
 			foundme = false
 			for k, v in pairs(TheoryCraft_Equips) do
@@ -149,9 +157,12 @@ local function TheoryCraft_AddEquipEffect(slotname, test, data, equippedsets)
 					end
 				end
 			end
+
+		-- Some other type of line
 		else
 			foundme = false
 			if rtext then
+				-- relevant (right) patterns
 				for k, v in pairs(TheoryCraft_EquipEveryRight) do
 					if (v.slot == nil) or (v.slot == slotname) then
 						if (foundme == false) or (v.me == nil) then
@@ -168,15 +179,19 @@ local function TheoryCraft_AddEquipEffect(slotname, test, data, equippedsets)
 					end
 				end
 			end
+
 			ignoreline = false
+			-- Skip irrelevant lines like "durability" or "soulbound"
 			for k, v in pairs(TheoryCraft_IgnoreLines) do
 				if strfind(ltext, v) then
 					ignoreline = true
 					break
 				end
 			end
+
 			if not ignoreline then
 				foundme = false
+				-- relevant (left) patterns
 				for k, v in pairs(TheoryCraft_EquipEveryLine) do
 					if (v.slot == nil) or (v.slot == slotname) then
 						if (not foundme) or (not v.me) then
@@ -193,7 +208,8 @@ local function TheoryCraft_AddEquipEffect(slotname, test, data, equippedsets)
 					end
 				end
 			end
-		end
+
+		end -- end of Some other type of line
 
 		index = index + 1
 		ltext = getglobal("TheoryCraftTooltipTextLeft"..index)

@@ -130,8 +130,8 @@ function TheoryCraft_getMinMax(spelldata, returndata, frame)
 		returndata["mindamage"] = TheoryCraft_GetStat("RangedMin")+TheoryCraft_Data.Stats["rangedattackpower"]/14*TheoryCraft_GetStat("RangedSpeed")
 		returndata["maxdamage"] = returndata["mindamage"]-TheoryCraft_GetStat("RangedMin")+TheoryCraft_GetStat("RangedMax")
 		baseincrease = TheoryCraft_GetStat("Rangedmodifier")+TheoryCraft_GetStat("Rangedtalentmod")
-		returndata["maxdamage"] = returndata["maxdamage"]*baseincrease+TheoryCraft_GetStat("AmmoDPS")*TheoryCraft_GetStat("RangedSpeed")
-		returndata["mindamage"] = returndata["mindamage"]*baseincrease+TheoryCraft_GetStat("AmmoDPS")*TheoryCraft_GetStat("RangedSpeed")
+		returndata["maxdamage"] = returndata["maxdamage"]*baseincrease + TheoryCraft_GetStat("AmmoDPS")*TheoryCraft_GetStat("RangedSpeed")
+		returndata["mindamage"] = returndata["mindamage"]*baseincrease + TheoryCraft_GetStat("AmmoDPS")*TheoryCraft_GetStat("RangedSpeed")
 		returndata["description"] = TheoryCraft_Locale.MinMax.autoshotbefore..(round(returndata["mindamage"]))..to..(round(returndata["maxdamage"]))..TheoryCraft_Locale.MinMax.autoshotafter
 
 		local averageauto, averageaimed, averagemulti, averagearcane = 0, 0, 0, 0
@@ -258,6 +258,7 @@ function TheoryCraft_getMinMax(spelldata, returndata, frame)
 			baseincrease = baseincrease+TheoryCraft_GetStat(spelldata.Schools[i].."modifier")+TheoryCraft_GetStat(spelldata.Schools[i].."talentmod")
 			i = i + 1
 		end
+		-- set of patterns that melee/ranged abilities may be formatted to use.
 		local a = TheoryCraft_MeleeMinMaxReader
 		local _
 		local found
@@ -322,8 +323,8 @@ function TheoryCraft_getMinMax(spelldata, returndata, frame)
 		returndata["mindamage"] = ((normalized+returndata["mindamage"])*returndata["backstabmult"] + returndata["addeddamage"])*baseincrease
 		returndata["maxdamage"] = ((normalized+returndata["maxdamage"])*returndata["backstabmult"] + returndata["addeddamage"])*baseincrease
 		if ranged then
-			returndata["mindamage"] = returndata["mindamage"]+TheoryCraft_GetStat("AmmoDPS")*TheoryCraft_GetStat("RangedSpeed")
-			returndata["maxdamage"] = returndata["maxdamage"]+TheoryCraft_GetStat("AmmoDPS")*TheoryCraft_GetStat("RangedSpeed")
+			returndata["mindamage"] = returndata["mindamage"] + TheoryCraft_GetStat("AmmoDPS")*TheoryCraft_GetStat("RangedSpeed")
+			returndata["maxdamage"] = returndata["maxdamage"] + TheoryCraft_GetStat("AmmoDPS")*TheoryCraft_GetStat("RangedSpeed")
 		end
 
 		a = TheoryCraft_MeleeMinMaxReplacer
@@ -378,14 +379,16 @@ function TheoryCraft_getMinMax(spelldata, returndata, frame)
 
 			maxDamage = ((TheoryCraft_Data.Stats["attackpower"]-alreadybuffedbonus)/14*TheoryCraft_Data.EquipEffects["MainSpeed"]+TheoryCraft_Data.EquipEffects["MeleeMax"])
 			minDamage = ((TheoryCraft_Data.Stats["attackpower"]-alreadybuffedbonus)/14*TheoryCraft_Data.EquipEffects["MainSpeed"]+TheoryCraft_Data.EquipEffects["MeleeMin"])
-			local averagehit = (maxDamage+minDamage)/2*attackbaseincrease
-			averagehit = (averagehit + averagehit * TheoryCraft_Data.Stats["meleecritchance"]/100)/TheoryCraft_Data.EquipEffects["MainSpeed"]
-
+			local averagehit = ((maxDamage+minDamage) / 2) * attackbaseincrease
+			averagehit = (averagehit + averagehit * TheoryCraft_Data.Stats["meleecritchance"]/100) / TheoryCraft_Data.EquipEffects["MainSpeed"] -- combined hits and crits dps
+			-- DPS before the seal's own AP buff is included
 			returndata["sealunbuffed"] = averagehit
+
 			maxDamage = ((TheoryCraft_Data.Stats["attackpower"]+apbonus-alreadybuffedbonus)/14*TheoryCraft_Data.EquipEffects["MainSpeed"]+TheoryCraft_Data.EquipEffects["MeleeMax"])
 			minDamage = ((TheoryCraft_Data.Stats["attackpower"]+apbonus-alreadybuffedbonus)/14*TheoryCraft_Data.EquipEffects["MainSpeed"]+TheoryCraft_Data.EquipEffects["MeleeMin"])
-			local averagehit = (maxDamage+minDamage)/2*attackbaseincrease
-			averagehit = (averagehit + averagehit * TheoryCraft_Data.Stats["meleecritchance"]/100)/TheoryCraft_Data.EquipEffects["MainSpeed"]
+			local averagehit = ((maxDamage+minDamage) / 2) * attackbaseincrease
+			averagehit = (averagehit + averagehit * TheoryCraft_Data.Stats["meleecritchance"]/100) / TheoryCraft_Data.EquipEffects["MainSpeed"]
+			-- DPS after seal's own AP buff is included
 			returndata["sealbuffed"] = averagehit
 
 		elseif (spelldata.command) then
@@ -413,9 +416,11 @@ function TheoryCraft_getMinMax(spelldata, returndata, frame)
 			local averagehit = (maxDamage+minDamage)/2
 			averagehit = averagehit + averagehit * TheoryCraft_Data.Stats["meleecritchance"]/100
 
+			-- DPS before the seal's proc is included
 			returndata["sealunbuffed"] = averagehit/TheoryCraft_Data.EquipEffects["MainSpeed"]
 			averagehit = averagehit+(7/(60/TheoryCraft_Data.EquipEffects["MainSpeed"])*0.7)*averagehit
-			returndata["sealbuffed"] = averagehit/TheoryCraft_Data.EquipEffects["MainSpeed"]
+			-- DPS after the seal's proc is included
+			returndata["sealbuffed"] = averagehit / TheoryCraft_Data.EquipEffects["MainSpeed"]
 
 		elseif (spelldata.righteousness) then
 			minDamage = findpattern(description, "%d+"..to.."%d+")

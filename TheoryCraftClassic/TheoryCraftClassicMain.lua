@@ -9,6 +9,7 @@ TheoryCraft_Data = {}
 TheoryCraft_Data.armormult = 1
 TheoryCraft_Data.armormultinternal = 1
 TheoryCraft_Data.Target = {}
+
 TheoryCraft_Data.BaseData = {}
 TheoryCraft_Data.BaseData["Allcritbonus"] = 0.5
 TheoryCraft_Data.BaseData["Allthreat"] = 1
@@ -24,6 +25,7 @@ TheoryCraft_Data.BaseData["Meleebaseincrease"] = 1
 TheoryCraft_Data.BaseData["AllUpFrontmodifier"] = 1
 TheoryCraft_Data.BaseData["AllUpFrontbaseincrease"] = 1
 TheoryCraft_Data.BaseData["manacostall"] = 1
+
 TheoryCraft_Data.Talents = {}
 TheoryCraft_Data.Talents["strmultiplier"] = 1
 TheoryCraft_Data.Talents["agimultiplier"] = 1
@@ -66,7 +68,7 @@ if Bartender4 and LibStub then
 		lib.callbacks = lib.callbacks or CBH:New(lib)
 		LAB.RegisterCallback(lib, "OnButtonUpdate", function(event, self)
 			if self._state_type == "action" then
-				TheoryCraft_ButtonUpdate(self)
+				TheoryCraft_ButtonUpdate(self) -- bartender
 			end
 		end)
 		LAB.RegisterCallback(lib, "OnButtonCreated", function(event, self)
@@ -249,7 +251,10 @@ end
 --- OnLoad ---
 
 local function SetDefaults()
+	-- REM: SavedVariablesPerCharacter
 	TheoryCraft_Settings = {}
+	TheoryCraft_Settings["dataversion"] = TheoryCraft_DataVersion -- So that we know if we need to reset the defaults again.
+
 	TheoryCraft_Settings["embed"] = true
 	TheoryCraft_Settings["combinedot"] = true
 	TheoryCraft_Settings["procs"] = true
@@ -261,7 +266,6 @@ local function SetDefaults()
 	TheoryCraft_Settings["trysecond"] = "averagehealnocrit"
 	TheoryCraft_Settings["tryfirstsfg"] = 0
 	TheoryCraft_Settings["trysecondsfg"] = -1
-	TheoryCraft_Settings["dataversion"] = TheoryCraft_DataVersion
 	TheoryCraft_Settings["GenerateList"] = ""
 	TheoryCraft_Settings["dontresist"] = true
 
@@ -285,12 +289,15 @@ function TheoryCraft_SetItemRef(link, text, button)
 end
 
 function TheoryCraft_OnLoad(self)
-	TheoryCraft_MitigationMobs = {}
+	TheoryCraft_MitigationMobs    = {}
 	TheoryCraft_MitigationPlayers = {}
-	tinsert(UISpecialFrames,"TheoryCraft")
+
+	tinsert(UISpecialFrames, "TheoryCraft") -- REM: allows frame to be closed with ESC key.   table.insert
+
 	SLASH_TheoryCraft1 = "/theorycraft"
 	SLASH_TheoryCraft2 = "/tc"
 	SlashCmdList["TheoryCraft"] = TheoryCraft_Command
+
 	self:RegisterEvent("VARIABLES_LOADED")
 	self:RegisterEvent("PLAYER_LOGIN")
 	SetDefaults()
@@ -643,7 +650,7 @@ function TheoryCraft_OnEvent(self, event, arg1)
 	end
 
 	if TheoryCraft_Settings["showmem"] then
-		print(event..": "..gcinfo()-UIMem)
+		print(event..": "..gcinfo() - UIMem)
 	end
 end
 
@@ -704,7 +711,7 @@ function TheoryCraft_CheckBoxToggle(self)
 		onoff = true
 	end
 	local name = self:GetName()
-	name = string.sub(name, 12) -- TheoryCraft
+	name = string.sub(name, 12) -- "TheoryCraft"
 	if (name == "embedstyle1") or (name == "embedstyle2") or (name == "embedstyle3") then
 		-- Clear all
 		TheoryCraft_Settings["embedstyle1"] = nil

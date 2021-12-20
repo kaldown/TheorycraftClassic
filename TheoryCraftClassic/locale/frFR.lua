@@ -4,8 +4,10 @@ if (GetLocale() ~= "frFR") then return end
 TheoryCraft_TooltipOrs = {
 	hitorhealhit  = "coup",
 	hitorhealheal = "soin",
+
 	damorhealdam  = "+degats",
 	damorhealheal = "+soins",
+
 	damorapap     = "puissance d'attaque",
 	damorapdam    = "+degats",
 }
@@ -823,6 +825,7 @@ TheoryCraft_EquipEveryRight = {
 	{ text="^Shield", type="ShieldEquipped", amount=1, slot="SecondaryHand" },	-- Used for Block
 }
 
+-- Left lines
 TheoryCraft_EquipEveryLine = {
 	{ text="%+(%d+) Healing Spells", type="Healing" },					-- of healing items
 	{ text=".+Block Value %+(%d+)", type="BlockValueReport" }, -- Block Value (ZG Enchant)
@@ -831,7 +834,7 @@ TheoryCraft_EquipEveryLine = {
 
 	{ text="%+(%d+) Attack Power", type="AttackPowerReport" }, 			-- Attack power
 
-	{ text="Ajoute (%d+%.?%d+) d\195\169g\195\162ts par seconde", type="Ranged", slot="Ammo" },	-- Arrows
+	{ text="Ajoute (%d+%.?%d+) d\195\169g\195\162ts par seconde", type="AmmoDPS", slot="Ammo" },	-- Arrows
 
 	{ text="Main droite", type="MeleeAPMult", amount="2.4", slot="MainHand" },	-- Weapon Damage
 	{ text="A une main", type="MeleeAPMult", amount="2.4", slot="MainHand" },	-- Weapon Damage

@@ -4,8 +4,10 @@ if (GetLocale() ~= "deDE") then return end
 TheoryCraft_TooltipOrs = {
 	hitorhealhit  = "Treffer",
 	hitorhealheal = "Heilung",
+
 	damorhealdam  = "Schaden",
 	damorhealheal = "Heilung",
+
 	damorapap     = "Angriffskraft",
 	damorapdam    = "+Schaden",
 }
@@ -241,9 +243,6 @@ TheoryCraft_SpellMinMaxReader = {
 -- priest patch 1.12
 	{ pattern = "das 18 Sek%. lang (%d+) Punkt",							-- Schattenwort: Schmerz
 		type={"bothdamage"} },    -- dotbothdamage (so better display)
-
-
-
 
 -- druid
 	{ pattern = "(%d+) bis (%d+)(.+) lang (%d+)",										-- Mondfeuer
@@ -874,12 +873,12 @@ TheoryCraft_EquipEveryRight = {
 	{ text="^Schild", type="ShieldEquipped", amount=1, slot="SecondaryHand" },			-- Used for Block
 }
 
+-- Left lines
 TheoryCraft_EquipEveryLine = {
 -- patch 1.12
 	{ text="%+(%d+) Heilzauber", type="Healing" },										-- of healing items
 	{ text="%+(%d+) Heilung", type="Healing" },					-- of healing items
 	{ text="Heilzauber %+(%d+)", type="Healing" },								-- zg priest and healing enchant
-
 
 --working
 	{ text="^(%d+) Blocken", type="BlockValueReport" }, 							-- Blocken (Schild)

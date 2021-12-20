@@ -848,6 +848,7 @@ TheoryCraft_EquipEveryRight = {
 	{ text="^Shield", type="ShieldEquipped", amount=1, slot="SecondaryHand" },	-- Used for Block
 }
 
+-- Left lines
 TheoryCraft_EquipEveryLine = {
 	{ text="%+(%d+) Healing Spells", type="Healing" },					-- of healing items
 	{ text=".+Block Value %+(%d+)", type="BlockValueReport" }, -- Block Value (ZG Enchant)
