@@ -178,10 +178,9 @@ function TheoryCraft_UpdateArmor()
 	end
 end
 
-local old = {}
 
 function TheoryCraft_UpdateTarget(dontgen)
-	TheoryCraft_DeleteTable(old)
+	local old = {}
 	TCUtils.MergeIntoTable(TheoryCraft_Data.Target, old)
 	TheoryCraft_DeleteTable(TheoryCraft_Data.Target)
 
