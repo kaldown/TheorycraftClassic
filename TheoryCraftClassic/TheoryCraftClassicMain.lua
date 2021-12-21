@@ -623,8 +623,10 @@ function TheoryCraft_OnEvent(self, event, ...)
 
 	-- This occurs when you are not on the hate list of any NPC, or a few seconds after the latest pvp attack that you were involved with. 
 	elseif event == "PLAYER_REGEN_ENABLED" then
+		-- If we had previously called UpdateGear but were in combat a the time...
 		if TheoryCraft_Data.regenaftercombat then
 			TheoryCraft_Data.regenaftercombat = nil
+			-- ... now is the time to go ahead and UpdateGear
 			TheoryCraft_UpdateGear(nil, true)
 		end
 

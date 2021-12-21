@@ -244,9 +244,12 @@ end
 
 local function TheoryCraft_AddAllEquips(outfit, force)
 	local i2 = 1
-	local resetall = true
-	if not force and UnitAffectingCombat("player") then
-		resetall = false
+	local reset_all = true
+	-- force == true, means update even while in combat
+	if force then
+		reset_all = true
+	elseif UnitAffectingCombat("player") then
+		reset_all = false
 	end
 	if (TheoryCraft_Outfits[outfit]) == nil then
 		outfit = 1
@@ -269,9 +272,10 @@ local function TheoryCraft_AddAllEquips(outfit, force)
 		if TheoryCraft_Data["SetData"][v] == nil then
 			TheoryCraft_Data["SetData"][v] = {}
 		end
+		-- NOTE: These 4 slots can be changed while in combat. Everything else is blocked.
 		if (v == "MainHand") or (v == "SecondaryHand") or (v == "Ranged") or (v == "Ammo") then
 			changed = TheoryCraft_AddEquipEffect(v, nil, TheoryCraft_Data["SlotData"][v], TheoryCraft_Data["SetData"][v])
-		elseif (resetall) then
+		elseif (reset_all) then
 			changed = TheoryCraft_AddEquipEffect(v, nil, TheoryCraft_Data["SlotData"][v], TheoryCraft_Data["SetData"][v])
 		end
 	end
@@ -492,7 +496,7 @@ local function TheoryCraft_AddAllEquips(outfit, force)
 	end
 end -- TheoryCraft_AddAllEquips
 
-function TheoryCraft_UpdateGear(dontgen, force)
+function TheoryCraft_UpdateGear(dont_regenerate_all, force)
 	local old  = {}
 	local old2 = {}
 
@@ -500,30 +504,35 @@ function TheoryCraft_UpdateGear(dontgen, force)
 		TheoryCraft_SetBonuses = {}
 	end
 
-	-- True if a unit is in combat or has aggro. 
+	-- If player is in combat, and we're not forcing it to happen NOW...
 	if not force and UnitAffectingCombat("player") then
+		-- ...regenerate after combat ends
 		TheoryCraft_Data.regenaftercombat = true
 	end
 
 	-- Copy EquipEffects => old
 	TCUtils.MergeIntoTable(TheoryCraft_Data.EquipEffects, old)
+	-- NOTE: EquipEffects is for things that ARE NOT raw stats. Mostly weapon attributes, but also procs.
 
 	TheoryCraft_AddAllEquips(TheoryCraft_Data["outfit"], force)
 
 	if TheoryCraft_Data.EquipEffects["MeleeAPMult"] == nil then
 		TheoryCraft_Data.EquipEffects["MeleeAPMult"] = 1
 	end
-	if (dontgen == nil) then
-		-- Copy Stats => old2
-		TCUtils.MergeIntoTable(TheoryCraft_Data.Stats, old2)
-		TheoryCraft_DeleteTable(TheoryCraft_Data.Stats)
+	if dont_regenerate_all then
+		return
+	end
+	-- else generateAll
 
-		TheoryCraft_LoadStats()
-		-- if something changed between the old and refreshed data...
-		if (TheoryCraft_IsDifferent(old, TheoryCraft_Data.EquipEffects)) or (TheoryCraft_IsDifferent(old2, TheoryCraft_Data.Stats)) then
-			-- UpdateOutfitTab, (which will only matter if its currently shown) and whatever else that does
-			TheoryCraft_GenerateAll()
-		end
+	-- Copy Stats => old2
+	TCUtils.MergeIntoTable(TheoryCraft_Data.Stats, old2)
+	TheoryCraft_DeleteTable(TheoryCraft_Data.Stats)
+
+	TheoryCraft_LoadStats() -- update gear
+	-- if something changed between the old and refreshed data...
+	if (TheoryCraft_IsDifferent(old, TheoryCraft_Data.EquipEffects)) or (TheoryCraft_IsDifferent(old2, TheoryCraft_Data.Stats)) then
+		-- UpdateOutfitTab, (which will only matter if its currently shown) and whatever else that does
+		TheoryCraft_GenerateAll() -- update gear
 	end
 end
 
