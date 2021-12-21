@@ -594,11 +594,11 @@ function TheoryCraft_OnEvent(self, event, ...)
 			for i = 1, 120 do TheoryCraft_SetUpButton("BT4Button"..i, "Normal") end
 		end]]--
 
-		TheoryCraft_UpdateTalents(true)
-		TheoryCraft_UpdateGear(true)
-		TheoryCraft_UpdateBuffs("player", true)
-		TheoryCraft_UpdateBuffs("target", true)
-		TheoryCraft_LoadStats()
+		TheoryCraft_UpdateTalents(true) -- player entering world
+		TheoryCraft_UpdateGear(true) -- player entering world
+		TheoryCraft_UpdatePlayerBuffs(true)
+		TheoryCraft_UpdateTargetBuffs(true)
+		TheoryCraft_LoadStats() -- player entering world
 		-- TheoryCraft_GenerateAll()
 		TheoryCraft_UpdateAllButtonText('entering world')
 
@@ -630,10 +630,12 @@ function TheoryCraft_OnEvent(self, event, ...)
 			TheoryCraft_UpdateGear(nil, true)
 		end
 
-	-- arg[1] == unitTarget(string)
+	-- arg[1] == player, pet, NPC, or mob
 	-- NOTE: we care about both "player" and "target"
 	elseif event == "UNIT_AURA" then
-		TheoryCraft_UpdateBuffs(arg[1])
+		if (arg[1] == "player") then
+			TheoryCraft_UpdatePlayerBuffs()
+		end
 
 	-- Fired when the player's available talent points change. 
 	-- arg[1] == change(int) -- -1 for spent, and +1 for leveled up
@@ -642,7 +644,7 @@ function TheoryCraft_OnEvent(self, event, ...)
 
 	elseif event == "PLAYER_TARGET_CHANGED" then
 		TheoryCraft_UpdateTarget()
-		TheoryCraft_UpdateBuffs("target")
+		TheoryCraft_UpdateTargetBuffs()
 		TheoryCraft_UpdateAllButtonText('target changed')
 
 	-- Fired when a unit's current power (mana, rage, energy) changes

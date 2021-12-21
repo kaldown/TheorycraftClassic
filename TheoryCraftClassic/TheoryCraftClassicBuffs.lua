@@ -81,43 +81,49 @@ local function TheoryCraft_AddAllBuffs(target, data, buffs)
   	end
 end
 
-local old  = {}
-local old2 = {}
 
--- I believe this is called upon entering_world & whenever a player buff/debuff is changed (aura) & whenever target is changed.
-function TheoryCraft_UpdateBuffs(entity_unit_id, dontgen)
-	if (entity_unit_id == "player") then
-		TheoryCraft_DeleteTable(TheoryCraft_Data.PlayerBuffs)
-		TheoryCraft_AddAllBuffs("player", TheoryCraft_Data.PlayerBuffs)
-		TheoryCraft_AddAllBuffs("player", TheoryCraft_Data.PlayerBuffs, "debuffs")
-		if dontgen == nil then
-			if TheoryCraft_Data.redotalents then
-				TheoryCraft_UpdateTalents(true)
-				TheoryCraft_Data.redotalents = nil
-			end
-			TheoryCraft_LoadStats()
-			TheoryCraft_UpdateArmor()
-			TheoryCraft_GenerateAll()
-		end
+-- I believe these 2 functions are called upon entering_world & whenever a player buff/debuff is changed (aura) & whenever target is changed.
+function TheoryCraft_UpdatePlayerBuffs(dontgen)
+	TheoryCraft_DeleteTable(TheoryCraft_Data.PlayerBuffs)
+	TheoryCraft_AddAllBuffs("player", TheoryCraft_Data.PlayerBuffs) -- player buffs
+	TheoryCraft_AddAllBuffs("player", TheoryCraft_Data.PlayerBuffs, "debuffs") -- player debuffs
 
-	elseif (entity_unit_id == "target") then
-		TheoryCraft_DeleteTable(old)
-		TCUtils.MergeIntoTable(TheoryCraft_Data.TargetBuffs, old)
-		TheoryCraft_DeleteTable(TheoryCraft_Data.TargetBuffs)
-		TheoryCraft_AddAllBuffs("target", TheoryCraft_Data.TargetBuffs)
-		TheoryCraft_AddAllBuffs("target", TheoryCraft_Data.TargetBuffs, "debuffs")
-		if dontgen == nil then
-			if TheoryCraft_Data.redotalents then
-				TheoryCraft_UpdateTalents(true)
-				TheoryCraft_Data.redotalents = nil
-			end
-			TheoryCraft_DeleteTable(old2)
-			TCUtils.MergeIntoTable(TheoryCraft_Data.Stats, old2)
-			TheoryCraft_LoadStats()
-			if (TheoryCraft_IsDifferent(old, TheoryCraft_Data.TargetBuffs)) or (TheoryCraft_IsDifferent(old2, TheoryCraft_Data.Stats)) then
-				TheoryCraft_UpdateArmor()
-				TheoryCraft_GenerateAll()
-			end
-		end
+	if dontgen then
+		return
+	end
+
+	if TheoryCraft_Data.redotalents then
+		TheoryCraft_UpdateTalents(true) -- player buffs
+		TheoryCraft_Data.redotalents = nil
+	end
+	TheoryCraft_LoadStats() -- player buffs
+	TheoryCraft_UpdateArmor() -- player buffs
+	TheoryCraft_GenerateAll() -- player buffs
+end
+
+function TheoryCraft_UpdateTargetBuffs(dontgen)
+	local old  = {}
+	local old2 = {}
+
+	TCUtils.MergeIntoTable(TheoryCraft_Data.TargetBuffs, old)
+	TheoryCraft_DeleteTable(TheoryCraft_Data.TargetBuffs)
+	TheoryCraft_AddAllBuffs("target", TheoryCraft_Data.TargetBuffs) -- target buffs
+	TheoryCraft_AddAllBuffs("target", TheoryCraft_Data.TargetBuffs, "debuffs") -- target debuffs
+
+	if dontgen then
+		return
+	end
+
+	if TheoryCraft_Data.redotalents then
+		TheoryCraft_UpdateTalents(true) -- target buffs
+		TheoryCraft_Data.redotalents = nil
+	end
+
+	TCUtils.MergeIntoTable(TheoryCraft_Data.Stats, old2)
+	TheoryCraft_LoadStats() -- target buffs
+	if (TheoryCraft_IsDifferent(old, TheoryCraft_Data.TargetBuffs)) or (TheoryCraft_IsDifferent(old2, TheoryCraft_Data.Stats)) then
+		TheoryCraft_UpdateArmor() -- target buffs
+		TheoryCraft_GenerateAll() -- target buffs
 	end
 end
+
