@@ -196,7 +196,7 @@ function TheoryCraft_TabHandler(name)
 	end
 end
 
-
+-- NOTE: this is actually the Vitals & Talents tab
 function TheoryCraft_UpdateOutfitTab()
 	if not TheoryCraftOutfitTab:IsVisible() then
 		return
@@ -424,9 +424,10 @@ function TheoryCraft_UpdateOutfitTab()
 	if TheoryCraft_GetStat("manarestore") ~= 0 then
 		TheoryCraftAddMod("Mana Restore", TheoryCraft_GetStat("manarestore"))
 	end
-	UpdateCustomOutfit()
+	--UpdateCustomOutfit() -- probably remove in the future
 end
 
+-- These are apparently the handlers for when an option in the dropdown boxes are selected.
 function TheoryCraft_Combo1Click(self)
 	local optionID = self:GetID()
 	UIDropDownMenu_SetSelectedID(TheoryCrafttryfirst, optionID)
@@ -456,6 +457,7 @@ function TheoryCraft_Combo4Click(self)
 end
 local info = {}
 
+-- Add a button within a dropdown
 local function AddButton(i, text, value, func, remaining)
 	TheoryCraft_DeleteTable(info)
 	info.remaining = true

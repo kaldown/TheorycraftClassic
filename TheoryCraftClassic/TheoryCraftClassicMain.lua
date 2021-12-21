@@ -251,6 +251,7 @@ end
 
 local function SetDefaults()
 	-- REM: SavedVariablesPerCharacter
+	-- REM: When saving variables between game sessions, SavedVariables and SavedVariablesPerCharacter load after the last file. This overwrites any default values set earlier.
 	TheoryCraft_Settings = {}
 	TheoryCraft_Settings["dataversion"] = TheoryCraft_DataVersion -- So that we know if we need to reset the defaults again.
 
@@ -790,6 +791,7 @@ function TheoryCraft_Command(cmd)
 		end
 		TheoryCraft_Data["firstrun"] = 1
 
+		-- Set the checkbox state according to what is saved in settings.
 		TheoryCraft_SetCheckBox("embedstyle1")
 		TheoryCraft_SetCheckBox("embedstyle2")
 		TheoryCraft_SetCheckBox("embedstyle3")

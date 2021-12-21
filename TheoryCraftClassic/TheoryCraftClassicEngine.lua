@@ -370,7 +370,7 @@ local function GetCritChance(critreport)
 				end
 				i = i + 1
 			end
- -- remove weapon specs
+			-- remove weapon specs
 			critChance = critChance - TheoryCraft_GetStat(english.."specreal")
 		end
 		critChance = critChance - (TheoryCraft_GetStat("CritChangeTalents") or 0)
@@ -781,7 +781,7 @@ local function GenerateTooltip(frame, returndata, spelldata, spellrank)
 	returndata["casttime"] = (tonumber(returndata["basecasttime"]) or 0)  --getcasttime(frame)+(returndata["casttime"] or 0)
 
 	-- returndata["manacost"] = 0--getmanacost(frame)
-	
+
 	local spellCosts = GetSpellPowerCost(returndata["spellnumber"])
 	-- print(dump(spellCosts))
 
@@ -1398,7 +1398,8 @@ function TheoryCraft_GenerateSpellData(spellId)
 	-- REM: the id in this case is the spellName
 	SummateData(spellData.id, spellData.Schools)
 	
-	--[[descriptionLine = getglobal(GameTooltip:GetName().."TextLeft"..GameTooltip:NumLines());
+	--[[
+	descriptionLine = getglobal(GameTooltip:GetName().."TextLeft"..GameTooltip:NumLines());
 	if (descriptionLine)
 	then
 		olddesc = descriptionLine:GetText()
@@ -1406,10 +1407,12 @@ function TheoryCraft_GenerateSpellData(spellId)
 	else
 		print(GameTooltip:NumLines())
 		olddesc = ""
-	end]]--
+	end
+	--]]
 
 	-- Copies SummateData into the tooltipdata
 	TCUtils.MergeIntoTable(summeddata, TheoryCraft_TooltipData[spellId])
+	-- TODO: could we just set TheoryCraft_TooltipData[spellId] = summeddata ??? or would it be lost when summeddata is deleted?
 
 	if TheoryCraft_TooltipData[spellId]["schools"] == nil then
 		TheoryCraft_TooltipData[spellId]["schools"] = {}
@@ -1462,7 +1465,7 @@ function TheoryCraft_GenerateSpellData(spellId)
 		end
 		--]]
 
-		TheoryCraft_TooltipData[spellId]["basecasttime"] = (castTime / 1000).." sec cast" -- 3 sec, Instance Cast vs 3000, 0
+		TheoryCraft_TooltipData[spellId]["basecasttime"] = (castTime / 1000).." sec cast" -- 3 sec, Instant Cast vs 3000, 0
 		if ((castTime / 1000) == 0) then
 			TheoryCraft_TooltipData[spellId]["basecasttime"] = "Instant cast"
 		end
@@ -1622,6 +1625,7 @@ function TheoryCraft_GenerateTooltip(frame, spellname, spellrank, i2, showonbutt
 			if frame:NumLines() == 0 then return end
 		end
 	end
+
 	if spellname == TheoryCraft_Locale.MinMax.autoshotname then
 		local highestaimed, highestmulti, highestarcane
 		local i2 = 1
@@ -2106,5 +2110,5 @@ end
 function TheoryCraft_GenerateAll()
 	TheoryCraft_DeleteTable(TheoryCraft_TooltipData)
 	TheoryCraft_DeleteTable(TheoryCraft_UpdatedButtons)
-	if TheoryCraft_UpdateOutfitTab then TheoryCraft_UpdateOutfitTab() end
+	TheoryCraft_UpdateOutfitTab()
 end

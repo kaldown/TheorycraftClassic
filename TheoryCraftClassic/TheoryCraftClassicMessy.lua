@@ -218,7 +218,7 @@ function TheoryCraft_getMinMax(spelldata, returndata, frame)
 			returndata["asrotationlength"] = rotationlength2
 		end
 
--- MS/Arc Rotation Calculated Here:
+		-- MS/Arc Rotation Calculated Here:
 
 		returndata["arcrotationdps"] = (averagearcane*10+averagemulti+averageauto*(10/speed))/10
 		returndata["arcmagicdps"] = averagearcane
@@ -356,7 +356,7 @@ function TheoryCraft_getMinMax(spelldata, returndata, frame)
 	elseif (spelldata.isseal) then
 		local a = TheoryCraft_Locale.MinMax
 		local alreadybuffedbonus = TheoryCraft_GetStat("AttackPowerCrusader")
-		local attackbaseincrease = TheoryCraft_GetStat(spelldata.id.."baseincrease")
+		local attackbaseincrease = TheoryCraft_GetStat(spelldata.id .. "baseincrease")
 		attackbaseincrease = attackbaseincrease + TheoryCraft_GetStat("Meleemodifier")+TheoryCraft_GetStat("Meleetalentmod")
 		attackbaseincrease = attackbaseincrease + TheoryCraft_GetStat(spelldata.id.."modifier")+TheoryCraft_GetStat(spelldata.id.."talentmod")
 		local minDamage, maxDamage, lengthofdamagetext

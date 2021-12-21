@@ -500,8 +500,8 @@ function TheoryCraft_UpdateGear(dontgen, force)
 		TheoryCraft_SetBonuses = {}
 	end
 
+	-- True if a unit is in combat or has aggro. 
 	if not force and UnitAffectingCombat("player") then
-		-- True if a unit is in combat or has aggro. 
 		TheoryCraft_Data.regenaftercombat = true
 	end
 
