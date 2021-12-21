@@ -630,18 +630,6 @@ function TheoryCraft_OnEvent(self, event, ...)
 			TheoryCraft_UpdateGear(nil, true)
 		end
 
-	-- Fires when spells in the spellbook change in any way. (learned, or icon changed) but not when changing pages or tabs
-	elseif event == "SPELLS_CHANGED" then
-		print('event SPELLS_CHANGED')
-		local autoshotname = TheoryCraft_Locale.SpellTranslator["Auto Shot"]
-		if autoshotname then
-			local olddesc = TheoryCraft_TooltipData[autoshotname.."(0)"]
-			if olddesc then
-				TheoryCraft_TooltipData[autoshotname.."(0)"] = nil
-				TheoryCraft_TooltipData[olddesc] = nil
-			end
-		end
-
 	-- arg[1] == unitTarget(string)
 	-- NOTE: we care about both "player" and "target"
 	elseif event == "UNIT_AURA" then
