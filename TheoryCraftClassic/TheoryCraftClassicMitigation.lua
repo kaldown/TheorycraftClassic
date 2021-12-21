@@ -2,8 +2,14 @@ local _, class = UnitClass("player")
 local _, spellname, spellrank, targetname, damage, crit, armor, i, spelldata, idx
 local damagereduction, ul, oldarmor, oldarmorvalue, sunder, absorbed
 
+-- Updates data within TheoryCraft_MitigationMobs, TheoryCraft_MitigationPlayers
+-- These seem to exist so that tooltips can take into account your current target's armor value, and reduce physical damage accordingly
+
 function TheoryCraft_ParseCombat(self, arg1)
-	if TheoryCraft_GetStat("DontMitigate") ~= 0 then return end
+	if TheoryCraft_GetStat("DontMitigate") ~= 0 then
+		return
+	end
+
 	if (TheoryCraft_Data["outfit"]) and (TheoryCraft_Data["outfit"] ~= -1) and (TheoryCraft_Data["outfit"] ~= 1) then
 		return
 	end
@@ -87,6 +93,8 @@ function TheoryCraft_ParseCombat(self, arg1)
 					end
 					TheoryCraft_DeleteTable(TheoryCraft_UpdatedButtons)
 				end
+
+			-- If the targetname was found in the data.
 			else
 				oldarmor = TheoryCraft_MitigationPlayers[targetname][1]-sunder
 				if oldarmor < 0 then
@@ -140,6 +148,8 @@ function TheoryCraft_ParseCombat(self, arg1)
 					TheoryCraft_MitigationPlayers[UnitClass("target")..":"..UnitLevel("target")][1] = TheoryCraft_MitigationPlayers[targetname][1]
 				end
 			end
+
+		-- Not a player
 		else
 			if TheoryCraft_MitigationMobs[targetname] then
 				oldarmorvalue = TheoryCraft_MitigationMobs[targetname][1] or 0
@@ -160,6 +170,8 @@ function TheoryCraft_ParseCombat(self, arg1)
 					end
 					TheoryCraft_DeleteTable(TheoryCraft_UpdatedButtons)
 				end
+
+			-- If the target was found in the data.
 			else
 				oldarmor = TheoryCraft_MitigationMobs[targetname][1]-sunder
 				if oldarmor < 0 then
