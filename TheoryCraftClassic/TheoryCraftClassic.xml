@@ -351,13 +351,8 @@
 			<AbsDimension x="340" y="400"/>
 		</Size>
 		<Scripts>
-			<OnLoad>
-				TheoryCraft_OnLoad(self)
-				self:SetClampedToScreen(true)
-			</OnLoad>
-			<OnEvent>
-				TheoryCraft_OnEvent(self,event,...)
-			</OnEvent>
+			<OnLoad  function="TheoryCraft_OnLoad"/>
+			<OnEvent function="TheoryCraft_OnEvent"/>
 		</Scripts>
 		<Frames>
 			<!-- These are the clickable tabs to change which page is shown. -->

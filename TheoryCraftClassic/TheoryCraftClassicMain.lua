@@ -294,21 +294,26 @@ end
 --]]
 
 function TheoryCraft_OnLoad(self)
+	print("TheoryCraft_OnLoad") -- This should happen well before VARIABLES_LOADED
+
+	-- First 2 registered events.
+	self:RegisterEvent("VARIABLES_LOADED")
+	self:RegisterEvent("PLAYER_LOGIN")
 	TheoryCraft_MitigationMobs    = {}
 	TheoryCraft_MitigationPlayers = {}
+	SetDefaults()
+	-- NOTE: I think SetDefaults() is safe because VARIABLES_LOADED will happen afterward and overwrite whatever is set here
 
-	tinsert(UISpecialFrames, "TheoryCraft") -- REM: allows frame to be closed with ESC key.   table.insert
+	-- REM: allows frame to be closed with ESC key.
+	tinsert(UISpecialFrames, "TheoryCraft")   -- eg table.insert
+	self:SetClampedToScreen(true)
 
+	-- Register the slash commands
 	SLASH_TheoryCraft1 = "/theorycraft"
 	SLASH_TheoryCraft2 = "/tc"
 	SlashCmdList["TheoryCraft"] = TheoryCraft_Command
 
-	self:RegisterEvent("VARIABLES_LOADED")
-	self:RegisterEvent("PLAYER_LOGIN")
-	SetDefaults()
-
-	-- Translates and expands out "schoolname" fields
-
+	-- Convert "Shadow" into "[Ss][Hh][Aa][Dd][Oo][Ww]". Luas-poormans case-insensitive match.
 	local s
 	local function bothcase(a)
 		return "["..string.upper(a)..string.lower(a).."]"
