@@ -485,7 +485,13 @@ function TheoryCraft_OnUpdate()
 end
 --]]
 
-function TheoryCraft_OnEvent(self, event, arg1)
+
+-- Master list of events: https://wowpedia.fandom.com/wiki/Events
+-- REM: Normal sequence is:  ADDON_LOADED => PLAYER_LOGIN => PLAYER_ENTERING_WORLD
+function TheoryCraft_OnEvent(self, event, ...)
+	-- REM: automatic "..." => "arg{}" is only in lua 5.2
+	local arg={...}
+
 	--print(event)
 	--if not TheoryCraft_Data.TalentsHaveBeenRead then
 	--	return
@@ -554,6 +560,7 @@ function TheoryCraft_OnEvent(self, event, arg1)
 		self:RegisterEvent("ACTIONBAR_SLOT_CHANGED")
 		--self:RegisterEvent("SPELL_UPDATE_ICON")
 
+	-- Fires whenever a loading screen turns on. (not necessarily on logout)
 	elseif event == "PLAYER_LEAVING_WORLD" then
 		self:UnregisterEvent("UNIT_AURA")
 		self:UnregisterEvent("UNIT_INVENTORY_CHANGED")
@@ -567,6 +574,7 @@ function TheoryCraft_OnEvent(self, event, arg1)
 		self:UnregisterEvent("ACTIONBAR_SLOT_CHANGED")
 
 	-- Fired when the player enters the world, enters/leaves an instance, or respawns at a graveyard. Also fires any other time the player sees a loading screen. 
+	-- args: isLogin(bool), isReload(bool)
 	elseif event == "PLAYER_ENTERING_WORLD" then
 		self:RegisterEvent("UNIT_AURA")
 		self:RegisterEvent("UNIT_INVENTORY_CHANGED")
@@ -597,17 +605,18 @@ function TheoryCraft_OnEvent(self, event, arg1)
 		if TheoryCraft_ParseCombat then
 			TheoryCraft_ParseCombat(self, event)
 		end
+
 	-- TODO: this event no longer exists. Replaced with "COMBAT_LOG_EVENT" in 2.4.0
 	--elseif event == "CHAT_MSG_SPELL_SELF_BUFF" then
-	--	TheoryCraft_WatchCritRate(arg1)
+	--	TheoryCraft_WatchCritRate(arg[1])
 
 	-- Fired when:
 	--   the player/target/party-member equips or unequips an item.
 	--   a new item is placed in the player's containers, taking up a new slot (stack change excluded, moving between bags/bank excluded)
 	--   a temporary enhancement is applied to player's weapon
+	-- arg[1] = UnitID of the entity  (see: https://wowwiki-archive.fandom.com/wiki/UnitId)
 	elseif event == "UNIT_INVENTORY_CHANGED" then
-		-- arg1 = UnitID of the entity  (see: https://wowwiki-archive.fandom.com/wiki/UnitId)
-		if (arg1 == "player") then
+		if (arg[1] == "player") then
 			TheoryCraft_UpdateGear()
 		end
 
@@ -618,7 +627,7 @@ function TheoryCraft_OnEvent(self, event, arg1)
 			TheoryCraft_UpdateGear(nil, true)
 		end
 
-	-- Fires when spells in the spellbook change in any way. (but not when changing pages or tabs)
+	-- Fires when spells in the spellbook change in any way. (learned, or icon changed) but not when changing pages or tabs
 	elseif event == "SPELLS_CHANGED" then
 		print('event SPELLS_CHANGED')
 		local autoshotname = TheoryCraft_Locale.SpellTranslator["Auto Shot"]
@@ -629,10 +638,14 @@ function TheoryCraft_OnEvent(self, event, arg1)
 				TheoryCraft_TooltipData[olddesc] = nil
 			end
 		end
-	elseif event == "UNIT_AURA" then
-		-- NOTE: we care about both "player" and "target"
-		TheoryCraft_UpdateBuffs(arg1)
 
+	-- arg[1] == unitTarget(string)
+	-- NOTE: we care about both "player" and "target"
+	elseif event == "UNIT_AURA" then
+		TheoryCraft_UpdateBuffs(arg[1])
+
+	-- Fired when the player's available talent points change. 
+	-- arg[1] == change(int) -- -1 for spent, and +1 for leveled up
 	elseif event == "CHARACTER_POINTS_CHANGED" then
 		TheoryCraft_UpdateTalents()
 
@@ -641,23 +654,27 @@ function TheoryCraft_OnEvent(self, event, arg1)
 		TheoryCraft_UpdateBuffs("target")
 		TheoryCraft_UpdateAllButtonText('target changed')
 
+	-- Fired when a unit's current power (mana, rage, energy) changes
+	--   A spell is cast which changes the unit's power.
+	--   The unit reaches full power.
+	--   While the unit's power is naturally regenerating or decaying, this event will only fire once every two seconds.
+	-- arg[1] == unitID(string), arg[2] == powerType(string)
 	elseif event == "UNIT_POWER_UPDATE" then
 
-	elseif (event == "UNIT_MANA") and (arg1 == "player") then
+	elseif (event == "UNIT_MANA") and (arg[1] == "player") then
 		if TCUtils.StanceFormName() == 'cat' then
-				TheoryCraft_DeleteTable(TheoryCraft_UpdatedButtons)
-			end
+			TheoryCraft_DeleteTable(TheoryCraft_UpdatedButtons)
+		end
 
 		if ((string.find(TheoryCraft_Settings["tryfirst"], "remaining")) or (string.find(TheoryCraft_Settings["trysecond"], "remaining"))) or
 		   ((TheoryCraft_Settings["tryfirst"] == "spellcasts") or (TheoryCraft_Settings["trysecond"] == "spellcasts")) then
 			TheoryCraft_DeleteTable(TheoryCraft_UpdatedButtons)
 		end
 
+	-- arg[1] == action_bar_slot_number(int)
 	elseif (event == "ACTIONBAR_SLOT_CHANGED") then
-		-- arg1 in this case is the action_bar slot_number that changed
-
-		local button = TheoryCraft_FindActionButton(arg1)
-		print("ACTIONBAR_SLOT_CHANGED: "..arg1.. ' --> '..button:GetName())
+		local button = TheoryCraft_FindActionButton(arg[1])
+		print("ACTIONBAR_SLOT_CHANGED: "..arg[1].. ' --> '..button:GetName())
 		TheoryCraft_ButtonUpdate(button)
 	end
 
