@@ -580,6 +580,68 @@ function TheoryCraft_SetTalent(name)
 	TheoryCraft_UpdateTalents()
 end
 
+-- Set the checkbox state according to what is saved in settings.
+function TheoryCraft_InitCheckboxState()
+	TheoryCraft_SetCheckBox("embedstyle1")
+	TheoryCraft_SetCheckBox("embedstyle2")
+	TheoryCraft_SetCheckBox("embedstyle3")
+	TheoryCraft_SetCheckBox("titles")
+	TheoryCraft_SetCheckBox("embed")
+	TheoryCraft_SetCheckBox("crit")
+	TheoryCraft_SetCheckBox("critdam")
+	TheoryCraft_SetCheckBox("sepignite")
+	TheoryCraft_SetCheckBox("rollignites")
+	TheoryCraft_SetCheckBox("dps")
+	TheoryCraft_SetCheckBox("combinedot")
+	TheoryCraft_SetCheckBox("dotoverct")
+	TheoryCraft_SetCheckBox("hps")
+	TheoryCraft_SetCheckBox("dpsdam")
+	TheoryCraft_SetCheckBox("averagedam")
+	TheoryCraft_SetCheckBox("procs")
+	TheoryCraft_SetCheckBox("mitigation")
+	TheoryCraft_SetCheckBox("resists")
+	TheoryCraft_SetCheckBox("averagethreat")
+	TheoryCraft_SetCheckBox("plusdam")
+	TheoryCraft_SetCheckBox("damcoef")
+	TheoryCraft_SetCheckBox("dameff")
+	TheoryCraft_SetCheckBox("damfinal")
+	TheoryCraft_SetCheckBox("healanddamage")
+	TheoryCraft_SetCheckBox("nextagi")
+	TheoryCraft_SetCheckBox("nextstr")
+	TheoryCraft_SetCheckBox("nextcrit")
+	TheoryCraft_SetCheckBox("nexthit")
+	TheoryCraft_SetCheckBox("nextpen")
+	TheoryCraft_SetCheckBox("mana")
+	TheoryCraft_SetCheckBox("dpm")
+	TheoryCraft_SetCheckBox("hpm")
+	TheoryCraft_SetCheckBox("max")
+	TheoryCraft_SetCheckBox("maxevoc")
+	TheoryCraft_SetCheckBox("lifetap")
+	TheoryCraft_SetCheckBox("dontcrit")
+	TheoryCraft_SetCheckBox("dontresist") -- TODO: rename to "includeresist"
+	TheoryCraft_SetCheckBox("buttontext")
+
+	TheoryCraftresistArcane:SetText(TheoryCraft_Settings["resistscores"]["Arcane"])
+	TheoryCraftresistFire:SetText(TheoryCraft_Settings["resistscores"]["Fire"])
+	TheoryCraftresistNature:SetText(TheoryCraft_Settings["resistscores"]["Nature"])
+	TheoryCraftresistFrost:SetText(TheoryCraft_Settings["resistscores"]["Frost"])
+	TheoryCraftresistShadow:SetText(TheoryCraft_Settings["resistscores"]["Shadow"])
+
+	if TheoryCraft_Settings["dontresist"] then
+		TheoryCraftresistArcane:Show()
+		TheoryCraftresistFire:Show()
+		TheoryCraftresistNature:Show()
+		TheoryCraftresistFrost:Show()
+		TheoryCraftresistShadow:Show()
+	else
+		TheoryCraftresistArcane:Hide()
+		TheoryCraftresistFire:Hide()
+		TheoryCraftresistNature:Hide()
+		TheoryCraftresistFrost:Hide()
+		TheoryCraftresistShadow:Hide()
+	end
+end
+
 -- TODO: maybe a better name?
 function TheoryCraft_RestrictDummyButtonText(this)
 	-- Looks like scale is 1 for me... TODO: do I need to worry about scale in the future?

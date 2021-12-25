@@ -500,10 +500,6 @@ function TheoryCraft_UpdateGear(dont_regenerate_all, force)
 	local old  = {}
 	local old2 = {}
 
-	if TheoryCraft_SetBonuses == nil then
-		TheoryCraft_SetBonuses = {}
-	end
-
 	-- If player is in combat, and we're not forcing it to happen NOW...
 	if not force and UnitAffectingCombat("player") then
 		-- ...regenerate after combat ends

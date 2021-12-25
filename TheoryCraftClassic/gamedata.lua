@@ -478,7 +478,7 @@ TheoryCraft_CritChance = {
 
 local setwear = { "Finger0", "Finger1", "Trinket0", "Neck", "Trinket1", "Back", "MainHand", "SecondaryHand", 
 		  "Ranged", "Tabard", "Ammo" }
-local setdestat=  { "Head", "Shoulder", "Chest", "Waist", "Legs", "Feet", "Wrist", "Hands" }
+local setdestat =  { "Head", "Shoulder", "Chest", "Waist", "Legs", "Feet", "Wrist", "Hands" }
 local setweartier3 = { "Finger1", "Trinket0", "Neck", "Trinket1", "Back", "MainHand", "SecondaryHand", 
 		  "Ranged", "Tabard", "Ammo" }
 local setdestattier3 =  { "Finger0", "Head", "Shoulder", "Chest", "Waist", "Legs", "Feet", "Wrist", "Hands" }

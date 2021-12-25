@@ -210,7 +210,7 @@ function TheoryCraft_UpdateTarget(dontgen)
 	TheoryCraft_Data.Target["Meleecritbonus"] = slaying
 
 	if (dontgen == nil) and (TheoryCraft_IsDifferent(old, TheoryCraft_Data.Target)) then
-		TheoryCraft_GenerateAll()
+		TheoryCraft_GenerateAll() -- update target
 	end
 	if TheoryCraft_Settings["dontresist"] then
 		TheoryCraft_DeleteTable(TheoryCraft_UpdatedButtons)
@@ -249,10 +249,11 @@ end
 
 --- OnLoad ---
 
+-- TODO: This should only set defaults if they are missing, not overwrite things that already exist.
 local function SetDefaults()
 	-- REM: SavedVariablesPerCharacter
 	-- REM: When saving variables between game sessions, SavedVariables and SavedVariablesPerCharacter load after the last file. This overwrites any default values set earlier.
-	TheoryCraft_Settings = {}
+	
 	TheoryCraft_Settings["dataversion"] = TheoryCraft_DataVersion -- So that we know if we need to reset the defaults again.
 
 	-- Checkbox defaults
@@ -277,6 +278,19 @@ local function SetDefaults()
 	TheoryCraft_Settings["resistscores"]["Nature"] = 0
 	TheoryCraft_Settings["resistscores"]["Frost"]  = 0
 	TheoryCraft_Settings["resistscores"]["Shadow"] = 0
+
+	-- Button text values
+	TheoryCraft_Settings["buttontextx"] = 0.5
+	TheoryCraft_Settings["buttontexty"] = 0.5
+	-- REM: these are stored as decimals between 0/1 because that is how SetTextColor expects values
+	TheoryCraft_Settings["ColR"] = 1
+	TheoryCraft_Settings["ColG"] = 1
+	TheoryCraft_Settings["ColB"] = 1
+	TheoryCraft_Settings["ColR2"] = 1
+	TheoryCraft_Settings["ColG2"] = 1
+	TheoryCraft_Settings["ColB2"] = 175/255
+	TheoryCraft_Settings["FontSize"] = 12
+	--TheoryCraft_Settings["FontPath"] = "Fonts\\ArialN.TTF"
 end
 
 -- Something to do with custom gear sets. Kill it for now.
@@ -286,9 +300,9 @@ end
 function TheoryCraft_SetItemRef(link, text, button)
 	if (IsAltKeyDown()) and (string.sub(link, 1, 4) == "item") then
 		TheoryCraft_AddToCustom(link)
-		TheoryCraft_UpdateGear(true)
-		TheoryCraft_LoadStats()
-		TheoryCraft_GenerateAll()
+		TheoryCraft_UpdateGear(true) -- irrelevant
+		TheoryCraft_LoadStats() -- irrelevant
+		TheoryCraft_GenerateAll() -- irrelevant
 	else
 		TheoryCraft_Data["SetItemRef"](link, text, button)
 	end
@@ -296,15 +310,19 @@ end
 --]]
 
 function TheoryCraft_OnLoad(self)
-	print("TheoryCraft_OnLoad") -- This should happen well before VARIABLES_LOADED
+	print("TheoryCraft_OnLoad")
 
-	-- First 2 registered events.
-	self:RegisterEvent("VARIABLES_LOADED")
+	-- Register the persistent events
+	self:RegisterEvent("ADDON_LOADED")
 	self:RegisterEvent("PLAYER_LOGIN")
+	self:RegisterEvent("PLAYER_ENTERING_WORLD")
+	self:RegisterEvent("PLAYER_LEAVING_WORLD")
+
+	-- NOTE: when ADDON_LOADED fires, these will be overwritten by the data from disk.
 	TheoryCraft_MitigationMobs    = {}
 	TheoryCraft_MitigationPlayers = {}
-	SetDefaults()
-	-- NOTE: I think SetDefaults() is safe because VARIABLES_LOADED will happen afterward and overwrite whatever is set here
+	TheoryCraft_SetBonuses        = {}
+	TheoryCraft_Settings          = {}
 
 	-- REM: allows frame to be closed with ESC key.
 	tinsert(UISpecialFrames, "TheoryCraft")   -- eg table.insert
@@ -454,7 +472,9 @@ function TheoryCraft_OnLoad(self)
 		i = i + 1
 	end
 
+
 	i = 1
+	-- in gamedata
 	while TheoryCraft_Spells[class][i] do
 		if TheoryCraft_Spells[class][i].id then
 			-- Add these entries into MinMax{}
@@ -468,6 +488,7 @@ function TheoryCraft_OnLoad(self)
 				TheoryCraft_Locale.MinMax.autoshotname = TheoryCraft_Locale.SpellTranslator[ TheoryCraft_Spells[class][i].id ]
 			end
 
+			-- Add a localized attribute "name" onto the spell data.
 			if TheoryCraft_Locale.SpellTranslator[TheoryCraft_Spells[class][i].id] then
 				TheoryCraft_Spells[class][i].name = TheoryCraft_Locale.SpellTranslator[ TheoryCraft_Spells[class][i].id ]
 			else
@@ -502,8 +523,33 @@ end
 --]]
 
 
+local function register_events(self, unregister)
+	-- Events to be registered and unregistered as the player hits loading screens
+	local event_list = {
+		"UNIT_AURA",
+		"UNIT_INVENTORY_CHANGED",
+		"PLAYER_TARGET_CHANGED",
+		"UNIT_MANA",
+		"CHARACTER_POINTS_CHANGED",
+		"UNIT_POWER_UPDATE",
+		"COMBAT_LOG_EVENT_UNFILTERED",
+		"PLAYER_REGEN_ENABLED",
+		"ACTIONBAR_SLOT_CHANGED"
+	}
+	for i = 1, #event_list, 1 do
+		if unregister then
+			self:UnregisterEvent(event_list[i])
+		else
+			self:RegisterEvent(event_list[i])
+		end
+	end
+end
+
+
 -- Master list of events: https://wowpedia.fandom.com/wiki/Events
 -- REM: Normal sequence is:  ADDON_LOADED => PLAYER_LOGIN => PLAYER_ENTERING_WORLD
+-- NOTE: VARIABLES_LOADED fires after ALL addon's saved variables have loaded AND after blizzard's cache of account keybinds & macros have synced from the server.
+--       therefore may happen after PLAYER_ENTERING_WORLD
 function TheoryCraft_OnEvent(self, event, ...)
 	-- REM: automatic "..." => "arg{}" is only in lua 5.2
 	local arg={...}
@@ -514,8 +560,20 @@ function TheoryCraft_OnEvent(self, event, ...)
 	--end
 
 	local UIMem = gcinfo()
-	if event == "VARIABLES_LOADED" then
-		--print('Theorycraft Variables Loaded')
+
+	-- Fires each time an individual addon's files and saved_variables have finished loading.
+	if event == "ADDON_LOADED" then
+		-- arg[1] == name of addon
+		--print ('Addon Loaded: ', arg[1])
+		-- If its some other addon, nothing to do here.
+		if arg[1] ~= TheoryCraft_AddonName then
+			return
+		end
+
+		--print('TheoryCraft Addon Loaded')
+
+		-- Only process this event once
+		self:UnregisterEvent(event)
 
 		-- NOTE: disabled for now.
 		--TheoryCraft_Data["SetItemRef"] = SetItemRef
@@ -533,89 +591,54 @@ function TheoryCraft_OnEvent(self, event, ...)
 		-- DO not use OnUpdate, this is spammed constantly (probably every frame?)
 		-- abilities that cannot currently be cast, spam nil update events, whereas allowed abilities spam non-nil update events.
 
+		-- TODO: this should run an upgrade script if it is not nil
 		if (TheoryCraft_Settings["dataversion"] ~= TheoryCraft_DataVersion) then
 			SetDefaults()
 		end
-		-- if no values are set, choose defaults -- TODO: come up with a better way to do this
-		if TheoryCraft_Settings["ColR2"] == nil then
-			TheoryCraft_Settings["buttontextx"] = 0.5
-			TheoryCraft_Settings["buttontexty"] = 0.5
-			-- REM: these are stored as decimals between 0/1 because that is how SetTextColor expects values
-			TheoryCraft_Settings["ColR"] = 1
-			TheoryCraft_Settings["ColG"] = 1
-			TheoryCraft_Settings["ColB"] = 1
-			TheoryCraft_Settings["ColR2"] = 1
-			TheoryCraft_Settings["ColG2"] = 1
-			TheoryCraft_Settings["ColB2"] = 175/255
-			TheoryCraft_Settings["FontSize"] = 12
-			--TheoryCraft_Settings["FontPath"] = "Fonts\\ArialN.TTF"
-		end
-		if TheoryCraftGenBox_Text then
-			TheoryCraftGenBox_Text:SetText(TheoryCraft_Settings["GenerateList"])
-		end
 
+		-- Restore checkbox checked status from settings
+		TheoryCraft_InitCheckboxState()
+
+		-- Restore the values from settings into the ButtonText Config UI
 		TheoryCraft_InitButtonTextOpts()
+		TheoryCraftGenBox_Text:SetText(TheoryCraft_Settings["GenerateList"])
+
+		-- Adds the text FontString to each action button.
 		TheoryCraft_AddButtonText()
 
+		-- NOTE: this is only intended as a notification, not to actually change what is or is not initialized
 		if TheoryCraft_Settings["off"] then
 			print("TheoryCraft is currently switched off, use '/tc on' to enabled")
 		end
 
-	-- Triggered immediately before PLAYER_ENTERING_WORLD on login and UI Reload, but NOT when entering/leaving instances. 
+	-- Triggered immediately before PLAYER_ENTERING_WORLD on login and UI Reload, but NOT when entering/leaving instances.
+	-- I.E. this only happens once
 	elseif event == "PLAYER_LOGIN" then
-		self:RegisterEvent("UNIT_AURA")
-		self:RegisterEvent("UNIT_INVENTORY_CHANGED")
-		self:RegisterEvent("PLAYER_TARGET_CHANGED")
-		self:RegisterEvent("UNIT_MANA")
-		self:RegisterEvent("CHARACTER_POINTS_CHANGED")
-		self:RegisterEvent("PLAYER_LEAVING_WORLD")
-		self:RegisterEvent("PLAYER_ENTERING_WORLD")
-		self:RegisterEvent("UNIT_POWER_UPDATE")
-		self:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
-		self:RegisterEvent("PLAYER_REGEN_ENABLED")
-		self:RegisterEvent("ACTIONBAR_SLOT_CHANGED")
-		--self:RegisterEvent("SPELL_UPDATE_ICON")
+		print('TheoryCraft Player Login')
 
-	-- Fires whenever a loading screen turns on. (not necessarily on logout)
-	elseif event == "PLAYER_LEAVING_WORLD" then
-		self:UnregisterEvent("UNIT_AURA")
-		self:UnregisterEvent("UNIT_INVENTORY_CHANGED")
-		self:UnregisterEvent("PLAYER_TARGET_CHANGED")
-		self:UnregisterEvent("UNIT_MANA")
-		self:UnregisterEvent("CHARACTER_POINTS_CHANGED")
-		self:UnregisterEvent("PLAYER_LEAVING_WORLD")
-		self:UnregisterEvent("UNIT_POWER_UPDATE")
-		self:UnregisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
-		self:UnregisterEvent("PLAYER_REGEN_ENABLED")
-		self:UnregisterEvent("ACTIONBAR_SLOT_CHANGED")
-
-	-- Fired when the player enters the world, enters/leaves an instance, or respawns at a graveyard. Also fires any other time the player sees a loading screen. 
-	-- args: isLogin(bool), isReload(bool)
-	elseif event == "PLAYER_ENTERING_WORLD" then
-		self:RegisterEvent("UNIT_AURA")
-		self:RegisterEvent("UNIT_INVENTORY_CHANGED")
-		self:RegisterEvent("PLAYER_TARGET_CHANGED")
-		self:RegisterEvent("UNIT_MANA")
-		self:RegisterEvent("CHARACTER_POINTS_CHANGED")
-		self:RegisterEvent("PLAYER_LEAVING_WORLD")
-		self:RegisterEvent("PLAYER_ENTERING_WORLD")
-		self:RegisterEvent("UNIT_POWER_UPDATE")
-		self:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
-		self:RegisterEvent("PLAYER_REGEN_ENABLED")
-		self:RegisterEvent("ACTIONBAR_SLOT_CHANGED")
-		--self:RegisterEvent("SPELL_UPDATE_ICON")
-				
 		--[[if _G['Bartender4'] ~= nil then
 			for i = 1, 120 do TheoryCraft_SetUpButton("BT4Button"..i, "Normal") end
 		end]]--
 
-		TheoryCraft_UpdateTalents(true) -- player entering world
-		TheoryCraft_UpdateGear(true) -- player entering world
+		TheoryCraft_UpdateTalents(true) -- player login
+		TheoryCraft_UpdateGear(true) -- player login
 		TheoryCraft_UpdatePlayerBuffs(true)
 		TheoryCraft_UpdateTargetBuffs(true)
-		TheoryCraft_LoadStats() -- player entering world
+		TheoryCraft_LoadStats() -- player login
 		-- TheoryCraft_GenerateAll()
-		TheoryCraft_UpdateAllButtonText('entering world')
+		TheoryCraft_UpdateAllButtonText('login')
+
+	-- Fired when the player logs in, /reloads the UI, or zones between map instances, basically whenever the loading screen appears. 
+	-- args: isLogin(bool), isReload(bool)
+	elseif event == "PLAYER_ENTERING_WORLD" then
+		print('TheoryCraft Player Entering World')
+
+		register_events(self)
+
+	-- Fires whenever a loading screen turns on. (not necessarily on logout)
+	elseif event == "PLAYER_LEAVING_WORLD" then
+		-- Unregister the events
+		register_events(self, true)
 
 	elseif event == "COMBAT_LOG_EVENT_UNFILTERED" then
 		if TheoryCraft_ParseCombat then
@@ -680,10 +703,16 @@ function TheoryCraft_OnEvent(self, event, ...)
 		end
 
 	-- arg[1] == action_bar_slot_number(int)
-	elseif (event == "ACTIONBAR_SLOT_CHANGED") then
+	-- NOTE: this event will fire when a macro has its active spell updated
+	--       for example when I use "alt" to change the spell, or mouseover changes the spell (eg decursive)
+	elseif event == "ACTIONBAR_SLOT_CHANGED" then
 		local button = TheoryCraft_FindActionButton(arg[1])
-		print("ACTIONBAR_SLOT_CHANGED: "..arg[1].. ' --> '..button:GetName())
-		TheoryCraft_ButtonUpdate(button)
+		if button then
+			print("ACTIONBAR_SLOT_CHANGED: "..arg[1].. ' --> '..button:GetName())
+			TheoryCraft_ButtonUpdate(button)
+		else
+			print("ACTIONBAR_SLOT_CHANGED: "..arg[1].. ' but no button found')
+		end
 	end
 
 	if TheoryCraft_Settings["showmem"] then
@@ -799,66 +828,7 @@ function TheoryCraft_Command(cmd)
 		end
 		TheoryCraft_Data["firstrun"] = 1
 
-		-- Set the checkbox state according to what is saved in settings.
-		TheoryCraft_SetCheckBox("embedstyle1")
-		TheoryCraft_SetCheckBox("embedstyle2")
-		TheoryCraft_SetCheckBox("embedstyle3")
-		TheoryCraft_SetCheckBox("titles")
-		TheoryCraft_SetCheckBox("embed")
-		TheoryCraft_SetCheckBox("crit")
-		TheoryCraft_SetCheckBox("critdam")
-		TheoryCraft_SetCheckBox("sepignite")
-		TheoryCraft_SetCheckBox("rollignites")
-		TheoryCraft_SetCheckBox("dps")
-		TheoryCraft_SetCheckBox("combinedot")
-		TheoryCraft_SetCheckBox("dotoverct")
-		TheoryCraft_SetCheckBox("hps")
-		TheoryCraft_SetCheckBox("dpsdam")
-		TheoryCraft_SetCheckBox("averagedam")
-		TheoryCraft_SetCheckBox("procs")
-		TheoryCraft_SetCheckBox("mitigation")
-		TheoryCraft_SetCheckBox("resists")
-		TheoryCraft_SetCheckBox("averagethreat")
-		TheoryCraft_SetCheckBox("plusdam")
-		TheoryCraft_SetCheckBox("damcoef")
-		TheoryCraft_SetCheckBox("dameff")
-		TheoryCraft_SetCheckBox("damfinal")
-		TheoryCraft_SetCheckBox("healanddamage")
-		TheoryCraft_SetCheckBox("nextagi")
-		TheoryCraft_SetCheckBox("nextstr")
-		TheoryCraft_SetCheckBox("nextcrit")
-		TheoryCraft_SetCheckBox("nexthit")
-		TheoryCraft_SetCheckBox("nextpen")
-		TheoryCraft_SetCheckBox("mana")
-		TheoryCraft_SetCheckBox("dpm")
-		TheoryCraft_SetCheckBox("hpm")
-		TheoryCraft_SetCheckBox("max")
-		TheoryCraft_SetCheckBox("maxevoc")
-		TheoryCraft_SetCheckBox("lifetap")
-		TheoryCraft_SetCheckBox("dontcrit")
-		TheoryCraft_SetCheckBox("dontresist")
-		TheoryCraft_SetCheckBox("buttontext")
-
-		TheoryCraftresistArcane:SetText(TheoryCraft_Settings["resistscores"]["Arcane"])
-		TheoryCraftresistFire:SetText(TheoryCraft_Settings["resistscores"]["Fire"])
-		TheoryCraftresistNature:SetText(TheoryCraft_Settings["resistscores"]["Nature"])
-		TheoryCraftresistFrost:SetText(TheoryCraft_Settings["resistscores"]["Frost"])
-		TheoryCraftresistShadow:SetText(TheoryCraft_Settings["resistscores"]["Shadow"])
-
-		if TheoryCraft_Settings["dontresist"] then
-			TheoryCraftresistArcane:Show()
-			TheoryCraftresistFire:Show()
-			TheoryCraftresistNature:Show()
-			TheoryCraftresistFrost:Show()
-			TheoryCraftresistShadow:Show()
-		else
-			TheoryCraftresistArcane:Hide()
-			TheoryCraftresistFire:Hide()
-			TheoryCraftresistNature:Hide()
-			TheoryCraftresistFrost:Hide()
-			TheoryCraftresistShadow:Hide()
-		end
-
+		-- Toggle the main frame.
 		if (TheoryCraft:IsVisible()) then
 			TheoryCraft:Hide()
 		else
