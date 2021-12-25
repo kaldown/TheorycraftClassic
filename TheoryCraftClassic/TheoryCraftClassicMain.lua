@@ -255,6 +255,7 @@ local function SetDefaults()
 	TheoryCraft_Settings = {}
 	TheoryCraft_Settings["dataversion"] = TheoryCraft_DataVersion -- So that we know if we need to reset the defaults again.
 
+	-- Checkbox defaults
 	TheoryCraft_Settings["embed"] = true
 	TheoryCraft_Settings["combinedot"] = true
 	TheoryCraft_Settings["procs"] = true
@@ -269,6 +270,7 @@ local function SetDefaults()
 	TheoryCraft_Settings["GenerateList"] = ""
 	TheoryCraft_Settings["dontresist"] = true
 
+	-- Resistances
 	TheoryCraft_Settings["resistscores"] = {}
 	TheoryCraft_Settings["resistscores"]["Arcane"] = 0
 	TheoryCraft_Settings["resistscores"]["Fire"]   = 0
@@ -324,6 +326,8 @@ function TheoryCraft_OnLoad(self)
 		end
 	end
 
+	-- Expand TheoryCraft_EquipEveryLine.
+	-- anything with "schoolname" should instead be multiple lines, 1 per spell school
 	local i = 1
 	local s2 = 1
 	local i3 = 1
@@ -354,7 +358,9 @@ function TheoryCraft_OnLoad(self)
 		end
 		i = i + 1
 	end
+
 	i2 = 1
+	-- Append any newones to the end of the EquipEveryLine table
 	while newones[i2] do
 		TheoryCraft_EquipEveryLine[i] = {}
 		TheoryCraft_EquipEveryLine[i].me = newones[i2].me
@@ -365,6 +371,8 @@ function TheoryCraft_OnLoad(self)
 		i = i + 1
 	end
 
+	-- Expand TheoryCraft_EquipEveryRight.
+	-- anything with "schoolname" should instead be multiple lines, 1 per spell school
 	local i = 1
 	local s2 = 1
 	local i3 = 1
@@ -405,6 +413,8 @@ function TheoryCraft_OnLoad(self)
 		i = i + 1
 	end
 
+	-- Expand TheoryCraft_Equips.
+	-- anything with "schoolname" should instead be multiple lines, 1 per spell school
 	local i = 1
 	local s2 = 1
 	local i3 = 1
@@ -697,6 +707,7 @@ function TheoryCraft_CheckBoxShowDescription(self)
 	if string.find(text, "$cr") then
 		text = string.gsub(text, "$cr", round(TheoryCraft_intpercrit(), 2))
 	end
+	-- Use the default GameTooltip to show the popup descriptions for UI checkboxes.
 	GameTooltip_SetDefaultAnchor( GameTooltip, UIParent )
 	if TheoryCraft_CheckButtons[name].tooltiptitle then
 		GameTooltip:AddLine(TheoryCraft_CheckButtons[name].tooltiptitle, 1,1,1)
@@ -854,13 +865,16 @@ function TheoryCraft_Command(cmd)
 			TheoryCraft:Show()
 		end
 	end
-	local onoff = nil
+
+	local cmd_opts = nil
 	if strfind(cmd, " ") then
-		onoff = string.sub(cmd, strfind(cmd, " ")+1)
+		-- Get the string from just beyond the first space until end
+		cmd_opts = string.sub(cmd, strfind(cmd, " ")+1)
+		-- Get the string from start until just before first space
 		cmd = string.sub(cmd, 1, strfind(cmd, " ")-1)
 	end
 	if (cmd == "custom") then
-		local linkid = string.sub(onoff, string.find(onoff, "item:%d+:%d+:%d+:%d+"))
+		local linkid = string.sub(cmd_opts, string.find(cmd_opts, "item:%d+:%d+:%d+:%d+"))
 		TheoryCraft_Settings["CustomOutfitName"] = "Custom"
 		TheoryCraft_AddToCustom(linkid)
 	end
@@ -913,15 +927,15 @@ function TheoryCraft_Command(cmd)
 		end
 	end
 	if (cmd == "armor") or (cmd == "playerarmor") then
-		if onoff == nil then onoff = "" end
-		onoff = string.upper(onoff)
+		if cmd_opts == nil then cmd_opts = "" end
+		cmd_opts = string.upper(cmd_opts)
 		local test = {}
 		local i = 1
 		local ul = UnitLevel("player")
 		print(" ")
 		if cmd == "armor" then
 			for k, v in pairs(TheoryCraft_MitigationMobs) do
-				if strfind(string.upper(k), onoff) then
+				if strfind(string.upper(k), cmd_opts) then
 					test[i] = round((v[1] / (85 * ul + 400 + v[1]))*100,1).." | "..v[1].." | "..k
 					i = i + 1
 					if i > 250 then
@@ -934,7 +948,7 @@ function TheoryCraft_Command(cmd)
 		else
 			local classname, level, _
 			for k, v in pairs(TheoryCraft_MitigationPlayers) do
-				if strfind(string.upper(k), onoff) and strfind(string.upper(k), ":") then
+				if strfind(string.upper(k), cmd_opts) and strfind(string.upper(k), ":") then
 					_, _, classname, level = strfind(k, "(.+):(.+)")
 					test[i] = classname.." | "..level.." | "..v[1].." | "..round((v[1] / (85 * ul + 400 + v[1]))*100,1)
 					i = i + 1
@@ -952,7 +966,7 @@ function TheoryCraft_Command(cmd)
 			end
 			test = {}
 			for k, v in pairs(TheoryCraft_MitigationPlayers) do
-				if strfind(string.upper(k), onoff) and (not strfind(k, ":")) then
+				if strfind(string.upper(k), cmd_opts) and (not strfind(k, ":")) then
 					test[i] = round((v[1] / (85 * ul + 400 + v[1]))*100,1).." | "..v[1].." | "..k
 					i = i + 1
 					if i > 250 then
@@ -977,6 +991,7 @@ function TheoryCraft_Command(cmd)
 		print("TheoryCraft is now switched ON")
 		TheoryCraft_Settings["off"] = nil
 	end
+
 	if (cmd == "more") then
 		print("/tc showmem")
 		print("    Debug infomation, shows the memory usage (in bytes) as each event occurs")
@@ -995,7 +1010,10 @@ function TheoryCraft_Command(cmd)
 		print("Macro Tooltips")
 		print("    If you name a macro the same as the name of the spell, in the format: Pyroblast(x), where x is the rank (or 0 if N/A), TC will show the correct tooltip. If the spell name does not fit, only use as many characters as can fit without leaving the rank off.")
 	end
+
+	-- Toggle on or off checkboxes from the UI panel.
 	if (cmd == "titles") or (cmd == "dpsmana") or (cmd == "damtodouble") or (cmd == "hidecritdata") or (cmd == "dpsdampercent") or (cmd == "armorchanges") or (cmd == "procs") or (cmd == "hideadvanced") or (cmd == "showregenheal") or (cmd == "showregendam") or (cmd == "hpm") or (cmd == "dpm") or (cmd == "dontcritdpm") or (cmd == "dontcrithpm") or (cmd == "nextagi") or (cmd == "nextpen") or (cmd == "embed") or (cmd == "dam") or (cmd == "averagedam") or (cmd == "averagedamnocrit") or (cmd == "crit") or (cmd == "critdam") or (cmd == "sepignite") or (cmd == "rollignites") or (cmd == "dps") or (cmd == "dpsdam") or (cmd == "resists") or (cmd == "timeit") or (cmd == "plusdam") or (cmd == "damcoef") or (cmd == "dameff") or (cmd == "damfinal") or (cmd == "nextcrit") or (cmd == "nexthit") or (cmd == "mana") or (cmd == "max") or (cmd == "maxevoc") or (cmd == "maxtime") or (cmd == "averagethreat") or (cmd == "healanddamage") or (cmd == "lifetap") or (cmd == "showmore") or (cmd == "showmem") then
+		local onoff = nil
 		if (TheoryCraft_Settings[cmd]) then
 			onoff = nil
 		else
