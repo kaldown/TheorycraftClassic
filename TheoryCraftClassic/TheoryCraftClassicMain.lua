@@ -772,6 +772,8 @@ function TheoryCraft_CheckBoxSetText(self)
 end
 
 function TheoryCraft_CheckBoxToggle(self)
+	PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON); -- Standard subtle click sound
+
 	-- REM: true or nil
 	local onoff
 	if (self:GetChecked()) then
@@ -999,6 +1001,8 @@ function TheoryCraft_Command(cmd)
 end
 
 function TheoryCraft_OutfitChange(self)
+	PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON); -- Standard subtle click sound
+
 	local id   = self:GetName()
 	local name = self:GetText()
 

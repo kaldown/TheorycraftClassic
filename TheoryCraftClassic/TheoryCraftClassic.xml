@@ -183,7 +183,6 @@
 				TheoryCraft_CheckBoxSetText(self)
 			</OnLoad>
 			<OnClick>
-				PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON); -- Standard subtle click sound
 				TheoryCraft_CheckBoxToggle(self)
 			</OnClick>
 			<OnEnter>
@@ -202,7 +201,6 @@
 		</Size>
 		<Scripts>
 			<OnClick>
-				PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON); -- Standard subtle click sound
 				TheoryCraft_OutfitChange(self)
 			</OnClick>
 		</Scripts>
