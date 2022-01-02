@@ -979,40 +979,38 @@ function TheoryCraft_ButtonUpdate(this, actionbar_slot_changed)
 		spelldata = TheoryCraft_GetSpellDataByAction(action_slot)
 	end
 
+	-- Not 100% sure if "Name" always exists, but it seems to be blank for non macros
+	local macro_name  = _G[this:GetName().."Name"]
+	local button_rank = _G[this:GetName().."_Rank"]
+
 	-- Must contain some properties to be valid
 	if spelldata then
-		local tryfirst = formattext(spelldata, TheoryCraft_Settings["tryfirst"], TheoryCraft_Settings["tryfirstsfg"])
+		local tryfirst  = formattext(spelldata, TheoryCraft_Settings["tryfirst"],  TheoryCraft_Settings["tryfirstsfg"])
+		local trysecond = formattext(spelldata, TheoryCraft_Settings["trysecond"], TheoryCraft_Settings["trysecondsfg"])
+
 		if tryfirst then
 			buttontext:SetText(tryfirst)
 			buttontext:SetTextColor(buttontext.colr, buttontext.colg, buttontext.colb)
+		elseif trysecond then
+			buttontext:SetText(trysecond)
+			buttontext:SetTextColor(buttontext.colr2, buttontext.colg2, buttontext.colb2)
+		end
+
+		if tryfirst or trysecond then
+			-- Show the button text
 			buttontext:Show()
-
-			if getglobal(this:GetName().."Name") then getglobal(this:GetName().."Name"):Hide() end
-
-			if getglobal(buttontext:GetParent():GetName().."_Rank") then getglobal(buttontext:GetParent():GetName().."_Rank"):Hide() end
-		else
-			local trysecond = formattext(spelldata, TheoryCraft_Settings["trysecond"], TheoryCraft_Settings["trysecondsfg"])
-			if trysecond then
-				buttontext:SetText(trysecond)
-				buttontext:SetTextColor(buttontext.colr2, buttontext.colg2, buttontext.colb2)
-
-				if getglobal(this:GetName().."Name") then getglobal(this:GetName().."Name"):Hide() end
-
-				if getglobal(buttontext:GetParent():GetName().."_Rank") then getglobal(buttontext:GetParent():GetName().."_Rank"):Hide() end
-				buttontext:Show()
-			else
-				if getglobal(this:GetName().."Name") then getglobal(this:GetName().."Name"):Show() end
-
-				if getglobal(buttontext:GetParent():GetName().."_Rank") then getglobal(buttontext:GetParent():GetName().."_Rank"):Show() end
-				buttontext:Hide()
-			end
+			-- Hide the macro_name
+			if macro_name then macro_name:Hide() end
+			-- Also hide button_rank
+			if button_rank then button_rank:Hide() end
+			return
 		end
-
-	else
-		if getglobal(this:GetName().."Name") then
-			getglobal(this:GetName().."Name"):Show()
-		end
-		buttontext:Hide()
 	end
 
+	-- In the case that spelldata was empty, or that tryfirst/trysecond result in no text
+	if macro_name then
+		macro_name:Show()
+	end
+	-- ??? button_rank ???
+	buttontext:Hide()
 end
