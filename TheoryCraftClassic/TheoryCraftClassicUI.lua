@@ -59,9 +59,6 @@ end
 
 function TheoryCraft_GenBoxEditChange()
 	TheoryCraft_Settings["GenerateList"] = TheoryCraftGenBox_Text:GetText()
-	if string.find(TheoryCraft_Settings["GenerateList"], "ONDEMAND") then
-		TheoryCraft_Settings["GenerateList"] = "ONDEMAND"
-	end
 end
 
 function TheoryCraft_CustomizedEditChange()
@@ -498,6 +495,8 @@ function TheoryCraft_InitDropDown(this)
 		return
 	end
 --]]
+
+	-- NOTE: ComboXClick are the names of the UI element we are initializing.
 	if string.find(this:GetName(), "sfg") then
 		if string.find(this:GetName(), "TheoryCrafttryfirst") then
 			a = TheoryCraft_Combo3Click
@@ -512,6 +511,7 @@ function TheoryCraft_InitDropDown(this)
 		i = AddButton(i, "1000", -3, a)
 		return
 	end
+
 	if string.find(this:GetName(), "TheoryCrafttryfirst") then
 		a = TheoryCraft_Combo1Click
 	else
@@ -742,6 +742,8 @@ function TheoryCraft_InitButtonTextOpts()
 
 	TheoryCraftFontSize:SetText(TheoryCraft_Settings["FontSize"])
 
+	TheoryCraftGenBox_Text:SetText(TheoryCraft_Settings["GenerateList"])
+
 	-- Also need to restore the position for the dummy text widget
 	-- Since the dummy text is movable we cannot configure an anchor directly in the XML
 	local dummy_text = _G['TheoryCraftActionButtonTextPos']
@@ -898,16 +900,14 @@ hooksecurefunc("SpellBookFrame_UpdateSpells", function(i)
 end)
 
 -- Update a specific button's text (position, color) as well as for any stat/buff changes
-function TheoryCraft_ButtonUpdate(this, ...)
+function TheoryCraft_ButtonUpdate(this, actionbar_slot_changed)
 	if not TheoryCraft_Data.TalentsHaveBeenRead then
 		--print("Skipped TheoryCraft_ButtonUpdate - talents not ready")
 		return
 	end
 
-	local i = this:GetName().."_TCText"
-
 	-- REM: buttontext is a FontString created on each button during SetupButtons
-	local buttontext = getglobal(i)
+	local buttontext = _G[this:GetName().."_TCText"]
 	if not buttontext then 
 		return
 	end
@@ -973,10 +973,12 @@ function TheoryCraft_ButtonUpdate(this, ...)
 			if id2 == nil then id2 = 0 end
 			spelldata = TheoryCraft_GetSpellDataByName(id, id2)
 		end
+
 	else
-		local action = this:GetAttribute('action') or this.action
-		spelldata = TheoryCraft_GetSpellDataByAction(action)
+		local action_slot = this:GetAttribute('action') or this.action
+		spelldata = TheoryCraft_GetSpellDataByAction(action_slot)
 	end
+
 	-- Must contain some properties to be valid
 	if spelldata then
 		local tryfirst = formattext(spelldata, TheoryCraft_Settings["tryfirst"], TheoryCraft_Settings["tryfirstsfg"])
@@ -984,22 +986,28 @@ function TheoryCraft_ButtonUpdate(this, ...)
 			buttontext:SetText(tryfirst)
 			buttontext:SetTextColor(buttontext.colr, buttontext.colg, buttontext.colb)
 			buttontext:Show()
+
 			if getglobal(this:GetName().."Name") then getglobal(this:GetName().."Name"):Hide() end
+
 			if getglobal(buttontext:GetParent():GetName().."_Rank") then getglobal(buttontext:GetParent():GetName().."_Rank"):Hide() end
 		else
 			local trysecond = formattext(spelldata, TheoryCraft_Settings["trysecond"], TheoryCraft_Settings["trysecondsfg"])
 			if trysecond then
 				buttontext:SetText(trysecond)
 				buttontext:SetTextColor(buttontext.colr2, buttontext.colg2, buttontext.colb2)
+
 				if getglobal(this:GetName().."Name") then getglobal(this:GetName().."Name"):Hide() end
+
 				if getglobal(buttontext:GetParent():GetName().."_Rank") then getglobal(buttontext:GetParent():GetName().."_Rank"):Hide() end
 				buttontext:Show()
 			else
 				if getglobal(this:GetName().."Name") then getglobal(this:GetName().."Name"):Show() end
+
 				if getglobal(buttontext:GetParent():GetName().."_Rank") then getglobal(buttontext:GetParent():GetName().."_Rank"):Show() end
 				buttontext:Hide()
 			end
 		end
+
 	else
 		if getglobal(this:GetName().."Name") then
 			getglobal(this:GetName().."Name"):Show()

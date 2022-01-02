@@ -522,7 +522,7 @@ function TheoryCraft_OnUpdate()
 end
 --]]
 
-
+-- (un)register events TC cares about
 local function register_events(self, unregister)
 	-- Events to be registered and unregistered as the player hits loading screens
 	local event_list = {
@@ -601,7 +601,6 @@ function TheoryCraft_OnEvent(self, event, ...)
 
 		-- Restore the values from settings into the ButtonText Config UI
 		TheoryCraft_InitButtonTextOpts()
-		TheoryCraftGenBox_Text:SetText(TheoryCraft_Settings["GenerateList"])
 
 		-- Adds the text FontString to each action button.
 		TheoryCraft_AddButtonText()
@@ -616,9 +615,11 @@ function TheoryCraft_OnEvent(self, event, ...)
 	elseif event == "PLAYER_LOGIN" then
 		print('TheoryCraft Player Login')
 
-		--[[if _G['Bartender4'] ~= nil then
+		--[[
+		if _G['Bartender4'] ~= nil then
 			for i = 1, 120 do TheoryCraft_SetUpButton("BT4Button"..i, "Normal") end
-		end]]--
+		end
+		]]--
 
 		TheoryCraft_UpdateTalents(true) -- player login
 		TheoryCraft_UpdateGear(true) -- player login
@@ -641,11 +642,10 @@ function TheoryCraft_OnEvent(self, event, ...)
 		register_events(self, true)
 
 	elseif event == "COMBAT_LOG_EVENT_UNFILTERED" then
-		if TheoryCraft_ParseCombat then
-			TheoryCraft_ParseCombat(self, event)
-		end
+		TheoryCraft_ParseCombat(self, event)
 
 	-- TODO: this event no longer exists. Replaced with "COMBAT_LOG_EVENT" in 2.4.0
+	--       but its junk anyways, so who cares
 	--elseif event == "CHAT_MSG_SPELL_SELF_BUFF" then
 	--	TheoryCraft_WatchCritRate(arg[1])
 
@@ -696,7 +696,10 @@ function TheoryCraft_OnEvent(self, event, ...)
 		if TCUtils.StanceFormName() == 'cat' then
 			TheoryCraft_DeleteTable(TheoryCraft_UpdatedButtons)
 		end
-
+		-- when either primary or secondary dropdown options are configured for:
+		--   maxoomhealremaining  - Total Healing (left)
+		--   maxoomdamremaining   - Total Damage (left)
+		--   spellcasts           - Spellcasts remaining
 		if ((string.find(TheoryCraft_Settings["tryfirst"], "remaining")) or (string.find(TheoryCraft_Settings["trysecond"], "remaining"))) or
 		   ((TheoryCraft_Settings["tryfirst"] == "spellcasts") or (TheoryCraft_Settings["trysecond"] == "spellcasts")) then
 			TheoryCraft_DeleteTable(TheoryCraft_UpdatedButtons)
@@ -705,6 +708,9 @@ function TheoryCraft_OnEvent(self, event, ...)
 	-- arg[1] == action_bar_slot_number(int)
 	-- NOTE: this event will fire when a macro has its active spell updated
 	--       for example when I use "alt" to change the spell, or mouseover changes the spell (eg decursive)
+	-- NOTE: Will fire when spells that have a reagent cost have their reagents quantity changed, or the reagent is moved in bags
+	-- NOTE: Will fire when inventory items that are set to an actionbutton are updated in any way:
+	--       quantity changes, moved around in bags, bought/sold
 	elseif event == "ACTIONBAR_SLOT_CHANGED" then
 		local button = TheoryCraft_FindActionButton(arg[1])
 		if button then

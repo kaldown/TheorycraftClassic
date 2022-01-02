@@ -79,11 +79,11 @@ TCUtils.DebugPoints = function(name)
 	if relativeTo ~= nil then
 		relativeName = relativeTo:GetName()
 	end
-	print(point)
-	print(relativeName)
-	print(relativePoint)
-	print(xOfs)
-	print(yOfs)
+	print('point:', point)
+	print('relativeName:', relativeName)
+	print('relativePoint:', relativePoint)
+	print('xoffset:', xOfs)
+	print('yoffset:', yOfs)
 end
 
 -- Recursively writes table data in a lua parsable format.

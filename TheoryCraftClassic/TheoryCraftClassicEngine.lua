@@ -20,6 +20,8 @@ end
 local function TheoryCraft_AddData(spell_group, data, summeddata)
 	if data == nil then return end
 
+	-- Modifier is any spell_group % modifiers that apply for this spell.
+	-- UpFrontModifier is specifically for improved_immolate (warlock), nothing else at this time.
 	summeddata["tmpincrease"]        = summeddata["tmpincrease"]        + (data[spell_group.."modifier"] or 0)
 	summeddata["tmpincreaseupfront"] = summeddata["tmpincreaseupfront"] + (data[spell_group.."UpFrontmodifier"] or 0)
 	if summeddata["baseincrease"] ~= 0 then
@@ -151,6 +153,7 @@ local function getlifetap(returndata)
 	end
 end
 
+-- The same stat can be in multiple places, so pull from all datasources and return the summed value.
 function TheoryCraft_GetStat(statname)
 	if TheoryCraft_Data.testing then
 		return 	(TheoryCraft_Data.BaseData[statname] or 0)+
@@ -1532,7 +1535,9 @@ function TheoryCraft_GenerateSpellData(spellId)
 	TheoryCraft_TooltipData[spellId]["dontdomax"] = spellData.dontdomax
 	TheoryCraft_TooltipData[spellId]["overcd"] = spellData.overcooldown
 
-	if (TheoryCraft_Settings["GenerateList"] == "") or (string.find(TheoryCraft_Settings["GenerateList"], string.gsub(spellName, "-", "%%-").."%("..spellRank.."%)")) then
+	-- Check to see if the spell is found within the spell filter text-area
+	local list_str = string.gsub(spellName, "-", "%%-") .. "%(".. (spellRank or 0) .."%)"
+	if (TheoryCraft_Settings["GenerateList"] == "") or (string.find(TheoryCraft_Settings["GenerateList"], list_str)) then
 		TheoryCraft_TooltipData[spellId]["showonbutton"] = true
 	end
 
@@ -1654,7 +1659,12 @@ function TheoryCraft_GenerateTooltip(frame, spellname, spellrank, i2, showonbutt
 			TheoryCraft_GenerateTooltip(TCTooltip2, TheoryCraft_Locale.MinMax.arcaneshotname, highestarcane, nil, nil, nil, true)
 		end
 	end
-	if (not force) and (TheoryCraft_Settings["GenerateList"] ~= "") and (not string.find(TheoryCraft_Settings["GenerateList"], string.gsub(spellname, "-", "%%-").."%("..spellrank.."%)")) then
+	-- Immediately stop if all of the following are true:
+	--   not forced
+	--   GenerateList is not empty
+	--   GenerateList does not contain the current spell
+	local list_str = string.gsub(spellName, "-", "%%-") .. "%(".. (spellRank or 0) .."%)"
+	if (not force) and (TheoryCraft_Settings["GenerateList"] ~= "") and (not string.find(TheoryCraft_Settings["GenerateList"], list_str)) then
 		return
 	end
 	local i
@@ -1743,9 +1753,13 @@ function TheoryCraft_GenerateTooltip(frame, spellname, spellrank, i2, showonbutt
 	TheoryCraft_TooltipData[olddesc]["holynova"] = i.holynova
 	TheoryCraft_TooltipData[olddesc]["dontdomax"] = i.dontdomax
 	TheoryCraft_TooltipData[olddesc]["overcd"] = i.overcooldown
-	if (TheoryCraft_Settings["GenerateList"] == "") or (string.find(TheoryCraft_Settings["GenerateList"], string.gsub(spellname, "-", "%%-").."%("..spellrank.."%)")) then
+
+	-- Check to see if the spell is found within the spell filter text-area
+	local list_str = string.gsub(spellName, "-", "%%-") .. "%(".. (spellRank or 0) .."%)"
+	if (TheoryCraft_Settings["GenerateList"] == "") or (string.find(TheoryCraft_Settings["GenerateList"], list_str)) then
 		TheoryCraft_TooltipData[olddesc]["showonbutton"] = true
 	end
+
 	if TheoryCraft_Data["reporttimes"] then
 		TheoryCraft_Data["buttonsgenerated"] = TheoryCraft_Data["buttonsgenerated"]+1
 		TheoryCraft_Data["timetaken"] = TheoryCraft_Data["timetaken"]+GetTime()-timer
@@ -1756,6 +1770,7 @@ local data2 = {}
 -- need to look at these
 local function UpdateTarget(data)
 	if data == nil then return end
+
 	data["resistscore"] = 0
 	if data["basemanacost"] and data["manacost"] then
 		if UnitPower("player") >= data["basemanacost"] then
@@ -1779,6 +1794,7 @@ local function UpdateTarget(data)
 
 	if data.iscombo then
 		if data["description"] == nil then return end
+
 		local points = GetComboPoints()
 		data["mindamage"] = data["combo"..points.."mindamage"] or 0
 		data["maxdamage"] = data["combo"..points.."maxdamage"] or 0
@@ -1799,7 +1815,9 @@ local function UpdateTarget(data)
 		replace = "%*"..string.gsub(replace, "%$points%$", points).."%*"
 		data["description"] = string.gsub(data["description"], search, replace)
 	end
+
 	if data["isheal"] then return end
+
 	if data["armor"] and TheoryCraft_Settings["mitigation"] then
 		TheoryCraft_DeleteTable(data2)
 		TCUtils.MergeIntoTable(data, data2)
@@ -1838,6 +1856,7 @@ local function UpdateTarget(data)
 
 		return data
 	end
+
 	if data["ismelee"] then return end
 	if data["isseal"] then return end
 	if data["autoshot"] then return end
@@ -1950,6 +1969,7 @@ local function UpdateTarget(data)
 	if not TheoryCraft_Settings["dontresist"] then
 		return
 	end
+
 	TheoryCraft_DeleteTable(data2)
 	TCUtils.MergeIntoTable(data, data2)
 	data = data2
@@ -2008,6 +2028,7 @@ local function UpdateTarget(data)
 	if data["maxevocoomdam"] then data["maxevocoomdam"] = data["maxevocoomdam"] * resistmult end
 	if toomuchhit then data["nexthitdam"] = 0 data["nexthitdamequive"] = "At max, 0.00" end
 	if penamount == 0 then data["nextpendamequive"] = "At max, 0.00" end
+
 	return data
 end
 
@@ -2016,18 +2037,21 @@ end
 function TheoryCraft_GetSpellDataByAction(action_slot)
 	if action_slot == nil then return nil end
 
-	local action_type, id = GetActionInfo(action_slot); -- TODO: also returns a subType
+	-- REM: id can be SpellID, or ItemID as appropriate
+	-- NOTE: also returns a SubType (seems useless for TC)
+	local action_type, id = GetActionInfo(action_slot)
 
 	if (action_type == "macro") then
 		-- Change the macro_id into a spellID
 		id = GetMacroSpell(id)
 
-	-- including nil
+	-- anything else (including nil)
 	elseif (action_type ~= "spell") then 
 		return nil
 	end
 	if (id == nil) then return end
 	local spellData = TheoryCraft_GenerateSpellData(id);
+	-- return spellData or spellData with some modifications
 	return UpdateTarget(spellData) or spellData
 end
 
