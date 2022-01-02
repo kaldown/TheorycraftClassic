@@ -86,6 +86,22 @@ TCUtils.DebugPoints = function(name)
 	print('yoffset:', yOfs)
 end
 
+TCUtils.DebugChildren = function(name)
+	local frame = _G[name]
+	if frame == nil then
+		print('cannot find: ' .. name)
+		return
+	end
+	local child_frames  = { frame:GetChildren() }
+	local child_regions = { frame:GetRegions()  } 
+	for _, c in ipairs(child_frames) do
+		print(c:GetName())
+	end 
+	for _, c in ipairs(child_regions) do
+		print(c:GetName())
+	end
+end
+
 -- Recursively writes table data in a lua parsable format.
 TCUtils.dump = function(o)
 	if type(o) == 'table' then
