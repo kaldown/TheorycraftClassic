@@ -590,13 +590,19 @@ function TheoryCraft_OnEvent(self, event, ...)
 		end
 		]]--
 
+		-- Do this ASAP (many other things depend on this data)
 		TheoryCraft_UpdateTalents(true) -- player login
-		TheoryCraft_UpdateGear(true) -- player login
-		TheoryCraft_UpdatePlayerBuffs(true)
-		TheoryCraft_UpdateTargetBuffs(true)
-		TheoryCraft_LoadStats() -- player login
-		-- TheoryCraft_GenerateAll()
-		TheoryCraft_UpdateAllButtonText('login')
+
+		-- Wait 2 seconds after LOGIN to give a chance for stats/gear/spells etc to be properly loaded and become available for reading
+		C_Timer.After(2, function()
+			-- NOTE: I think this order of initialization is pretty well fixed.
+			TheoryCraft_UpdateGear(true)    -- player login
+			TheoryCraft_UpdatePlayerBuffs(true)
+			TheoryCraft_UpdateTargetBuffs(true)
+			TheoryCraft_LoadStats('player login') -- REM: must be after UpdateGear
+			-- TheoryCraft_GenerateAll()
+			TheoryCraft_UpdateAllButtonText('login')
+		end) -- C_Timer
 
 	-- Fired when the player logs in, /reloads the UI, or zones between map instances, basically whenever the loading screen appears. 
 	-- args: isLogin(bool), isReload(bool)

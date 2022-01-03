@@ -839,7 +839,7 @@ local function UpdateSpellBookText()
 end
 
 -- This will handle changing the button color and position as well as what type of text should be shown
-function TheoryCraft_UpdateAllButtonText(txt)
+function TheoryCraft_UpdateAllButtonText(source)
 	if not TheoryCraft_Data.TalentsHaveBeenRead then
 		print("Skipped TheoryCraft_UpdateAllButtonText - talents not ready")
 		return
