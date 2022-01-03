@@ -912,8 +912,63 @@ function TheoryCraft_ButtonUpdate(this, actionbar_slot_changed)
 		return
 	end
 
+	-- Not 100% sure if "Name" always exists, but it seems to be blank for non macros
+	local macro_name  = _G[this:GetName().."Name"]
+	local button_rank = _G[this:GetName().."_Rank"]
+
+	-- -------------- Helper --------------
+	local function toggle_btn_text_fn(show_btn_txt)
+		if show_btn_txt then
+			-- Show the button text
+			buttontext:Show()
+			-- Hide the macro_name
+			if macro_name then macro_name:Hide() end
+			-- Also hide button_rank
+			if button_rank then button_rank:Hide() end
+		else
+			-- Hide the button text
+			buttontext:Hide()
+			-- Show the macro_name
+			if macro_name then macro_name:Show() end
+			-- Also show button_rank
+			if button_rank then button_rank:Show() end
+		end
+	end
+	-- --------------
+
 	if not TheoryCraft_Settings["buttontext"] then
-		buttontext:Hide()
+		toggle_btn_text_fn()
+		return
+	end
+
+	-- Try to find the spell data from whats in the button
+	local spelldata
+	-- REM: The ActionButtonID will be empty for spellbook items (obviously)
+	if buttontext.type == "SpellBook" then
+		local icon = _G[this:GetName().."SpellName"]
+		local id   = icon:GetText()
+
+		if (not icon:IsShown()) or (id == nil) then
+			buttontext:Hide()
+			id = nil
+		end
+
+		if id then
+			-- NOTE: the subtext could be: "Rank 1" or "racial passive" or "journeyman" things like that.
+			local rank = _G[this:GetName().."SubSpellName"]:GetText()
+			rank = tonumber(TCUtils.findpattern(rank, "%d+")) or 0
+			spelldata = TheoryCraft_GetSpellDataByName(id, rank)
+		end
+
+	-- type: "Special", "Flippable", "Bonus" ???
+	else
+		local action_slot = this:GetAttribute('action') or this.action
+		spelldata = TheoryCraft_GetSpellDataByAction(action_slot)
+	end
+
+	-- if there is no (valid) spell on this button, also return.
+	if not spelldata then
+		toggle_btn_text_fn()
 		return
 	end
 
@@ -944,6 +999,7 @@ function TheoryCraft_ButtonUpdate(this, actionbar_slot_changed)
 		buttontext.colg2 = TheoryCraft_Settings["ColG2"]
 		buttontext.colb2 = TheoryCraft_Settings["ColB2"]
 	end
+
 	if (buttontext.buttontextx ~= TheoryCraft_Settings["buttontextx"]) or (buttontext.buttontexty ~= TheoryCraft_Settings["buttontexty"]) then
 		buttontext.buttontextx = TheoryCraft_Settings["buttontextx"]
 		buttontext.buttontexty = TheoryCraft_Settings["buttontexty"]
@@ -953,35 +1009,6 @@ function TheoryCraft_ButtonUpdate(this, actionbar_slot_changed)
 		-- TODO: using CENTER point seems a little bit further to the left than I think is ideal, but every other point looks much worse.
 		buttontext:SetPoint("CENTER", this, "BOTTOMLEFT", TheoryCraft_Settings["buttontextx"]*w, TheoryCraft_Settings["buttontexty"]*h)
 	end
-
-	-- Try to find the spell data lookup by the spell we have on the button
-	local spelldata
-	-- REM: The ActionButtonID will be empty for spellbook items (obviously)
-	if buttontext.type == "SpellBook" then
-		local icon = getglobal(this:GetName().."SpellName")
-		local id = icon:GetText()
-
-		if (not icon:IsShown()) or (id == nil) then
-			buttontext:Hide()
-			id = nil
-		end
-		-- NOTE: id2 is the subtext "Rank 1" or "racial passive" or "journeyman" things like that.
-		local id2 = getglobal(this:GetName().."SubSpellName"):GetText()
-		--print('id2: '..(id2 or 'nil'))
-		if id then
-			id2 = tonumber(TCUtils.findpattern(id2, "%d+"))
-			if id2 == nil then id2 = 0 end
-			spelldata = TheoryCraft_GetSpellDataByName(id, id2)
-		end
-
-	else
-		local action_slot = this:GetAttribute('action') or this.action
-		spelldata = TheoryCraft_GetSpellDataByAction(action_slot)
-	end
-
-	-- Not 100% sure if "Name" always exists, but it seems to be blank for non macros
-	local macro_name  = _G[this:GetName().."Name"]
-	local button_rank = _G[this:GetName().."_Rank"]
 
 	-- Must contain some properties to be valid
 	if spelldata then
@@ -997,20 +1024,11 @@ function TheoryCraft_ButtonUpdate(this, actionbar_slot_changed)
 		end
 
 		if tryfirst or trysecond then
-			-- Show the button text
-			buttontext:Show()
-			-- Hide the macro_name
-			if macro_name then macro_name:Hide() end
-			-- Also hide button_rank
-			if button_rank then button_rank:Hide() end
+			toggle_btn_text_fn(true)
 			return
 		end
 	end
 
 	-- In the case that spelldata was empty, or that tryfirst/trysecond result in no text
-	if macro_name then
-		macro_name:Show()
-	end
-	-- ??? button_rank ???
-	buttontext:Hide()
+	toggle_btn_text_fn()
 end
