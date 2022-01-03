@@ -59,11 +59,7 @@ end
 
 -- REM: spell_group could be the name of the spell as well. 
 local function TheoryCraft_DoSchool(spell_group, summeddata)
-	if TheoryCraft_Data.Testing then
-		TheoryCraft_AddData(spell_group, TheoryCraft_Data.TalentsTest, summeddata)
-	else
-		TheoryCraft_AddData(spell_group, TheoryCraft_Data.Talents, summeddata)
-	end
+	TheoryCraft_AddData(spell_group, TheoryCraft_Data.Talents, summeddata)
 	TheoryCraft_AddData(spell_group, TheoryCraft_Data.BaseData, summeddata)
 	TheoryCraft_AddData(spell_group, TheoryCraft_Data.Stats, summeddata)
 	TheoryCraft_AddData(spell_group, TheoryCraft_Data.PlayerBuffs, summeddata)
@@ -155,23 +151,13 @@ end
 
 -- The same stat can be in multiple places, so pull from all datasources and return the summed value.
 function TheoryCraft_GetStat(statname)
-	if TheoryCraft_Data.testing then
-		return 	(TheoryCraft_Data.BaseData[statname] or 0)+
-			(TheoryCraft_Data.TalentsTest[statname] or 0)+
-			(TheoryCraft_Data.Stats[statname] or 0)+
-			(TheoryCraft_Data.PlayerBuffs[statname] or 0)+
-			(TheoryCraft_Data.TargetBuffs[statname] or 0)+
-			(TheoryCraft_Data.EquipEffects[statname] or 0)+
-			(TheoryCraft_Data.Target[statname] or 0)
-	else
-		return 	(TheoryCraft_Data.BaseData[statname] or 0)+
+	return 	(TheoryCraft_Data.BaseData[statname] or 0)+
 			(TheoryCraft_Data.Talents[statname] or 0)+
 			(TheoryCraft_Data.Stats[statname] or 0)+
 			(TheoryCraft_Data.PlayerBuffs[statname] or 0)+
 			(TheoryCraft_Data.TargetBuffs[statname] or 0)+
 			(TheoryCraft_Data.EquipEffects[statname] or 0)+
 			(TheoryCraft_Data.Target[statname] or 0)
-	end
 end
 
 local function agipercrit()
