@@ -524,7 +524,7 @@ function TheoryCraft_UpdateGear(dont_regenerate_all, force)
 	TCUtils.MergeIntoTable(TheoryCraft_Data.Stats, old2)
 	TheoryCraft_DeleteTable(TheoryCraft_Data.Stats)
 
-	TheoryCraft_LoadStats() -- update gear
+	TheoryCraft_LoadStats('update gear')
 	-- if something changed between the old and refreshed data...
 	if (TheoryCraft_IsDifferent(old, TheoryCraft_Data.EquipEffects)) or (TheoryCraft_IsDifferent(old2, TheoryCraft_Data.Stats)) then
 		-- UpdateOutfitTab, (which will only matter if its currently shown) and whatever else that does

@@ -153,7 +153,7 @@ function TheoryCraft_UpdateTalents(dontgen)
 	if dontgen == nil then
 		local old2 = TheoryCraft_Data.Stats
 		TheoryCraft_Data.Stats = {}
-		TheoryCraft_LoadStats() -- update talents
+		TheoryCraft_LoadStats('update talents')
 		if TheoryCraft_IsDifferent(old, TheoryCraft_Data.Talents) or TheoryCraft_IsDifferent(old2, TheoryCraft_Data.Stats) then
 			TheoryCraft_GenerateAll() -- update talents
 		end

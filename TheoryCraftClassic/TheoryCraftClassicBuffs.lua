@@ -92,11 +92,12 @@ function TheoryCraft_UpdatePlayerBuffs(dontgen)
 		return
 	end
 
+	-- NOTE: this is only ever the case when druid form changes (some talents have specific effects in forms that should NOT apply to other forms)
 	if TheoryCraft_Data.redotalents then
 		TheoryCraft_UpdateTalents(true) -- player buffs
 		TheoryCraft_Data.redotalents = nil
 	end
-	TheoryCraft_LoadStats() -- player buffs
+	TheoryCraft_LoadStats('player buffs')
 	TheoryCraft_UpdateArmor() -- player buffs
 	TheoryCraft_GenerateAll() -- player buffs
 end
@@ -120,7 +121,7 @@ function TheoryCraft_UpdateTargetBuffs(dontgen)
 	end
 
 	TCUtils.MergeIntoTable(TheoryCraft_Data.Stats, old2)
-	TheoryCraft_LoadStats() -- target buffs
+	TheoryCraft_LoadStats('target buffs')
 	if (TheoryCraft_IsDifferent(old, TheoryCraft_Data.TargetBuffs)) or (TheoryCraft_IsDifferent(old2, TheoryCraft_Data.Stats)) then
 		TheoryCraft_UpdateArmor() -- target buffs
 		TheoryCraft_GenerateAll() -- target buffs

@@ -1034,7 +1034,7 @@ function TheoryCraft_OutfitChange(self)
 		end
 		TheoryCraft_UpdateGear(true)
 		TheoryCraft_UpdateTalents(true)
-		TheoryCraft_LoadStats() -- reset_button
+		TheoryCraft_LoadStats('reset_button')
 		TheoryCraft_GenerateAll()
 		--UIDropDownMenu_SetSelectedID(TheoryCraftoutfit, 1)
 		TheoryCraftCustomOutfit:Hide()

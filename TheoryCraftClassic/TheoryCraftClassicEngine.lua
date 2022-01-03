@@ -396,9 +396,9 @@ local function GetCritChance(critreport)
 	end
 end
 
-function TheoryCraft_LoadStats()
+function TheoryCraft_LoadStats(source)
 	if not TheoryCraft_Data.TalentsHaveBeenRead then
-		-- print("Skipped TheoryCraft_LoadStats - talents not ready")
+		-- print("Skipped TheoryCraft_LoadStats - talents not ready", source)
 		return
 	end
 
