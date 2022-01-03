@@ -396,9 +396,15 @@ local function GetCritChance(critreport)
 	end
 end
 
-function TheoryCraft_LoadStats(talents)
-	if talents == nil then talents = TheoryCraft_Data.Talents end
-	if talents == nil then return end
+function TheoryCraft_LoadStats()
+	if not TheoryCraft_Data.TalentsHaveBeenRead then
+		-- print("Skipped TheoryCraft_LoadStats - talents not ready")
+		return
+	end
+
+	local talents = TheoryCraft_Data.Talents
+	--TCUtils.pretty_print(talents)
+
 	-- TheoryCraft_DeleteTable(TheoryCraft_Data.Stats)
 	local remove
 	TheoryCraft_Data.Stats["meleecritchance"], remove = GetCritChance()
@@ -448,8 +454,8 @@ function TheoryCraft_LoadStats(talents)
 	TheoryCraft_Data.Stats["attackpower"] = base+pos+neg-TheoryCraft_Data.Stats["strengthapmelee"]*TheoryCraft_Data.Stats["strength"]-TheoryCraft_Data.Stats["agilityapmelee"]*TheoryCraft_Data.Stats["agility"]+(talents["AttackPowerTalents"] or 0)
 	base, pos, neg = UnitRangedAttackPower("player")
 	TheoryCraft_Data.Stats["rangedattackpower"] = (TheoryCraft_Data.TargetBuffs["huntersmark"] or 0)+base+pos+neg-TheoryCraft_Data.Stats["agilityapranged"]*TheoryCraft_Data.Stats["agility"]
-	TheoryCraft_Data.Stats["totalmana"] = UnitPowerMax("player")/talents["manamultiplierreal"]
-	TheoryCraft_Data.Stats["totalhealth"] = UnitHealthMax("player")/talents["healthmultiplierreal"]
+	TheoryCraft_Data.Stats["totalmana"]   = UnitPowerMax("player")  / talents["manamultiplierreal"]
+	TheoryCraft_Data.Stats["totalhealth"] = UnitHealthMax("player") / talents["healthmultiplierreal"]
 
 	TheoryCraft_Data.Stats["meleecritchance"] = TheoryCraft_Data.Stats["meleecritchance"]-TheoryCraft_Data.Stats["agility"]/TheoryCraft_Data.Stats["agipercrit"]
 	TheoryCraft_Data.Stats["totalhealth"] = TheoryCraft_Data.Stats["totalhealth"] - TheoryCraft_Data.Stats["stamina"]*10
@@ -850,6 +856,7 @@ local function GenerateTooltip(frame, returndata, spelldata, spellrank)
 			returndata["damcoef2"] = spelldata.percentdot
 			returndata["plusdam2"] = math.floor(returndata["plusdam"] * returndata["damcoef2"] * levelpercent)
 		end
+
 		if (newcasttime) and (spelldata.isdot) then
 			returndata["damcoef"] = returndata["damcoef"]*newcasttime/returndata["basedotduration"]
 			returndata["casttime"] = newcasttime

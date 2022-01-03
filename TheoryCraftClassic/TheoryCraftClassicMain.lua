@@ -25,33 +25,6 @@ TheoryCraft_Data.BaseData["AllUpFrontmodifier"] = 1
 TheoryCraft_Data.BaseData["AllUpFrontbaseincrease"] = 1
 TheoryCraft_Data.BaseData["manacostall"] = 1
 
-TheoryCraft_Data.Talents = {}
-TheoryCraft_Data.Talents["strmultiplier"] = 1
-TheoryCraft_Data.Talents["agimultiplier"] = 1
-TheoryCraft_Data.Talents["stammultiplier"] = 1
-TheoryCraft_Data.Talents["intmultiplier"] = 1
-TheoryCraft_Data.Talents["spiritmultiplier"] = 1
-TheoryCraft_Data.Talents["manamultiplier"] = 1
-TheoryCraft_Data.Talents["healthmultiplier"] = 1
-
-
--- Racials
-if (race == "Gnome") then
-	TheoryCraft_Data.Talents["intmultiplier"] = 1.05
-end
-if (race == "Human") then
-	TheoryCraft_Data.Talents["spiritmultiplier"] = 1.05
-end
-if (race == "Tauren") then
-	TheoryCraft_Data.Talents["healthmultiplier"] = 1.05
-end
-TheoryCraft_Data.Talents["strmultiplierreal"] = 1
-TheoryCraft_Data.Talents["agimultiplierreal"] = 1
-TheoryCraft_Data.Talents["stammultiplierreal"] = 1
-TheoryCraft_Data.Talents["intmultiplierreal"] = TheoryCraft_Data.Talents["intmultiplier"]
-TheoryCraft_Data.Talents["spiritmultiplierreal"] = TheoryCraft_Data.Talents["spiritmultiplier"]
-TheoryCraft_Data.Talents["manamultiplierreal"] = 1
-TheoryCraft_Data.Talents["healthmultiplierreal"] = TheoryCraft_Data.Talents["healthmultiplier"]
 TheoryCraft_Data.Stats = {}
 
 TheoryCraft_UpdatedButtons = {}
@@ -598,7 +571,7 @@ function TheoryCraft_OnEvent(self, event, ...)
 		-- Restore the values from settings into the ButtonText Config UI
 		TheoryCraft_InitButtonTextOpts()
 
-		-- Adds the text FontString to each action button.
+		-- Adds the text FontString to each action button. (NOTE: apparently doesn't need to wait for any later event)
 		TheoryCraft_AddButtonText()
 
 		-- NOTE: this is only intended as a notification, not to actually change what is or is not initialized
@@ -1061,7 +1034,7 @@ function TheoryCraft_OutfitChange(self)
 		end
 		TheoryCraft_UpdateGear(true)
 		TheoryCraft_UpdateTalents(true)
-		TheoryCraft_LoadStats()
+		TheoryCraft_LoadStats() -- reset_button
 		TheoryCraft_GenerateAll()
 		--UIDropDownMenu_SetSelectedID(TheoryCraftoutfit, 1)
 		TheoryCraftCustomOutfit:Hide()
