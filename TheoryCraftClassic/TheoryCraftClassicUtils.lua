@@ -210,3 +210,31 @@ TCUtils.MergeIntoTable = function(tab1, tab2)
 	end
 end
 
+
+-- Copied from: https://wowwiki-archive.fandom.com/wiki/UIOBJECT_GameTooltip#Example:_Looping_through_all_tooltip_lines
+-- Looks like there are 20 lines by default (left and right each, so 40 text regions)
+-- then an additional 10 textures, and 2 others (which also say textures, but don't have a name)
+-- total of 52 sub-regions
+-- however extras CAN be created
+-- NOTE: empty spacer lines are printed
+-- EXAMPLE: TC_EnumerateTooltipLines_helper(TheoryCraftTooltip:GetRegions())
+function TC_EnumerateTooltipLines_helper(...)
+	-- REM: "#" is the length operator ( example: mytable = {1,2,3}; print(#mytable) => 3 )
+	-- TODO: couldn't I use instead:
+	-- for k, v in pairs(arg) do -- where arg is the table of arguments collected within "..."
+    for i = 1, select("#", ...) do
+		-- REM: returns all arguments from index "i" and beyond.
+		--      since we only store the first one as "region" we are getting them 1 at a time.
+        local region = select(i, ...)
+        if region and region:GetObjectType() == "FontString" then
+            local text = region:GetText() -- string or nil
+			if text then
+				print(region:GetName(), 'FontString', i, text)
+			end
+		--elseif region then
+		--	print(region:GetName(), region:GetObjectType(), i)
+        end
+    end
+end
+
+-- -------------------------------------------
