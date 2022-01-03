@@ -499,7 +499,7 @@ local function register_events(self, unregister)
 	-- Events to be registered and unregistered as the player hits loading screens
 	local event_list = {
 		"UNIT_AURA",
-		"UNIT_INVENTORY_CHANGED",
+		"PLAYER_EQUIPMENT_CHANGED",
 		"PLAYER_TARGET_CHANGED",
 		"UNIT_MANA",
 		"CHARACTER_POINTS_CHANGED",
@@ -618,15 +618,9 @@ function TheoryCraft_OnEvent(self, event, ...)
 	--elseif event == "CHAT_MSG_SPELL_SELF_BUFF" then
 	--	TheoryCraft_WatchCritRate(arg[1])
 
-	-- Fired when:
-	--   the player/target/party-member equips or unequips an item.
-	--   a new item is placed in the player's containers, taking up a new slot (stack change excluded, moving between bags/bank excluded)
-	--   a temporary enhancement is applied to player's weapon
-	-- arg[1] = UnitID of the entity  (see: https://wowwiki-archive.fandom.com/wiki/UnitId)
-	elseif event == "UNIT_INVENTORY_CHANGED" then
-		if (arg[1] == "player") then
-			TheoryCraft_UpdateGear() -- inventory changed
-		end
+	elseif event == "PLAYER_EQUIPMENT_CHANGED" then
+		-- REM: arg[1] is equpimentSlotID, arg[2] is true when slot is now empty, false otherwise
+		TheoryCraft_UpdateGear()
 
 	-- This occurs when you are not on the hate list of any NPC, or a few seconds after the latest pvp attack that you were involved with. 
 	elseif event == "PLAYER_REGEN_ENABLED" then
