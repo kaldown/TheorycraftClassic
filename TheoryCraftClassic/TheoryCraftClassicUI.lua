@@ -13,7 +13,7 @@ local _, class = UnitClass("player")
 -- REM: called from inside TheoryCraft_AddButtonText and from whatever bartender4 code exists
 -- REM: MultiActionBars will be setup even if they are not visible
 function TheoryCraft_SetUpButton(parentname, button_type, slot_id)
-	local parent_button = getglobal(parentname)
+	local parent_button = _G[parentname]
 
 	if not parent_button then
 		return
@@ -798,6 +798,9 @@ function TheoryCraft_AddButtonText(...)
 		for i = 1,12 do TheoryCraft_SetUpButton("MultiBarLeftButton"..i, "Special", 36+i) end
 		for i = 1,12 do TheoryCraft_SetUpButton("MultiBarBottomRightButton"..i, "Special", 48+i) end
 		for i = 1,12 do TheoryCraft_SetUpButton("MultiBarBottomLeftButton"..i, "Special", 60+i) end
+	end
+	-- TODO: probably defunct, used to be extra bars for stances/stealth/forms etc.
+	if BonusActionButton1 then
 		for i = 1,12 do TheoryCraft_SetUpButton("BonusActionButton"..i, "Bonus") end
 	end
 end
@@ -853,7 +856,9 @@ function TheoryCraft_UpdateAllButtonText(source)
 		for i = 1,12 do updatebutton("MultiBarLeftButton"..i) end -- ??? I think this is actually "Right2"
 		for i = 1,12 do updatebutton("MultiBarBottomRightButton"..i) end
 		for i = 1,12 do updatebutton("MultiBarBottomLeftButton"..i) end
-
+	end
+	-- TODO: probably defunct, used to be extra bars for stances/stealth/forms etc.
+	if BonusActionButton1 then
 		for i = 1,12 do updatebutton("BonusActionButton"..i) end
 	end
 
