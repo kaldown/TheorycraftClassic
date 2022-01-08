@@ -658,6 +658,7 @@ function TheoryCraft_OnEvent(self, event, ...)
 	--   A spell is cast which changes the unit's power.
 	--   The unit reaches full power.
 	--   While the unit's power is naturally regenerating or decaying, this event will only fire once every two seconds.
+	--   full list of power types: https://wowpedia.fandom.com/wiki/Enum.PowerType
 	-- arg[1] == unitID(string), arg[2] == powerType(string)
 	elseif event == "UNIT_POWER_UPDATE" then
 
@@ -675,18 +676,18 @@ function TheoryCraft_OnEvent(self, event, ...)
 		end
 
 	-- arg[1] == action_bar_slot_number(int)   AND no other arguments.
-	-- NOTE: this event will fire when a macro has its active spell updated
-	--       for example when I use "alt" to change the spell, or mouseover changes the spell (eg decursive)
-	-- NOTE: Will fire when spells that have a reagent cost have their reagents quantity changed, or the reagent is moved in bags
-	-- NOTE: Will fire when inventory items that are set to an actionbutton are updated in any way:
-	--       quantity changes, moved around in bags, bought/sold
+	-- NOTE: this event has many many trigger conditions:
+	--       - when a macro has its active spell updated (example, modifier keys, or mouse over targets)
+	--       - when spells that have a reagent cost have their reagents quantity changed, or the reagent is moved in bags
+	--       - when inventory items that are set to an actionbutton are updated in any way (quantity changes, moved around in bags, bought/sold)
+	-- NOTE: this will fire a bunch of times any time the player loads through a loading screen that WASNOT /reload
 	elseif event == "ACTIONBAR_SLOT_CHANGED" then
 		local button = TheoryCraft_FindActionButton(arg[1])
 		if button then
-			print("ACTIONBAR_SLOT_CHANGED: "..arg[1].. ' --> '..button:GetName())
-			TheoryCraft_ButtonUpdate(button)
-		else
-			print("ACTIONBAR_SLOT_CHANGED: "..arg[1].. ' but no button found')
+			print("ACTIONBAR_SLOT_CHANGED: ", arg[1], button:GetName())
+			TheoryCraft_ButtonUpdate(button, true)
+		--else
+		--	print("ACTIONBAR_SLOT_CHANGED: "..arg[1].. ' but no button found')
 		end
 	end
 

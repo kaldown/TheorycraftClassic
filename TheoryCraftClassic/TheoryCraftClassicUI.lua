@@ -577,7 +577,7 @@ function TheoryCraft_SetTalent(name)
 		end
 		i = i+1
 	end
-	TheoryCraft_UpdateTalents()
+	TheoryCraft_UpdateTalents() -- manually adjusting talents in the vitals tab
 end
 
 -- Set the checkbox state according to what is saved in settings.
@@ -889,7 +889,7 @@ end)
 --[[
 hooksecurefunc("ActionButton_Update", function(button)
 	--print("ActionButton_Update")
-	TheoryCraft_ButtonUpdate(button)
+	TheoryCraft_ButtonUpdate(button) -- defunct
 end)
 --]]
 
