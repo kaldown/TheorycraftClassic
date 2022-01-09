@@ -18,7 +18,7 @@ end
 
 -- REM: spell_group could be the name of the spell as well.
 -- REM: "data" is talents, buffs, equipment etc
-local function TheoryCraft_AddData(spell_group, data, summeddata)
+local function TheoryCraft_AddData(summeddata, spell_group, data)
 	if data == nil then return end
 
 	-- REM: tmpincreases modifiers are (apparently) addative with talentmodifiers
@@ -70,13 +70,13 @@ end
 
 -- REM: spell_group could be the name of the spell as well. 
 local function TheoryCraft_DoSchool(spell_group, summeddata)
-	TheoryCraft_AddData(spell_group, TheoryCraft_Data.Talents, summeddata)
-	TheoryCraft_AddData(spell_group, TheoryCraft_Data.BaseData, summeddata)
-	TheoryCraft_AddData(spell_group, TheoryCraft_Data.Stats, summeddata)
-	TheoryCraft_AddData(spell_group, TheoryCraft_Data.PlayerBuffs, summeddata)
-	TheoryCraft_AddData(spell_group, TheoryCraft_Data.TargetBuffs, summeddata)
-	TheoryCraft_AddData(spell_group, TheoryCraft_Data.EquipEffects, summeddata)
-	TheoryCraft_AddData(spell_group, TheoryCraft_Data.Target, summeddata)
+	TheoryCraft_AddData(summeddata, spell_group, TheoryCraft_Data.Talents)
+	TheoryCraft_AddData(summeddata, spell_group, TheoryCraft_Data.BaseData)
+	TheoryCraft_AddData(summeddata, spell_group, TheoryCraft_Data.Stats)
+	TheoryCraft_AddData(summeddata, spell_group, TheoryCraft_Data.PlayerBuffs)
+	TheoryCraft_AddData(summeddata, spell_group, TheoryCraft_Data.TargetBuffs)
+	TheoryCraft_AddData(summeddata, spell_group, TheoryCraft_Data.EquipEffects)
+	TheoryCraft_AddData(summeddata, spell_group, TheoryCraft_Data.Target)
 end
 
 local function SummateData(name, schools)
@@ -611,7 +611,7 @@ local function AddProcs(casttime, returndata, spelldata)
 		end
 		i = 1
 		while (spelldata.Schools[i]) do
-			TheoryCraft_AddData(spelldata.Schools[i], TheoryCraft_Data.Procs, returndata)
+			TheoryCraft_AddData(returndata, spelldata.Schools[i], TheoryCraft_Data.Procs)
 			i = i+1
 		end
 		if TheoryCraft_Data.Procs["ICPercent"] then
