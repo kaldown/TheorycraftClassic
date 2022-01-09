@@ -16,29 +16,39 @@ local function round(arg1, decplaces)
 	return string.format ("%."..decplaces.."f", arg1)
 end
 
--- REM: spell_group could be the name of the spell as well. 
+-- REM: spell_group could be the name of the spell as well.
+-- REM: "data" is talents, buffs, equipment etc
 local function TheoryCraft_AddData(spell_group, data, summeddata)
 	if data == nil then return end
 
+	-- REM: tmpincreases modifiers are (apparently) addative with talentmodifiers
+
 	-- Modifier is any spell_group % modifiers that apply for this spell.
-	-- UpFrontModifier is specifically for improved_immolate (warlock), nothing else at this time.
+	-- Mostly talents, but could be buffs/procs/gearsets
+	-- REM: these become 1.0x (or whatever) because of BaseData
 	summeddata["tmpincrease"]        = summeddata["tmpincrease"]        + (data[spell_group.."modifier"] or 0)
-	summeddata["tmpincreaseupfront"] = summeddata["tmpincreaseupfront"] + (data[spell_group.."UpFrontmodifier"] or 0)
+	summeddata["tmpincreaseupfront"] = summeddata["tmpincreaseupfront"] + (data[spell_group.."UpFrontmodifier"] or 0) -- NOTE: currently only used by improved_immolate (warlock)
+
 	if summeddata["baseincrease"] ~= 0 then
 		summeddata["baseincrease"] = summeddata["baseincrease"] * ((data[spell_group.."baseincrease"] or 0)+1)
 	else
 		summeddata["baseincrease"] = summeddata["baseincrease"] + (data[spell_group.."baseincrease"] or 0)
 	end
+
 	if summeddata["baseincreaseupfront"] ~= 0 then
 		summeddata["baseincreaseupfront"] = summeddata["baseincreaseupfront"] * ((data[spell_group.."UpFrontbaseincrease"] or 0)+1)
 	else
 		summeddata["baseincreaseupfront"] = summeddata["baseincreaseupfront"] + (data[spell_group.."UpFrontbaseincrease"] or 0)
 	end
-	summeddata["talentmod"]        = summeddata["talentmod"]        + (data[spell_group.."talentmod"] or 0)
-	summeddata["talentmodupfront"] = summeddata["talentmodupfront"] + (data[spell_group.."UpFronttalentmod"] or 0)
+
+	-- REM: will be 0.0x  DO NOT include in BaseData since it is added to tmpincrease
+	summeddata["talentmod"]        = summeddata["talentmod"]        + (data[spell_group.."talentmod"] or 0)        -- NOTE: currently only used by "Healing Way" (buff not read by talents)
+	summeddata["talentmodupfront"] = summeddata["talentmodupfront"] + (data[spell_group.."UpFronttalentmod"] or 0) -- NOTE: currently does not exist
+
 	if (summeddata["doshatter"] ~= 0) then
 		summeddata["critchance"] = summeddata["critchance"] + (data[spell_group.."shatter"] or 0)
 	end
+
 	summeddata["illum"]          = summeddata["illum"]          + (data[spell_group.."illum"] or 0)
 	summeddata["plusdam"]        = summeddata["plusdam"]        + (data[spell_group] or 0)
 	summeddata["manacostmod"]    = summeddata["manacostmod"]    + (data[spell_group.."manacost"] or 0)
@@ -52,6 +62,7 @@ local function TheoryCraft_AddData(spell_group, data, summeddata)
 	summeddata["penetration"]    = summeddata["penetration"]    + (data[spell_group.."penetration"] or 0)
 	summeddata["grace"]          = summeddata["grace"]          + (data[spell_group.."grace"] or 0)
 	summeddata["threat"]         = summeddata["threat"]         + (data[spell_group.."threat"] or 0)
+
 	if data[spell_group.."Netherwind"] == 1 then
 		summeddata["netherwind"] = 1
 	end
@@ -70,18 +81,23 @@ end
 
 local function SummateData(name, schools)
 	TheoryCraft_DeleteTable(summeddata)
-	summeddata["doshatter"] = (TheoryCraft_Data.TargetBuffs["doshatter"] or 0)
+
+	summeddata["threat"] = 0
+	summeddata["critbonus"] = 0
+
 	summeddata["tmpincrease"] = 0
 	summeddata["tmpincreaseupfront"] = 0
 	summeddata["baseincrease"] = 0
 	summeddata["baseincreaseupfront"] = 0
 	summeddata["talentmod"] = 0
 	summeddata["talentmodupfront"] = 0
+
+	summeddata["doshatter"]  = (TheoryCraft_Data.TargetBuffs["doshatter"] or 0)
 	summeddata["critchance"] = (TheoryCraft_Data.Stats["critchance"] or 0)
+
 	summeddata["illum"] = 0
 	summeddata["plusdam"] = 0
 	summeddata["manacostmod"] = 1
-	summeddata["critbonus"] = 0
 	summeddata["ignitemodifier"] = 0
 	summeddata["sepignite"] = 0
 	summeddata["hitbonus"] = 0
@@ -90,7 +106,6 @@ local function SummateData(name, schools)
 	summeddata["penetration"] = 0
 	summeddata["grace"] = 0
 	summeddata["netherwind"] = 0
-	summeddata["threat"] = 0
 
 	-- summate all the modifications to this spell for all spell_schools it is a part of
 	for k, v in pairs (schools) do
@@ -542,31 +557,31 @@ function TheoryCraft_LoadStats(source)
 		TheoryCraft_Data.Stats["regenfromspirit"] = 0
 	end
 
-	TheoryCraft_Data.Stats["meleecritchancereal"] = TheoryCraft_Data.Stats["meleecritchance"]+(remove or 0)
+	TheoryCraft_Data.Stats["meleecritchancereal"] = TheoryCraft_Data.Stats["meleecritchance"] + (remove or 0)
 	if (TheoryCraft_Data.EquipEffects["FistEquipped"] or 0) >= 1 then
-		TheoryCraft_Data.Stats["meleecritchance"] = TheoryCraft_Data.Stats["meleecritchance"]+TheoryCraft_GetStat("Fistspec")
+		TheoryCraft_Data.Stats["meleecritchance"] = TheoryCraft_Data.Stats["meleecritchance"] + TheoryCraft_GetStat("Fistspec")
 	end
 	if (TheoryCraft_Data.EquipEffects["DaggerEquipped"] or 0) >= 1 then
-		TheoryCraft_Data.Stats["meleecritchance"] = TheoryCraft_Data.Stats["meleecritchance"]+TheoryCraft_GetStat("Daggerspec")
+		TheoryCraft_Data.Stats["meleecritchance"] = TheoryCraft_Data.Stats["meleecritchance"] + TheoryCraft_GetStat("Daggerspec")
 	end
 	if (TheoryCraft_Data.EquipEffects["AxeEquipped"] or 0) >= 1 then
-		TheoryCraft_Data.Stats["meleecritchance"] = TheoryCraft_Data.Stats["meleecritchance"]+TheoryCraft_GetStat("Axespec")
+		TheoryCraft_Data.Stats["meleecritchance"] = TheoryCraft_Data.Stats["meleecritchance"] + TheoryCraft_GetStat("Axespec")
 	end
 	if (TheoryCraft_Data.EquipEffects["PolearmEquipped"] or 0) >= 1 then
-		TheoryCraft_Data.Stats["meleecritchance"] = TheoryCraft_Data.Stats["meleecritchance"]+TheoryCraft_GetStat("Polearmspec")
+		TheoryCraft_Data.Stats["meleecritchance"] = TheoryCraft_Data.Stats["meleecritchance"] + TheoryCraft_GetStat("Polearmspec")
 	end
 	local meleeapmult = TheoryCraft_GetStat("MeleeAPMult")
 	if meleeapmult > 3 then
-		TheoryCraft_Data.Stats["Meleemodifier"] = (talents["Twohandmodifier"] or 0)+(talents["Twohandtalentmod"] or 0)
+		TheoryCraft_Data.Stats["Meleemodifier"] = (talents["Twohandmodifier"] or 0) + (talents["Twohandtalentmod"] or 0)
 	elseif meleeapmult > 1 then
-		TheoryCraft_Data.Stats["Meleemodifier"] = (talents["Onehandmodifier"] or 0)+(talents["Onehandtalentmod"] or 0)
+		TheoryCraft_Data.Stats["Meleemodifier"] = (talents["Onehandmodifier"] or 0) + (talents["Onehandtalentmod"] or 0)
 	end
 	local manaregen = TheoryCraft_GetStat("manaperfive")/5
-	manaregen = manaregen+TheoryCraft_Data.Stats["totalmana"]*TheoryCraft_GetStat("FelEnergy")/4
-	TheoryCraft_Data.Stats["regen"] = manaregen+TheoryCraft_Data.Stats["regenfromspirit"]
-	TheoryCraft_Data.Stats["icregen"] = manaregen+(TheoryCraft_Data.Stats["regenfromspirit"])*TheoryCraft_GetStat("ICPercent")
+	manaregen = manaregen + TheoryCraft_Data.Stats["totalmana"] * TheoryCraft_GetStat("FelEnergy")/4
+	TheoryCraft_Data.Stats["regen"]   = manaregen + TheoryCraft_Data.Stats["regenfromspirit"]
+	TheoryCraft_Data.Stats["icregen"] = manaregen + (TheoryCraft_Data.Stats["regenfromspirit"] * TheoryCraft_GetStat("ICPercent"))
  	if (class == "MAGE") then
-		TheoryCraft_Data.Stats["maxtotalmana"] = TheoryCraft_Data.Stats["totalmana"]+TheoryCraft_Data.Stats["regenfromspirit"]*15*8+1100+manaregen*8
+		TheoryCraft_Data.Stats["maxtotalmana"] = TheoryCraft_Data.Stats["totalmana"] + TheoryCraft_Data.Stats["regenfromspirit"]*15*8+1100 + manaregen*8
 	end
 	if (class == "WARLOCK") then
 		getlifetap(TheoryCraft_Data.Stats)
@@ -766,7 +781,7 @@ local function GenerateTooltip(frame, returndata, spelldata, spellrank)
 
 	if (spelldata.usemelee) then
 		returndata["critchance"] = (TheoryCraft_Data.Stats["meleecritchance"] or 0) + TheoryCraft_GetStat("Holycritchance")
-		returndata["critbonus"] = 1
+		returndata["critbonus"]  = 1
 	end
 	-- Default for most classes is to use melee crit chance. But for hunters it is reversed.
 	if (spelldata.isranged) or ((class == "HUNTER") and (spelldata.ismelee == nil)) then
@@ -808,12 +823,12 @@ local function GenerateTooltip(frame, returndata, spelldata, spellrank)
 		returndata["regencasttime"] = spelldata.regencasttime
 	end
 	if (returndata["netherwind"] == 1) and (TheoryCraft_Settings["procs"]) then
-		if (returndata["casttime"] > 1.5) then returndata["casttime"] = (returndata["casttime"]-1.5)*0.9+1.5 end
+		if (returndata["casttime"]      > 1.5) then returndata["casttime"]      = (returndata["casttime"]-1.5)*0.9+1.5 end
 		if (returndata["regencasttime"] > 1.5) then returndata["regencasttime"] = (returndata["regencasttime"]-1.5)*0.9+1.5 end
 	end
 
 
-	local spelllevel = 60
+	local spelllevel   = 60
 	local levelpercent = 1
 	-- This section finds the specific configuration per spell rank (if it exists)
 	returndata["manamultiplier"] = spelldata.manamultiplier
@@ -821,34 +836,32 @@ local function GenerateTooltip(frame, returndata, spelldata, spellrank)
 	if (spelldata["level"..spellrank.."per"])      then levelpercent = spelldata["level"..spellrank.."per"];  end
 	if (spelldata["level"..spellrank.."manamult"]) then returndata["manamultiplier"] = spelldata["level"..spellrank.."manamult"] end
 	if (spelldata["level"..spellrank.."ct"]) then 
-		returndata["casttime"] = spelldata["level"..spellrank.."ct"]
+		returndata["casttime"]      = spelldata["level"..spellrank.."ct"]
 		returndata["regencasttime"] = spelldata["level"..spellrank.."ct"]
 	end
 	if (spelllevel < 20) then
-		levelpercent = levelpercent*(0.0375*spelllevel+0.25)
+		levelpercent = levelpercent * (0.0375 * spelllevel + 0.25)
 		-- should be a part of return data?
 		spelldata.percent = levelpercent
 	end
 
 
-
-	returndata["dotduration"] = TheoryCraft_getDotDuration(returndata["description"])
+	returndata["dotduration"]     = TheoryCraft_getDotDuration(returndata["description"])
 	returndata["basedotduration"] = spelldata.basedotduration
 
 	-- if it isn't melee && isn't ranged
 	if (spelldata.ismelee == nil) and (spelldata.isranged == nil) then
 		-- if isn't a heal && talents are added before gear for this spell
 		if (spelldata.isheal == nil) and (spelldata.talentsbeforegear == nil) then
-			returndata["damcoef"] = spelldata.percent*returndata["tmpincrease"]*returndata["tmpincreaseupfront"]*levelpercent
+			returndata["damcoef"] = spelldata.percent * returndata["tmpincrease"] * returndata["tmpincreaseupfront"] * levelpercent
 		else
-			returndata["damcoef"] = spelldata.percent*levelpercent
+			returndata["damcoef"] = spelldata.percent * levelpercent
 		end
 
 		-- Specifically for seal of righteousness
-		if (spelldata.righteousness) then
-			if (TheoryCraft_Data.EquipEffects["MeleeAPMult"] >= 3) then
-				returndata["damcoef"] = spelldata.percent2*returndata["tmpincrease"]*levelpercent
-			end
+		if spelldata.righteousness and TheoryCraft_Data.EquipEffects["MeleeAPMult"] >= 3 then
+			-- REM: percent2 ONLY exists for SoR... it gets a slightly higher multiplier with 2h weapons
+			returndata["damcoef"] = spelldata.percent2 * returndata["tmpincrease"] * levelpercent
 		end
 
 		-- if there is a dot component
@@ -858,7 +871,7 @@ local function GenerateTooltip(frame, returndata, spelldata, spellrank)
 		end
 
 		if (newcasttime) and (spelldata.isdot) then
-			returndata["damcoef"] = returndata["damcoef"]*newcasttime/returndata["basedotduration"]
+			returndata["damcoef"]  = returndata["damcoef"] * newcasttime / returndata["basedotduration"]
 			returndata["casttime"] = newcasttime
 		end
 		returndata["damfinal"] = returndata["plusdam"] * returndata["damcoef"]
@@ -867,13 +880,15 @@ local function GenerateTooltip(frame, returndata, spelldata, spellrank)
 	if returndata["critchance"] > 100 then
 		returndata["critchance"] = 100
 	end
-	returndata["critbonus"] = returndata["critbonus"]+returndata["sepignite"]*(returndata["baseincrease"]+returndata["ignitemodifier"]-1)
-	returndata["sepignite"] = returndata["sepignite"]*returndata["baseincrease"]
+	returndata["critbonus"] = returndata["critbonus"] + returndata["sepignite"] * (returndata["baseincrease"] + returndata["ignitemodifier"]-1)
+	returndata["sepignite"] = returndata["sepignite"] * returndata["baseincrease"]
 
-	returndata["talentbaseincrease"]        = (1/returndata["tmpincrease"])*(returndata["talentmod"]+returndata["tmpincrease"])
-	returndata["talentbaseincreaseupfront"] = (1/returndata["tmpincreaseupfront"])*(returndata["talentmodupfront"]+returndata["tmpincreaseupfront"])
+	-- BEWARE: divide by zero errors (especially in TBC)
+	returndata["talentbaseincrease"]        = (1/returndata["tmpincrease"])        * (returndata["talentmod"] + returndata["tmpincrease"])
+	returndata["talentbaseincreaseupfront"] = (1/returndata["tmpincreaseupfront"]) * (returndata["talentmodupfront"] + returndata["tmpincreaseupfront"])
+
 	if (spelldata.talentsbeforegear == nil) and (returndata["damcoef"]) then
-		returndata["damcoef"] = returndata["damcoef"]*returndata["talentbaseincrease"]*returndata["talentbaseincreaseupfront"]
+		returndata["damcoef"] = returndata["damcoef"] * returndata["talentbaseincrease"] * returndata["talentbaseincreaseupfront"]
 	end
 
 	-- Apply weapon speeds and AP multipliers for druid forms.
@@ -913,13 +928,13 @@ local function GenerateTooltip(frame, returndata, spelldata, spellrank)
 	end
 
 	if spelldata.isheal == nil then
-		returndata["manacost"] = returndata["manacost"] - returndata["manacost"]*(TheoryCraft_Data.Talents["clearcast"] or 0)
+		returndata["manacost"] = returndata["manacost"] - returndata["manacost"] * (TheoryCraft_Data.Talents["clearcast"] or 0)
 	end
 	if (returndata["manamultiplier"]) then
-		returndata["manacost"] = returndata["manacost"]*returndata["manamultiplier"]
+		returndata["manacost"] = returndata["manacost"] * returndata["manamultiplier"]
 	end
-	returndata["manacost"] = returndata["manacost"] - (TheoryCraft_Data.Stats["icregen"] or 0)*returndata["regencasttime"]
-	returndata["manacost"] = returndata["manacost"]*returndata["manacostmod"]
+	returndata["manacost"] = returndata["manacost"] - (TheoryCraft_Data.Stats["icregen"] or 0) * returndata["regencasttime"]
+	returndata["manacost"] = returndata["manacost"] * returndata["manacostmod"]
 
 	if (returndata["crithealchance"]) and (returndata["crithealchance"] > 100) then
 		returndata["crithealchance"] = 100
@@ -933,73 +948,73 @@ local function GenerateTooltip(frame, returndata, spelldata, spellrank)
 	end
 	if (spelldata.isseal) or (spelldata.ismelee) or (spelldata.isranged) then
 		if (returndata["mindamage"] and returndata["maxdamage"] and (spelldata.isseal == nil)) and (spelldata.block == nil) then 
-			returndata["critdmgmin"] = returndata["mindamage"]*(returndata["critbonus"]+1)
-			returndata["critdmgmax"] = returndata["maxdamage"]*(returndata["critbonus"]+1)
-			returndata["averagedamnocrit"] = (returndata["maxdamage"]+returndata["mindamage"])/2
-			returndata["averagecritdam"] = returndata["averagedamnocrit"]*returndata["critbonus"]
-			returndata["averagedam"] = returndata["averagedamnocrit"]+returndata["averagecritdam"]*returndata["critdmgchance"]/100
+			returndata["critdmgmin"] = returndata["mindamage"] * (returndata["critbonus"]+1)
+			returndata["critdmgmax"] = returndata["maxdamage"] * (returndata["critbonus"]+1)
+			returndata["averagedamnocrit"] = (returndata["maxdamage"] + returndata["mindamage"])/2
+			returndata["averagecritdam"] = returndata["averagedamnocrit"] * returndata["critbonus"]
+			returndata["averagedam"] = returndata["averagedamnocrit"] + returndata["averagecritdam"] * returndata["critdmgchance"]/100
 			returndata["nextagidam"] = 10*TheoryCraft_Data.Talents["agimultiplier"]
 			if spelldata.ismelee then
 				if spelldata.nextattack then
-					local attackpower = 10*TheoryCraft_Data.Talents["agimultiplier"]*TheoryCraft_Data.Stats["agilityapmelee"]
-					local addeddamage = attackpower*(TheoryCraft_Data.EquipEffects["MainSpeed"])*returndata["backstabmult"]*returndata["baseincrease"]*TheoryCraft_GetStat("Meleemodifier")/14
-					local addedcritpercent = 10*TheoryCraft_Data.Talents["agimultiplier"]/TheoryCraft_Data.Stats["agipercrit"]/100
-					returndata["nextagidam"] = addedcritpercent*returndata["averagecritdam"]+addeddamage*(addedcritpercent+returndata["critdmgchance"]/100)*returndata["critbonus"]+addeddamage
-					returndata["damworth"] = (1+(returndata["critchance"]/100)*returndata["critbonus"])*(TheoryCraft_Data.EquipEffects["MainSpeed"])/14*returndata["backstabmult"]*returndata["baseincrease"]*TheoryCraft_GetStat("Meleemodifier")
+					local attackpower = 10*TheoryCraft_Data.Talents["agimultiplier"] * TheoryCraft_Data.Stats["agilityapmelee"]
+					local addeddamage = attackpower * (TheoryCraft_Data.EquipEffects["MainSpeed"]) * returndata["backstabmult"] * returndata["baseincrease"] * TheoryCraft_GetStat("Meleemodifier")/14
+					local addedcritpercent = 10*TheoryCraft_Data.Talents["agimultiplier"] / TheoryCraft_Data.Stats["agipercrit"]/100
+					returndata["nextagidam"] = addedcritpercent * returndata["averagecritdam"] + addeddamage * (addedcritpercent + returndata["critdmgchance"]/100) * returndata["critbonus"] + addeddamage
+					returndata["damworth"] = (1+(returndata["critchance"]/100) * returndata["critbonus"]) * (TheoryCraft_Data.EquipEffects["MainSpeed"])/14 * returndata["backstabmult"] * returndata["baseincrease"] * TheoryCraft_GetStat("Meleemodifier")
 				elseif returndata["bloodthirstmult"] then
-					local attackpower = 10*TheoryCraft_Data.Talents["agimultiplier"]*TheoryCraft_Data.Stats["agilityapmelee"]
-					local addeddamage = attackpower*returndata["bloodthirstmult"]*returndata["backstabmult"]*returndata["baseincrease"]*TheoryCraft_GetStat("Meleemodifier")/14
+					local attackpower = 10*TheoryCraft_Data.Talents["agimultiplier"] * TheoryCraft_Data.Stats["agilityapmelee"]
+					local addeddamage = attackpower * returndata["bloodthirstmult"] * returndata["backstabmult"] * returndata["baseincrease"] * TheoryCraft_GetStat("Meleemodifier")/14
 					local addedcritpercent = 10*TheoryCraft_Data.Talents["agimultiplier"]/TheoryCraft_Data.Stats["agipercrit"]/100
-					returndata["nextagidam"] = addedcritpercent*returndata["averagecritdam"]+addeddamage*(addedcritpercent+returndata["critdmgchance"]/100)*returndata["critbonus"]+addeddamage
-					returndata["damworth"] = (1+(returndata["critchance"]/100)*returndata["critbonus"])*returndata["bloodthirstmult"]*returndata["backstabmult"]*returndata["baseincrease"]*TheoryCraft_GetStat("Meleemodifier")
+					returndata["nextagidam"] = addedcritpercent * returndata["averagecritdam"] + addeddamage * (addedcritpercent + returndata["critdmgchance"]/100) * returndata["critbonus"] + addeddamage
+					returndata["damworth"] = (1+(returndata["critchance"]/100) * returndata["critbonus"]) * returndata["bloodthirstmult"] * returndata["backstabmult"] * returndata["baseincrease"] * TheoryCraft_GetStat("Meleemodifier")
 				else
-					local attackpower = 10*TheoryCraft_Data.Talents["agimultiplier"]*TheoryCraft_Data.Stats["agilityapmelee"]
-					local addeddamage = attackpower*TheoryCraft_Data.EquipEffects["MeleeAPMult"]*returndata["backstabmult"]*returndata["baseincrease"]*TheoryCraft_GetStat("Meleemodifier")/14
-					local addedcritpercent = 10*TheoryCraft_Data.Talents["agimultiplier"]/TheoryCraft_Data.Stats["agipercrit"]/100
-					returndata["nextagidam"] = addedcritpercent*returndata["averagecritdam"]+addeddamage*(addedcritpercent+returndata["critdmgchance"]/100)*returndata["critbonus"]+addeddamage
-					returndata["damworth"] = (1+(returndata["critchance"]/100)*returndata["critbonus"])*TheoryCraft_Data.EquipEffects["MeleeAPMult"]/14*returndata["backstabmult"]*returndata["baseincrease"]*TheoryCraft_GetStat("Meleemodifier")
+					local attackpower = 10*TheoryCraft_Data.Talents["agimultiplier"] * TheoryCraft_Data.Stats["agilityapmelee"]
+					local addeddamage = attackpower * TheoryCraft_Data.EquipEffects["MeleeAPMult"] * returndata["backstabmult"] * returndata["baseincrease"] * TheoryCraft_GetStat("Meleemodifier")/14
+					local addedcritpercent = 10*TheoryCraft_Data.Talents["agimultiplier"] / TheoryCraft_Data.Stats["agipercrit"]/100
+					returndata["nextagidam"] = addedcritpercent * returndata["averagecritdam"] + addeddamage * (addedcritpercent + returndata["critdmgchance"]/100) * returndata["critbonus"] + addeddamage
+					returndata["damworth"] = (1+(returndata["critchance"]/100) * returndata["critbonus"]) * TheoryCraft_Data.EquipEffects["MeleeAPMult"]/14 * returndata["backstabmult"] * returndata["baseincrease"] * TheoryCraft_GetStat("Meleemodifier")
 				end
-				returndata["nextstrdam"] = 10*TheoryCraft_Data.Talents["strmultiplier"]*TheoryCraft_Data.Stats["strengthapmelee"]*returndata["damworth"]
+				returndata["nextstrdam"] = 10*TheoryCraft_Data.Talents["strmultiplier"] * TheoryCraft_Data.Stats["strengthapmelee"] * returndata["damworth"]
 			else
-				local attackpower = 10*TheoryCraft_Data.Talents["agimultiplier"]*TheoryCraft_Data.Stats["agilityapranged"]
-				local addeddamage = attackpower*returndata["RangedAPMult"]*returndata["backstabmult"]*returndata["baseincrease"]*TheoryCraft_GetStat("Rangedmodifier")/14
-				local addedcritpercent = 10*TheoryCraft_Data.Talents["agimultiplier"]/TheoryCraft_Data.Stats["agipercrit"]/100
-				returndata["nextagidam"] = addedcritpercent*returndata["averagecritdam"]+addeddamage*(addedcritpercent+returndata["critdmgchance"]/100)*returndata["critbonus"]+addeddamage
-				returndata["damworth"] = (1+(returndata["critchance"]/100)*returndata["critbonus"])*returndata["RangedAPMult"]/14*returndata["backstabmult"]*returndata["baseincrease"]*TheoryCraft_GetStat("Rangedmodifier")
+				local attackpower = 10*TheoryCraft_Data.Talents["agimultiplier"] * TheoryCraft_Data.Stats["agilityapranged"]
+				local addeddamage = attackpower * returndata["RangedAPMult"] * returndata["backstabmult"] * returndata["baseincrease"] * TheoryCraft_GetStat("Rangedmodifier")/14
+				local addedcritpercent = 10*TheoryCraft_Data.Talents["agimultiplier"] / TheoryCraft_Data.Stats["agipercrit"]/100
+				returndata["nextagidam"] = addedcritpercent * returndata["averagecritdam"] + addeddamage * (addedcritpercent + returndata["critdmgchance"]/100) * returndata["critbonus"] + addeddamage
+				returndata["damworth"] = (1+(returndata["critchance"]/100) * returndata["critbonus"]) * returndata["RangedAPMult"]/14 * returndata["backstabmult"] * returndata["baseincrease"] * TheoryCraft_GetStat("Rangedmodifier")
 			end
 
 			returndata["nextcritdam"] = returndata["averagecritdam"]/100
-			returndata["nexthitdam"] = returndata["averagedamnocrit"]/100
+			returndata["nexthitdam"]  = returndata["averagedamnocrit"]/100
 			if (returndata["damworth"] ~= 0) then
 				if returndata["nextstrdam"] then
-					returndata["nextstrdamequive"] = returndata["nextstrdam"]/returndata["damworth"]
+					returndata["nextstrdamequive"] = returndata["nextstrdam"] / returndata["damworth"]
 				end
-				returndata["nexthitdamequive"] = returndata["nexthitdam"]/returndata["damworth"]
-				returndata["nextcritdamequive"] = returndata["nextcritdam"]/returndata["damworth"]
-				returndata["nextagidamequive"] = returndata["nextagidam"]/returndata["damworth"]
+				returndata["nexthitdamequive"]  = returndata["nexthitdam"]  / returndata["damworth"]
+				returndata["nextcritdamequive"] = returndata["nextcritdam"] / returndata["damworth"]
+				returndata["nextagidamequive"]  = returndata["nextagidam"]  / returndata["damworth"]
 			end
 			if (spelldata.isranged) and (spelldata.shoot == nil) then
 				if (spelldata.autoshot) then
-					returndata["dpm"] = returndata["msrotationlength"]*returndata["msrotationdps"]/returndata["manacost"]
-					returndata["maxoomdam"] = (TheoryCraft_Data.Stats["totalmana"]+TheoryCraft_GetStat("manarestore"))*returndata["dpm"]
-					returndata["maxoomdamtime"] = returndata["maxoomdam"]/returndata["dps"]
-					returndata["regendam"] = TheoryCraft_Data.Stats["regen"]*10*returndata["dpm"]
-					returndata["icregendam"] = TheoryCraft_Data.Stats["icregen"]*10*returndata["dpm"]
+					returndata["dpm"]           = returndata["msrotationlength"] * returndata["msrotationdps"] / returndata["manacost"]
+					returndata["maxoomdam"]     = (TheoryCraft_Data.Stats["totalmana"] + TheoryCraft_GetStat("manarestore")) * returndata["dpm"]
+					returndata["maxoomdamtime"] = returndata["maxoomdam"] / returndata["dps"]
+					returndata["regendam"]      = TheoryCraft_Data.Stats["regen"]   * 10 * returndata["dpm"]
+					returndata["icregendam"]    = TheoryCraft_Data.Stats["icregen"] * 10 * returndata["dpm"]
 				else
 					if TheoryCraft_Settings["dontcritdpm"] then
-						returndata["dpm"] = returndata["averagedamnocrit"]/returndata["manacost"]
+						returndata["dpm"] = returndata["averagedamnocrit"] / returndata["manacost"]
 					else
-						returndata["dpm"] = returndata["averagedam"]/returndata["manacost"]
+						returndata["dpm"] = returndata["averagedam"] / returndata["manacost"]
 					end
-					returndata["regendam"] = TheoryCraft_Data.Stats["regen"]*10*returndata["dpm"]
-					returndata["icregendam"] = TheoryCraft_Data.Stats["icregen"]*10*returndata["dpm"]
+					returndata["regendam"]   = TheoryCraft_Data.Stats["regen"]   * 10 * returndata["dpm"]
+					returndata["icregendam"] = TheoryCraft_Data.Stats["icregen"] * 10 * returndata["dpm"]
 				end
 			end
 		end
 	else
 		if class == "DRUID" then
 			if (spelldata.cancrit) and (returndata["grace"] ~= 0) and (not TheoryCraft_Settings["dontcrit"]) then
-				returndata["casttime"] = returndata["casttime"]-(returndata["critchance"]/100)*returndata["grace"]
+				returndata["casttime"] = returndata["casttime"] - (returndata["critchance"]/100) * returndata["grace"]
 				if returndata["casttime"] < 1.5 then
 					returndata["casttime"] = 1.5
 				end
@@ -1007,7 +1022,7 @@ local function GenerateTooltip(frame, returndata, spelldata, spellrank)
 		end
 		if (class == "MAGE") then
 			if (returndata["critdmgchance"]) and (not TheoryCraft_Settings["dontcrit"]) then
-				returndata["manacost"] = returndata["manacost"]-returndata["manacost"]*((returndata["critdmgchance"]/100)*returndata["illum"])
+				returndata["manacost"] = returndata["manacost"] - returndata["manacost"] * ((returndata["critdmgchance"]/100) * returndata["illum"])
 			end
 		end
 
@@ -1015,22 +1030,22 @@ local function GenerateTooltip(frame, returndata, spelldata, spellrank)
 			if returndata["maxdamage"] == nil then
 				returndata["maxdamage"] = returndata["mindamage"]
 			end
-			returndata["critdmgmin"] = returndata["mindamage"]*(returndata["critbonus"]+1)
-			returndata["critdmgmax"] = returndata["maxdamage"]*(returndata["critbonus"]+1)
-			returndata["averagedamnocrit"] = (returndata["maxdamage"]+returndata["mindamage"])/2
+			returndata["critdmgmin"] = returndata["mindamage"] * (returndata["critbonus"]+1)
+			returndata["critdmgmax"] = returndata["maxdamage"] * (returndata["critbonus"]+1)
+			returndata["averagedamnocrit"]    = (returndata["maxdamage"] + returndata["mindamage"])/2
 			returndata["averagedpsdamnocrit"] = returndata["damfinal"]
 			if spelldata.cancrit then
-				returndata["critdmgmin"] = returndata["mindamage"]*(returndata["critbonus"]+1)
-				returndata["critdmgmax"] = returndata["maxdamage"]*(returndata["critbonus"]+1)
+				returndata["critdmgmin"] = returndata["mindamage"] * (returndata["critbonus"]+1)
+				returndata["critdmgmax"] = returndata["maxdamage"] * (returndata["critbonus"]+1)
 				if (returndata["sepignite"] ~= 0) then
-					returndata["critdmgminminusignite"] = ((returndata["critdmgmin"]/(returndata["critbonus"]+1))*(1+returndata["critbonus"]-returndata["sepignite"]))
-					returndata["critdmgmaxminusignite"] = ((returndata["critdmgmax"]/(returndata["critbonus"]+1))*(1+returndata["critbonus"]-returndata["sepignite"]))
+					returndata["critdmgminminusignite"] = ((returndata["critdmgmin"] / (returndata["critbonus"]+1)) * (1+returndata["critbonus"] - returndata["sepignite"]))
+					returndata["critdmgmaxminusignite"] = ((returndata["critdmgmax"] / (returndata["critbonus"]+1)) * (1+returndata["critbonus"] - returndata["sepignite"]))
 				end
 
 				if (TheoryCraft_Settings["rollignites"]) and (not spelldata.dontdomax) and (returndata["sepignite"] ~= 0) and (returndata["critdmgchance"] < 99) then
-					local ignitecritmin = returndata["critdmgmin"]-(returndata["critdmgmin"]/(returndata["critbonus"]+1))*(1+returndata["critbonus"]-returndata["sepignite"])
-					local ignitecritmax = returndata["critdmgmax"]-(returndata["critdmgmax"]/(returndata["critbonus"]+1))*(1+returndata["critbonus"]-returndata["sepignite"])
-					local igniteaverage = (ignitecritmax-ignitecritmin)/2+ignitecritmin
+					local ignitecritmin = returndata["critdmgmin"] - (returndata["critdmgmin"] / (returndata["critbonus"]+1)) * (1+returndata["critbonus"] - returndata["sepignite"])
+					local ignitecritmax = returndata["critdmgmax"] - (returndata["critdmgmax"] / (returndata["critbonus"]+1)) * (1+returndata["critbonus"] - returndata["sepignite"])
+					local igniteaverage = (ignitecritmax - ignitecritmin)/2 + ignitecritmin
 					local noignitecritmin = returndata["critdmgmin"]-ignitecritmin-returndata["mindamage"]
 					local noignitecritmax = returndata["critdmgmax"]-ignitecritmax-returndata["maxdamage"]
 					local noigniteaverage = (noignitecritmin+noignitecritmax)/2
@@ -1045,7 +1060,7 @@ local function GenerateTooltip(frame, returndata, spelldata, spellrank)
 					returndata["nextcritdam"] = (returndata["nextcritdam"]+(newignitelength-ignitelength)*igniteaverage/4*returndata["critdmgchance"])/100
 				else
 					returndata["averagecritdam"] = returndata["averagedamnocrit"]*returndata["critbonus"]
-					returndata["nextcritdam"] = returndata["averagecritdam"]/100
+					returndata["nextcritdam"]    = returndata["averagecritdam"]/100
 				end
 				returndata["damhitworth"] = returndata["damcoef"]
 				returndata["damcritworth"] = returndata["damcoef"]*(returndata["critbonus"]+1)
@@ -1338,22 +1353,22 @@ local function GenerateTooltip(frame, returndata, spelldata, spellrank)
 		if returndata["basemaxdamage"] == nil then
 			returndata["basemaxdamage"] = returndata["basemindamage"]
 		end
-		returndata["damtodouble"] = (returndata["basemindamage"]+returndata["basemaxdamage"])/2/returndata["damcoef"]
+		returndata["damtodouble"] = (returndata["basemindamage"] + returndata["basemaxdamage"])/2 / returndata["damcoef"]
 	end
 
 	if returndata["damcoef"] then returndata["damcoef"] = returndata["damcoef"]*100 end
-	if returndata["dameff"] then returndata["dameff"] = returndata["dameff"]*100 end
+	if returndata["dameff"]  then returndata["dameff"]  = returndata["dameff"]*100  end
 	
 	if returndata["dps"] and returndata["manacost"] then
-		returndata["dpsmana"] = returndata["dps"]/returndata["manacost"]
+		returndata["dpsmana"] = returndata["dps"] / returndata["manacost"]
 	end
 	if returndata["manacost"] then
-		returndata["maxspellcasts"] = 1+math.floor((TheoryCraft_GetStat("totalmana")-(returndata["basemanacost"] or returndata["manacost"]))/returndata["manacost"])
+		returndata["maxspellcasts"] = 1+math.floor((TheoryCraft_GetStat("totalmana") - (returndata["basemanacost"] or returndata["manacost"])) / returndata["manacost"])
 		if returndata["maxoomdam"] then
-			returndata["maxoomdamfloored"] = returndata["dpm"]*returndata["manacost"]*returndata["maxspellcasts"]
+			returndata["maxoomdamfloored"] = returndata["dpm"] * returndata["manacost"] * returndata["maxspellcasts"]
 		end
 		if returndata["maxoomheal"] then
-			returndata["maxoomhealfloored"] = returndata["hpm"]*returndata["manacost"]*returndata["maxspellcasts"]
+			returndata["maxoomhealfloored"] = returndata["hpm"] * returndata["manacost"] * returndata["maxspellcasts"]
 		end
 	end
 
@@ -1392,7 +1407,7 @@ function TheoryCraft_GenerateSpellData(spellId)
 
 	-- Start unoptimized
 	-- REM: the id in this case is the spellName
-	SummateData(spellData.id, spellData.Schools)
+	SummateData(spellData.id, spellData.Schools) -- TheoryCraft_GenerateSpellData()
 	
 	--[[
 	descriptionLine = getglobal(GameTooltip:GetName().."TextLeft"..GameTooltip:NumLines());
@@ -1669,7 +1684,7 @@ function TheoryCraft_GenerateTooltip(frame, spellname, spellrank, i2, showonbutt
 	end
 	if not i then return end
 --	TheoryCraft_Data.Testing = nil
-	SummateData(i.id, i.Schools)
+	SummateData(i.id, i.Schools) -- TheoryCraft_GenerateTooltip()
 	olddesc = getglobal(frame:GetName().."TextLeft"..frame:NumLines()):GetText()
 
 	if TheoryCraft_TooltipData[olddesc] == nil then
@@ -1949,14 +1964,14 @@ local function UpdateTarget(data)
 		end
 		local hitchance = 100-critchance-misschance
 
-		local averagehitdam = (data["averagedamnocrit"] or 0)*(data["manamultiplier"] or 1)
-		local averagecritdam = ((data["averagedamnocrit"] or 0)*(data["manamultiplier"] or 1)+(data["averagecritdam"] or 0))
+		local averagehitdam  = (data["averagedamnocrit"]  or 0) * (data["manamultiplier"] or 1)
+		local averagecritdam = ((data["averagedamnocrit"] or 0) * (data["manamultiplier"] or 1) + (data["averagecritdam"] or 0))
 		if TheoryCraft_Settings["dontcrit"] then
-			hitchance = hitchance + critchance
+			hitchance  = hitchance + critchance
 			critchance = 0
 		end
-		hitchance = hitchance/100*averagehitdam
-		critchance = critchance/100*averagecritdam
+		hitchance  = hitchance/100  * averagehitdam
+		critchance = critchance/100 * averagecritdam
 		data["dpsafterresists"] = round((hitchance+critchance)/data["casttime"], 1)
 	end
 
@@ -1976,11 +1991,11 @@ local function UpdateTarget(data)
 	end
 	if resistmult < 0 then
 		resistmult = 0
-		penamount = 0
+		penamount  = 0
 	end
 
 	if data["nextcritdam"] then data["nextcritdam"] = data["nextcritdam"] * resistmult end
-	if data["nexthitdam"] then data["nexthitdam"] = data["nexthitdam"] * resistmult end
+	if data["nexthitdam"]  then data["nexthitdam"]  = data["nexthitdam"]  * resistmult end
 
 	if data["overcd"] == nil then
 		if data["dps"] and data["dpsafterresists"] then
@@ -2004,9 +2019,9 @@ local function UpdateTarget(data)
 	end
 	data["dontshowupto"] = ""
 
-	if data["nexthitdamequive"] and data["nexthitdam"] and data["damworth"] then data["nexthitdamequive"] = data["nexthitdam"] / data["damworth"] end
+	if data["nexthitdamequive"]  and data["nexthitdam"]  and data["damworth"] then data["nexthitdamequive"]  = data["nexthitdam"]  / data["damworth"] end
 	if data["nextcritdamequive"] and data["nextcritdam"] and data["damworth"] then data["nextcritdamequive"] = data["nextcritdam"] / data["damworth"] end
-	if data["nextpendamequive"] and data["nextpendam"] and data["damworth"] then data["nextpendamequive"] = data["nextpendam"] / data["damworth"] end
+	if data["nextpendamequive"]  and data["nextpendam"]  and data["damworth"] then data["nextpendamequive"]  = data["nextpendam"]  / data["damworth"] end
 
 	if data["damworth"] == 0 then data["nexthitdamequive"] = 0 end
 	if data["damworth"] == 0 then data["nextcritdamequive"] = 0 end
@@ -2082,22 +2097,6 @@ function GetSpellRankById(spellId)
 	rank = string.match(spellSubtext, "%d+")
 	return rank
 end
-
---function TheoryCraft_GetSpellDataByName(spellname, spellrank, force, macro)
-	--if spellrank == nil then spellrank = 0 end
-	--local description = TheoryCraft_TooltipData[spellname.."("..spellrank..")"] or (macro and TheoryCraft_TooltipData[spellname.."MACRO("..spellrank..")"])
-	--if (description) then
---		if TheoryCraft_TooltipData[description] and TheoryCraft_TooltipData[description].spellname then
-			--return UpdateTarget(TheoryCraft_TooltipData[description]) or TheoryCraft_TooltipData[description]
-		--end
-	--end
-	--TheoryCraft_GenerateTooltip(nil, spellname, spellrank, nil, true, macro)
-	--if TheoryCraft_TooltipData[TheoryCraft_TooltipData[spellname.."("..spellrank..")"]] and TheoryCraft_TooltipData[TheoryCraft_TooltipData[spellname.."("..spellrank..")"]].spellname then
-		--return UpdateTarget(TheoryCraft_TooltipData[TheoryCraft_TooltipData[spellname.."("..spellrank..")"]]) or TheoryCraft_TooltipData[TheoryCraft_TooltipData[spellname.."("..spellrank..")"]]
-	--elseif TheoryCraft_TooltipData[TheoryCraft_TooltipData[spellname.."MACRO("..spellrank..")"]] and TheoryCraft_TooltipData[TheoryCraft_TooltipData[spellname.."MACRO("..spellrank..")"]].spellname then
-		--return UpdateTarget(TheoryCraft_TooltipData[TheoryCraft_TooltipData[spellname.."MACRO("..spellrank..")"]]) or TheoryCraft_TooltipData[TheoryCraft_TooltipData[spellname.."MACRO("..spellrank..")"]]
-	--end
---end
 
 function TheoryCraft_GetSpellDataByDescription(description, force)
 	if TheoryCraft_TooltipData[description] and TheoryCraft_TooltipData[description].spellname then

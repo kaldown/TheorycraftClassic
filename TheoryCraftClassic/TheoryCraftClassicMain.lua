@@ -13,7 +13,10 @@ TheoryCraft_Data.BaseData = {}
 TheoryCraft_Data.BaseData["Allcritbonus"] = 0.5
 TheoryCraft_Data.BaseData["Allthreat"] = 1
 TheoryCraft_Data.BaseData["Allmodifier"] = 1
+TheoryCraft_Data.BaseData["AllUpFrontmodifier"] = 1
 TheoryCraft_Data.BaseData["Allbaseincrease"] = 1
+TheoryCraft_Data.BaseData["AllUpFrontbaseincrease"] = 1
+TheoryCraft_Data.BaseData["manacostall"] = 1
 TheoryCraft_Data.BaseData["Huntercritbonus"] = 0.5
 TheoryCraft_Data.BaseData["Rangedcritbonus"] = 1
 TheoryCraft_Data.BaseData["Rangedmodifier"] = 1
@@ -21,9 +24,7 @@ TheoryCraft_Data.BaseData["Rangedbaseincrease"] = 1
 TheoryCraft_Data.BaseData["Meleecritbonus"] = 1
 TheoryCraft_Data.BaseData["Meleemodifier"] = 1
 TheoryCraft_Data.BaseData["Meleebaseincrease"] = 1
-TheoryCraft_Data.BaseData["AllUpFrontmodifier"] = 1
-TheoryCraft_Data.BaseData["AllUpFrontbaseincrease"] = 1
-TheoryCraft_Data.BaseData["manacostall"] = 1
+
 
 TheoryCraft_Data.Stats = {}
 

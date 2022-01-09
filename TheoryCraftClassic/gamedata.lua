@@ -34,7 +34,15 @@ TheoryCraft_DataVersion = "1.06"
 -- perrank		How much to add (or remove if negative) from the bonustype per rank
 -- firstrank		If there is a first rank then the first rank of the talent gets this bonus, every further rank perrank
 
+-- NOTE: "number" relies on absolute position of talent in row/column counting left -> right, top -> bottom
+--       so new talents added earlier, will screw up the number order
+-- MAYBE: it would be slightly more future proof to instead do the following:
+--        TheoryCraft_AddAllTalents() would read every talent sequentially in a loop
+--        reorganize this table to the following: { MAGE={ {"1-2"={data}, "3-1"={data}}, {...}, {...} } }  (or maybe a multi dimensional array? https://www.lua.org/pil/11.2.html )
+--        where the index within the MAGE table is the tree, and the keys within a tree are the row/column designation.
+--    *** in this way only if a talent actually has its graphical position changed would an update be necessary ***
 TheoryCraft_Talents = {
+	-- Arcane
 	{ class="MAGE", name="subtlety", bonustype="Arcanethreat", tree=1, number=1, perrank=-0.2 },
 	{ class="MAGE", name="subtlety", bonustype="Allpenetration", tree=1, number=1, perrank=5, dontlist=1 },
 	{ class="MAGE", name="focus", bonustype="Arcanehitchance", tree=1, number=2, perrank=2 },
@@ -44,6 +52,7 @@ TheoryCraft_Talents = {
 	{ class="MAGE", name="arcanemind", bonustype="manamultiplier", tree=1, number=14, perrank=0.02 },
 	{ class="MAGE", name="instab", bonustype="Damagemodifier", tree=1, number=15, perrank=0.01 },
 	{ class="MAGE", name="instab", bonustype="Allcritchance", tree=1, number=15, perrank=1, dontlist=1 },
+	-- Fire
 	{ class="MAGE", name="impfire", bonustype="Fireballcasttime", tree=2, number=1, perrank=-0.1, forceonly=1 },
 	{ class="MAGE", name="ignite", bonustype="Firecritbonus", tree=2, number=3, perrank=0.12 },
 	{ class="MAGE", name="ignite", bonustype="Firesepignite", tree=2, number=3, perrank=0.12, dontlist=1 },
@@ -54,6 +63,7 @@ TheoryCraft_Talents = {
 	{ class="MAGE", name="masterofelements", bonustype="Frostillum", tree=2, number=12, perrank=0.1, dontlist=1 },
 	{ class="MAGE", name="critmass", bonustype="Firecritchance", tree=2, number=13, perrank=2 },
 	{ class="MAGE", name="firepower", bonustype="Firemodifier", tree=2, number=15, perrank=0.02 },
+	-- Frost
 	{ class="MAGE", name="impfrost", bonustype="Frostboltcasttime", tree=3, number=2, perrank=-0.1, forceonly=1 },
 	{ class="MAGE", name="elemprec", bonustype="Frosthitchance", tree=3, number=3, perrank=2 },
 	{ class="MAGE", name="elemprec", bonustype="Firehitchance", tree=3, number=3, perrank=2, dontlist=1 },
@@ -64,25 +74,30 @@ TheoryCraft_Talents = {
 	{ class="MAGE", name="shatter", bonustype="Allshatter", tree=3, number=13, perrank=10 },
 	{ class="MAGE", name="impcoc", bonustype="Cone of Coldmodifier", tree=3, number=15, firstrank=0.15, perrank=0.10 },
 
+	-- Affliction
 	{ class="WARLOCK", name="suppression", bonustype="Afflictionhitchance", tree=1, number=1, perrank=2 },
 	{ class="WARLOCK", name="impcorrupt", bonustype="Corruptioncasttime", tree=1, number=2, perrank=-0.4, forceonly=1 },
 	{ class="WARLOCK", name="impdrainlife", bonustype="Drain Lifemodifier", tree=1, number=6, perrank=0.02 },
 	{ class="WARLOCK", name="impcoa", bonustype="Curse of Agonymodifier", tree=1, number=7, perrank=0.02 },
 	{ class="WARLOCK", name="shadowmastery", bonustype="Shadowmodifier", tree=1, number=16, perrank=0.02 },
+	-- Demonology
 	{ class="WARLOCK", name="demonicembrace", bonustype="stammultiplier", tree=2, number=3, perrank=0.03 },
 	{ class="WARLOCK", name="demonicembrace", bonustype="spiritmultiplier", tree=2, number=3, perrank=-0.01, dontlist=1 },
+	-- Destruction
 	{ class="WARLOCK", name="devastation", bonustype="Destructioncritchance", tree=3, number=7, perrank=1 },
 	{ class="WARLOCK", name="impsearing", bonustype="Searing Paincritchance", tree=3, number=11, perrank=2 },
 	{ class="WARLOCK", name="impimmolate", bonustype="ImmolateUpFrontmodifier", tree=3, number=13, perrank=0.05 },
 	{ class="WARLOCK", name="ruin", bonustype="Destructioncritbonus", tree=3, number=14, perrank=0.5 },
 	{ class="WARLOCK", name="emberstorm", bonustype="Firemodifier", tree=3, number=15, perrank=0.02 },
 
+	-- Discipline
 	{ class="PRIEST", name="imppwrword", bonustype="Power Word: Shieldmodifier", tree=1, number=5, perrank=0.05 },
 	{ class="PRIEST", name="pmeditation", bonustype="ICPercent", tree=1, number=8, perrank=0.05 },
 	{ class="PRIEST", name="mentalagility", bonustype="MentalAgilitymanacost", tree=1, number=10, perrank=-0.02, forceonly=1 },
 	{ class="PRIEST", name="mentalstrength", bonustype="manamultiplier", tree=1, number=12, perrank=0.02 },
 	{ class="PRIEST", name="forceofwill", bonustype="Damagemodifier", tree=1, number=14, perrank=0.01 },
 	{ class="PRIEST", name="forceofwill", bonustype="Damagecritchance", tree=1, number=14, perrank=1, dontlist=1 },
+	-- Holy
 	{ class="PRIEST", name="imprenew", bonustype="Renewmodifier", tree=2, number=2, perrank=0.05 },
 	{ class="PRIEST", name="holyspec", bonustype="Holycritchance", tree=2, number=3, perrank=1 },
 	{ class="PRIEST", name="divinefury", bonustype="Divinefurycasttime", tree=2, number=5, perrank=-0.1, forceonly=1 },
@@ -91,9 +106,11 @@ TheoryCraft_Talents = {
 	{ class="PRIEST", name="imppoh", bonustype="Prayer of Healingmanacost", tree=2, number=12, perrank=-0.1, forceonly=1, forcetree=3 },
 	{ class="PRIEST", name="guidance", bonustype="Allspiritual", tree=2, number=14, perrank=0.05 },
 	{ class="PRIEST", name="spiritual", bonustype="Healingmodifier", tree=2, number=15, perrank=0.02 },
+	-- Shadow
 	{ class="PRIEST", name="shadowfocus", bonustype="Shadowhitchance", tree=3, number=5, perrank=2 },
 	{ class="PRIEST", name="darkness", bonustype="Shadowmodifier", tree=3, number=15, perrank=0.02 },
 
+	-- Balance
 	{ class="DRUID", name="impwrath", bonustype="Wrathcasttime", tree=1, number=1, perrank=-0.1, forceonly=1 },
 	{ class="DRUID", name="impmoon", bonustype="Moonfiremodifier", tree=1, number=5, perrank=0.02 },
 	{ class="DRUID", name="impmoon", bonustype="Moonfirecritchance", tree=1, number=5, perrank=2, dontlist=1 },
@@ -102,11 +119,13 @@ TheoryCraft_Talents = {
 	{ class="DRUID", name="impstarfire", bonustype="Starfirecasttime", tree=1, number=12, perrank=-0.1, forceonly=1 },
 	{ class="DRUID", name="grace", bonustype="Allgrace", tree=1, number=13, perrank=0.5 },
 	{ class="DRUID", name="moonfury", bonustype="Vengeancemodifier", tree=1, number=15, perrank=0.02 },
+	-- Feral
 	{ class="DRUID", name="claws", bonustype="Formcritchance", tree=2, number=8, perrank=2 },
 	{ class="DRUID", name="strikes", bonustype="Predatory", tree=2, number=10, perrank=0.5 },
 	{ class="DRUID", name="savagefury", bonustype="Savagefurymodifier", tree=2, number=13, perrank=0.1 },
 	{ class="DRUID", name="hotw", bonustype="HotW", tree=2, number=15, perrank=0.04 },
 	{ class="DRUID", name="hotw", bonustype="intmultiplier", tree=2, number=15, perrank=0.04, dontlist=1 },
+	-- Restoration
 	{ class="DRUID", name="imptouch", bonustype="Healing Touchcasttime", tree=3, number=3, perrank=-0.1, forceonly=1 },
 	{ class="DRUID", name="reflection", bonustype="ICPercent", tree=3, number=6, perrank=0.05 },
 	{ class="DRUID", name="tranquil", bonustype="Healing Touchmanacost", tree=3, number=9, perrank=-0.02, forceonly=1 },
@@ -115,31 +134,41 @@ TheoryCraft_Talents = {
 	{ class="DRUID", name="giftofnat", bonustype="Healingmodifier", tree=3, number=12, perrank=0.02 },
 	{ class="DRUID", name="impregrowth", bonustype="Regrowthcritchance", tree=3, number=14, perrank=10 },
 
+	-- Assassination
 	{ class="ROGUE", name="malice", bonustype="CritReport", tree=1, number=3, perrank=1 },
 	{ class="ROGUE", name="lethality", bonustype="Lethalitycritbonus", tree=1, number=9, perrank=0.06 },
+	-- Combat
 	{ class="ROGUE", name="impbs", bonustype="Backstabcritchance", tree=2, number=4, perrank=10 },
 	{ class="ROGUE", name="daggerspec", bonustype="Daggerspec", tree=2, number=11, perrank=1 },
 	{ class="ROGUE", name="fistspec", bonustype="Fistspec", tree=2, number=16, perrank=1 },
 	{ class="ROGUE", name="aggression", bonustype="Sinister Strikemodifier", tree=2, number=18, perrank=0.02 },
+	-- Subtlety
 	{ class="ROGUE", name="opportunity", bonustype="Backstabmodifier", tree=3, number=5, perrank=0.04 },
 	{ class="ROGUE", name="opportunity", bonustype="Ambushmodifier", tree=3, number=5, perrank=0.04, dontlist=1 },
 	{ class="ROGUE", name="impambush", bonustype="Ambushcritchance", tree=3, number=9, perrank=15 },
 
+	-- Arms
 	{ class="WARRIOR", name="impoverpower", bonustype="Overpowercritchance", tree=1, number=7, perrank=25 },
 	{ class="WARRIOR", name="impale", bonustype="Meleecritbonus", tree=1, number=11, perrank=0.1 },
 	{ class="WARRIOR", name="twohandspec", bonustype="Twohandmodifier", tree=1, number=10, perrank=0.01 },
 	{ class="WARRIOR", name="axespec", bonustype="Axespec", tree=1, number=12, perrank=1 },
 	{ class="WARRIOR", name="polearmspec", bonustype="Polearmspec", tree=1, number=16, perrank=1 },
+	-- Fury
 	{ class="WARRIOR", name="cruelty", bonustype="CritReport", tree=2, number=2, perrank=1 },
+	-- Protection
 	{ class="WARRIOR", name="onehandspec", bonustype="Onehandmodifier", tree=3, number=16, perrank=0.02 },
 
+	-- Holy
 	{ class="PALADIN", name="divinestrength", bonustype="strmultiplier", tree=1, number=1, perrank=0.02 },
 	{ class="PALADIN", name="divineint", bonustype="intmultiplier", tree=1, number=2, perrank=0.02 },
 	{ class="PALADIN", name="illumination", bonustype="Holyillum", tree=1, number=9, perrank=0.2 },
 	{ class="PALADIN", name="holypower", bonustype="Holycritchance", tree=1, number=13, perrank=1 },
+	-- Protection
 	{ class="PALADIN", name="onehandspec", bonustype="Onehandmodifier", tree=2, number=14, perrank=0.02 },
+	-- Retribution
 	{ class="PALADIN", name="conviction", bonustype="CritReport", tree=3, number=7, perrank=1 },
 
+	-- Elemental
 	{ class="SHAMAN", name="convection", bonustype="Shockmanacost", tree=1, number=1, perrank=0.02, forceonly=1 },
 	{ class="SHAMAN", name="convection", bonustype="Lightningmanacost", tree=1, number=1, perrank=0.02, forceonly=1, dontlist=1 },
 	{ class="SHAMAN", name="concussion", bonustype="Shockmodifier", tree=1, number=2, perrank=0.01 },
@@ -149,10 +178,12 @@ TheoryCraft_Talents = {
 	{ class="SHAMAN", name="fury", bonustype="Shockcritbonus", tree=1, number=13, perrank=0.5 },
 	{ class="SHAMAN", name="fury", bonustype="Lightningcritbonus", tree=1, number=13, perrank=0.5, dontlist=1 },
 	{ class="SHAMAN", name="lightningmast", bonustype="Lightningcasttime", tree=1, number=14, perrank=-0.2, forceonly=1 },
+	-- Enhancement
 	{ class="SHAMAN", name="ancestral", bonustype="manamultiplier", tree=2, number=1, perrank=0.01 },
 	{ class="SHAMAN", name="thundering", bonustype="CritReport", tree=2, number=4, perrank=1 },
 	{ class="SHAMAN", name="impls", bonustype="Lightning Shieldmodifier", tree=2, number=6, perrank=0.05 },
 	{ class="SHAMAN", name="weaponmast", bonustype="Meleemodifier", tree=2, number=15, perrank=0.02 },
+	-- Restoration
 	{ class="SHAMAN", name="imphealingwave", bonustype="Healing Wavecasttime", tree=3, number=1, perrank=-0.1, forceonly=1 },
 	{ class="SHAMAN", name="tidalfocus", bonustype="Healingmanacost", tree=3, number=2, perrank=-0.01, forceonly=1 },
 	{ class="SHAMAN", name="natguid", bonustype="Allhitchance", tree=3, number=6, perrank=1 },
@@ -160,6 +191,8 @@ TheoryCraft_Talents = {
 	{ class="SHAMAN", name="tidalmastery", bonustype="Healingcritchance", tree=3, number=11, perrank=1, dontlist=1 },
 	{ class="SHAMAN", name="purification", bonustype="Healingmodifier", tree=3, number=14, perrank=0.03 },
 
+	-- Beast Mastery
+	-- Marksmanship
 	{ class="HUNTER", name="lethalshots", bonustype="Rangedcritchance", tree=2, number=4, perrank=1 },
 	{ class="HUNTER", name="lethalshots", bonustype="Huntercritchance", tree=2, number=4, perrank=1, dontlist=1 },
 	{ class="HUNTER", name="mortalshots", bonustype="Rangedcritbonus", tree=2, number=9, perrank=0.06 },
@@ -168,6 +201,7 @@ TheoryCraft_Talents = {
 	{ class="HUNTER", name="barrage", bonustype="Barragetalent", tree=2, number=11, perrank=0.05, dontlist=1 },
 	{ class="HUNTER", name="rws", bonustype="Rangedmodifier", tree=2, number=13, perrank=0.01 },
 	{ class="HUNTER", name="rws", bonustype="Huntermodifier", tree=2, number=13, perrank=0.01, dontlist=1 },
+	-- Survival
 	{ class="HUNTER", name="monsterslaying", bonustype="monsterslaying", tree=3, number=1, perrank=0.01, dontlist=1 },
 	{ class="HUNTER", name="humanoidslaying", bonustype="humanoidslaying", tree=3, number=2, perrank=0.01, dontlist=1 },
 	{ class="HUNTER", name="savagestrikes", bonustype="Raptor Strikecritchance", tree=3, number=5, perrank=10 },
