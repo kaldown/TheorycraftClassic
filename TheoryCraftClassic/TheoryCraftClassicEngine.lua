@@ -29,21 +29,22 @@ local function TheoryCraft_AddData(summeddata, spell_group, data)
 	summeddata["tmpincrease"]        = summeddata["tmpincrease"]        + (data[spell_group.."modifier"] or 0)
 	summeddata["tmpincreaseupfront"] = summeddata["tmpincreaseupfront"] + (data[spell_group.."UpFrontmodifier"] or 0) -- NOTE: currently only used by improved_immolate (warlock)
 
-	if summeddata["baseincrease"] ~= 0 then
-		summeddata["baseincrease"] = summeddata["baseincrease"] * ((data[spell_group.."baseincrease"] or 0)+1)
-	else
-		summeddata["baseincrease"] = summeddata["baseincrease"] + (data[spell_group.."baseincrease"] or 0)
-	end
-
-	if summeddata["baseincreaseupfront"] ~= 0 then
-		summeddata["baseincreaseupfront"] = summeddata["baseincreaseupfront"] * ((data[spell_group.."UpFrontbaseincrease"] or 0)+1)
-	else
-		summeddata["baseincreaseupfront"] = summeddata["baseincreaseupfront"] + (data[spell_group.."UpFrontbaseincrease"] or 0)
-	end
-
 	-- REM: will be 0.0x  DO NOT include in BaseData since it is added to tmpincrease
 	summeddata["talentmod"]        = summeddata["talentmod"]        + (data[spell_group.."talentmod"] or 0)        -- NOTE: currently only used by "Healing Way" (buff not read by talents)
 	summeddata["talentmodupfront"] = summeddata["talentmodupfront"] + (data[spell_group.."UpFronttalentmod"] or 0) -- NOTE: currently does not exist
+
+	-- Purely multiplicative
+	if summeddata["baseincrease"] == 0 then
+		summeddata["baseincrease"] = (data[spell_group.."baseincrease"] or 0)
+	else
+		summeddata["baseincrease"] = summeddata["baseincrease"] * ((data[spell_group.."baseincrease"] or 0)+1)
+	end
+	-- Purely multiplicative
+	if summeddata["baseincreaseupfront"] == 0 then
+		summeddata["baseincreaseupfront"] = (data[spell_group.."UpFrontbaseincrease"] or 0)
+	else
+		summeddata["baseincreaseupfront"] = summeddata["baseincreaseupfront"] * ((data[spell_group.."UpFrontbaseincrease"] or 0)+1)
+	end
 
 	if (summeddata["doshatter"] ~= 0) then
 		summeddata["critchance"] = summeddata["critchance"] + (data[spell_group.."shatter"] or 0)
