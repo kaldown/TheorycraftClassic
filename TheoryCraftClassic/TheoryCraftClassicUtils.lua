@@ -4,11 +4,16 @@
 -- Only global in this file.
 TCUtils = {}
 
-TCUtils.RaceClass = function()
+-- Set the Race and Class for this current session (obviously cannot change without logout)
+do
+	-- TODO: move these API calls into API wrappers?
 	-- first param is localized string, which we can ignore
 	local _, class = UnitClass("player")
+	-- see: https://wowpedia.fandom.com/wiki/API_UnitRace
 	local _, race  = UnitRace("player")
-	return race, class
+
+	TCUtils.RACE  = race
+	TCUtils.CLASS = class
 end
 
 -- Returns:
@@ -21,7 +26,6 @@ TCUtils.StanceFormName = function()
 		return nil
 	end
 	local active_name = 'none'
-	local _, class = TCUtils.RaceClass()
 
 	-- NOTE: cannot rely on absolute positionals for any stance/form because someone might skip training, or not have it talented.
 	--       GetNumShapeshiftForms() always returns the number you have, not the maximum number you COULD have.
@@ -49,7 +53,7 @@ TCUtils.StanceFormName = function()
 		local _, active, _, spellId = GetShapeshiftFormInfo(i)
 
 		if active then
-			if class == 'ROGUE' then
+			if TCUtils.CLASS == 'ROGUE' then
 				-- multiple ranks of stealth, its all the same
 				active_name = 'stealth'
 

@@ -1,10 +1,9 @@
--- self lua file is mostly used for initialization
+-- this lua file is mostly used for initialization
 
 TheoryCraft_AddonName = "TheoryCraftClassic"
-TheoryCraft_Version   = GetAddOnMetadata("TheoryCraftClassic", "Version") -- Read from TOC file
+TheoryCraft_Version   = GetAddOnMetadata(TheoryCraft_AddonName, "Version") -- Read from TOC file
 
 TheoryCraft_TooltipData = {}
-TheoryCraft_OldText = {}
 TheoryCraft_Data = {}
 TheoryCraft_Data.armormult = 1
 TheoryCraft_Data.armormultinternal = 1
@@ -35,8 +34,6 @@ TheoryCraft_Data.Talents["spiritmultiplier"] = 1
 TheoryCraft_Data.Talents["manamultiplier"] = 1
 TheoryCraft_Data.Talents["healthmultiplier"] = 1
 
-local _, class = UnitClass("player")
-local _, race = UnitRace("player")
 
 -- Racials
 if (race == "Gnome") then
@@ -184,9 +181,9 @@ function TheoryCraft_UpdateTarget(dontgen)
 	TCUtils.MergeIntoTable(TheoryCraft_Data.Target, old)
 	TheoryCraft_DeleteTable(TheoryCraft_Data.Target)
 
-	local race, raceen = UnitRace("player")
+	-- REM: the target is a localized string
 	local racetar = UnitCreatureType("target")
-	if (raceen == "Troll") and (racetar == TheoryCraft_Locale.ID_Beast) then
+	if (TCUtils.RACE == "Troll") and (racetar == TheoryCraft_Locale.ID_Beast) then
 		TheoryCraft_Data.Target["Allbaseincrease"] = 0.05
 		TheoryCraft_Data.Target["Rangedmodifier"]  = 0.05
 		TheoryCraft_Data.Target["Meleemodifier"]   = 0.05
@@ -473,6 +470,8 @@ function TheoryCraft_OnLoad(self)
 	end
 
 
+	local class = TCUtils.CLASS
+
 	i = 1
 	-- in gamedata
 	while TheoryCraft_Spells[class][i] do
@@ -555,9 +554,6 @@ function TheoryCraft_OnEvent(self, event, ...)
 	local arg={...}
 
 	--print(event)
-	--if not TheoryCraft_Data.TalentsHaveBeenRead then
-	--	return
-	--end
 
 	local UIMem = gcinfo()
 
@@ -656,7 +652,7 @@ function TheoryCraft_OnEvent(self, event, ...)
 	-- arg[1] = UnitID of the entity  (see: https://wowwiki-archive.fandom.com/wiki/UnitId)
 	elseif event == "UNIT_INVENTORY_CHANGED" then
 		if (arg[1] == "player") then
-			TheoryCraft_UpdateGear()
+			TheoryCraft_UpdateGear() -- inventory changed
 		end
 
 	-- This occurs when you are not on the hate list of any NPC, or a few seconds after the latest pvp attack that you were involved with. 
@@ -705,7 +701,7 @@ function TheoryCraft_OnEvent(self, event, ...)
 			TheoryCraft_DeleteTable(TheoryCraft_UpdatedButtons)
 		end
 
-	-- arg[1] == action_bar_slot_number(int)
+	-- arg[1] == action_bar_slot_number(int)   AND no other arguments.
 	-- NOTE: this event will fire when a macro has its active spell updated
 	--       for example when I use "alt" to change the spell, or mouseover changes the spell (eg decursive)
 	-- NOTE: Will fire when spells that have a reagent cost have their reagents quantity changed, or the reagent is moved in bags
@@ -733,6 +729,9 @@ function TheoryCraft_CheckBoxShowDescription(self)
 	if (TheoryCraft_CheckButtons[name] == nil) then
 		return
 	end
+
+	local class = TCUtils.CLASS
+
 	local text = 1
 	if (TheoryCraft_CheckButtons[name].descriptionmelee) and ((class == "ROGUE") or (class == "WARRIOR")) then
 		text = TheoryCraft_CheckButtons[name].descriptionmelee
@@ -767,8 +766,7 @@ function TheoryCraft_CheckBoxSetText(self)
 	-- REM: hide is a table of class names for which a given checkbox option is to be disabled (because it doesn't apply to them)
 	if TheoryCraft_CheckButtons[name].hide then
 		for k,v in pairs(TheoryCraft_CheckButtons[name].hide) do
-			-- REM: class is a global set at the top of UI.lua
-			if (class == v) then
+			if (TCUtils.CLASS == v) then
 				getglobal(self:GetName()):Disable()
 				getglobal(self:GetName().."Text"):SetTextColor(0.5, 0.5, 0.5)
 			end
@@ -819,7 +817,7 @@ function TheoryCraft_CheckBoxToggle(self)
 		end
 	end
 	if (name == "procs") or (name == "rollignites") or (name == "sepignites") or (name == "combinedot") or (name == "dotoverct") or (name == "dontcrit") then
-		TheoryCraft_GenerateAll()
+		TheoryCraft_GenerateAll() -- turning on/off several checkboxes
 	end
 	if (name == "buttontext") or (name == "dontresist") then
 		TheoryCraft_DeleteTable(TheoryCraft_UpdatedButtons)
@@ -1018,6 +1016,7 @@ function TheoryCraft_OutfitChange(self)
 		local spellname, spellrank
 		local i, i2 = 1
 		local first = true
+		local class = TCUtils.CLASS
 		while (true) do
 			spellname, spellrank = GetSpellBookItemName(i,BOOKTYPE_SPELL)
 			if spellname == nil then break end
