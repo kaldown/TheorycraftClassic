@@ -113,6 +113,15 @@ local function SummateData(name, schools)
 	end
 	-- summate to include any modifiers specific to this spell alone
 	TheoryCraft_DoSchool(name, summeddata)
+
+	-- Lastly, assure values are sane
+	-- REM: a very few abilities have zero schools configured, so don't explode for those
+	if summeddata["tmpincrease"] == 0 then
+		summeddata["tmpincrease"] = 1
+	end
+	if summeddata["tmpincreaseupfront"] == 0 then
+		summeddata["tmpincreaseupfront"] = 1
+	end
 end
 
 local function getcooldown(frame)
@@ -712,6 +721,9 @@ end
 
 local function GenerateTooltip(frame, returndata, spelldata, spellrank)
 	if spellrank == nil then spellrank = 0 end
+
+	--print("GenerateTooltip(rank: ".. spellrank ..")")
+	--TCUtils.pretty_print(returndata)
 
 	returndata["RangedAPMult"] = 2.8 -- NOTE: the normalized attack speed from which instant abilties have their AP contribution calculated.
 	--[[
