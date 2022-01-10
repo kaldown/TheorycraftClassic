@@ -787,10 +787,12 @@ local function GenerateTooltip(frame, returndata, spelldata, spellrank)
 
 	-- returndata["manacost"] = 0
 
+	-- NOTE: clearcasting buff WILL modify the manacost returned by this API call.
 	local spellCosts = GetSpellPowerCost(returndata["spellnumber"])
 	-- print(dump(spellCosts))
 
-	returndata["manacost"] = 0
+	-- NOTE: mancost MUST be allowed to be nil, not just zero. (otherwise things break. eg wand-shoot)
+	--returndata["manacost"] = 0
 	-- If this spell has some sort of cost to it, find the mana-cost specifically
 	if spellCosts ~= nil then
 		for k, v in pairs(spellCosts) do
@@ -921,14 +923,17 @@ local function GenerateTooltip(frame, returndata, spelldata, spellrank)
 		end
 	end
 
-	if spelldata.isheal == nil then
-		returndata["manacost"] = returndata["manacost"] - returndata["manacost"] * (TheoryCraft_Data.Talents["clearcast"] or 0)
+	if returndata["manacost"] then
+		if spelldata.isheal == nil then
+			-- TBC-TODO: Shaman clearcasting will only be 40% reduction for next 2 spells instead of 100% for next spell
+			returndata["manacost"] = returndata["manacost"] - returndata["manacost"] * (TheoryCraft_Data.Talents["clearcast"] or 0)
+		end
+		if returndata["manamultiplier"] then
+			returndata["manacost"] = returndata["manacost"] * returndata["manamultiplier"]
+		end
+		returndata["manacost"] = returndata["manacost"] - (TheoryCraft_Data.Stats["icregen"] or 0) * returndata["regencasttime"]
+		returndata["manacost"] = returndata["manacost"] * returndata["manacostmod"]
 	end
-	if returndata["manamultiplier"] then
-		returndata["manacost"] = returndata["manacost"] * returndata["manamultiplier"]
-	end
-	returndata["manacost"] = returndata["manacost"] - (TheoryCraft_Data.Stats["icregen"] or 0) * returndata["regencasttime"]
-	returndata["manacost"] = returndata["manacost"] * returndata["manacostmod"]
 
 	if returndata["crithealchance"] and (returndata["crithealchance"] > 100) then
 		returndata["crithealchance"] = 100
@@ -989,12 +994,15 @@ local function GenerateTooltip(frame, returndata, spelldata, spellrank)
 			end
 			if spelldata.isranged and (spelldata.shoot == nil) then
 				if spelldata.autoshot then
+					-- NOTE: auto-shot itself doesn't have a manacost or DPM, but TheoryCraft chooses to put rotation information onto auto-shot.
+					-- TODO: if this runs into divide by zero issues (somehow), handle it.
 					returndata["dpm"]           = returndata["msrotationlength"] * returndata["msrotationdps"] / returndata["manacost"]
 					returndata["maxoomdam"]     = (TheoryCraft_Data.Stats["totalmana"] + TheoryCraft_GetStat("manarestore")) * returndata["dpm"]
 					returndata["maxoomdamtime"] = returndata["maxoomdam"] / returndata["dps"]
 					returndata["regendam"]      = TheoryCraft_Data.Stats["regen"]   * 10 * returndata["dpm"]
 					returndata["icregendam"]    = TheoryCraft_Data.Stats["icregen"] * 10 * returndata["dpm"]
-				else
+
+				elseif returndata["manacost"] then
 					if TheoryCraft_Settings["dontcritdpm"] then
 						returndata["dpm"] = returndata["averagedamnocrit"] / returndata["manacost"]
 					else
@@ -1017,9 +1025,10 @@ local function GenerateTooltip(frame, returndata, spelldata, spellrank)
 			end
 		end
 		-- NOTE: this is for "Master of Elements" mana refund proc chance.
-		if (class == "MAGE") then
+		if (class == "MAGE") and returndata["manacost"] then
 			if returndata["critdmgchance"] and (not TheoryCraft_Settings["dontcrit"]) then
-				returndata["manacost"] = returndata["manacost"] - returndata["manacost"] * ((returndata["critdmgchance"]/100) * returndata["illum"])
+				-- REM: mana refunds proc based on basemanacost.
+				returndata["manacost"] = returndata["manacost"] - returndata["basemanacost"] * ((returndata["critdmgchance"]/100) * returndata["illum"])
 			end
 		end
 
@@ -1112,15 +1121,20 @@ local function GenerateTooltip(frame, returndata, spelldata, spellrank)
 				local tick3 = round((returndata["averagedam"]-returndata["damfinal"]*returndata["baseincrease"])/4.5+returndata["damfinal"]*returndata["baseincrease"]/6)
 				returndata["averagedamtick"] = tick1..", "..tick2..", "..tick3
 			end
-			if TheoryCraft_Settings["dontcrit"] then
-				returndata["dpm"] = returndata["averagedamnocrit"] / returndata["manacost"]
-			else
-				returndata["dpm"] = returndata["averagedam"]       / returndata["manacost"]
+
+			if returndata["manacost"] then
+				-- TODO: save the raw damage amount used to calculate DPM and use it later for +dot calculations
+				if TheoryCraft_Settings["dontcrit"] then
+					returndata["dpm"] = returndata["averagedamnocrit"] / returndata["manacost"]
+				else
+					returndata["dpm"] = returndata["averagedam"]       / returndata["manacost"]
+				end
+				if TheoryCraft_Data.Stats["lifetapMana"] and TheoryCraft_Data.Stats["lifetapHealth"] then
+					-- convert DPM back to damage, then divide by how many lifetaps it takes to cover the mana cost.
+					returndata["lifetapdpm"] = returndata["dpm"] * returndata["manacost"] / (returndata["manacost"] / TheoryCraft_Data.Stats["lifetapMana"] * TheoryCraft_Data.Stats["lifetapHealth"])
+				end
 			end
-			if TheoryCraft_Data.Stats["lifetapMana"] and TheoryCraft_Data.Stats["lifetapHealth"] then
-				-- convert DPM back to damage, then divide by how many lifetaps it takes to cover the mana cost.
-				returndata["lifetapdpm"] = returndata["dpm"] * returndata["manacost"] / (returndata["manacost"] / TheoryCraft_Data.Stats["lifetapMana"] * TheoryCraft_Data.Stats["lifetapHealth"])
-			end
+
 			local cooldown = tonumber(string.match(returndata["cooldown"], "(%d*%.?%d+)"))
 			if (spelldata.overcooldown and cooldown) then
 				if (TheoryCraft_Settings["dontcrit"]) then
@@ -1152,7 +1166,8 @@ local function GenerateTooltip(frame, returndata, spelldata, spellrank)
 							returndata["dps"] = returndata["averagedam"]       / returndata["casttime"]
 						end
 						returndata["dpsdam"] = returndata["averagedpsdam"] / returndata["casttime"]
-						if TheoryCraft_Data.Stats["lifetapMana"] then
+
+						if TheoryCraft_Data.Stats["lifetapMana"] and returndata["manacost"] then
 							if TheoryCraft_Settings["dontcrit"] then
 								returndata["lifetapdps"] = returndata["averagedamnocrit"] / (returndata["casttime"] + (returndata["manacost"] / TheoryCraft_Data.Stats["lifetapMana"])*1.5)
 							else
@@ -1164,8 +1179,10 @@ local function GenerateTooltip(frame, returndata, spelldata, spellrank)
 			end
 
 			if returndata["dotdamage"] then
-				-- Convert dpm back to damage, then add in the dot component, and recalculate DPM
-				returndata["withdotdpm"] = (returndata["dpm"] * returndata["manacost"] + returndata["dotdamage"]) / returndata["manacost"]
+				if returndata["manacost"] then
+					-- Convert dpm back to damage, then add in the dot component, and recalculate DPM
+					returndata["withdotdpm"] = (returndata["dpm"] * returndata["manacost"] + returndata["dotdamage"]) / returndata["manacost"]
+				end
 				if TheoryCraft_Settings["combinedot"] then
 					if TheoryCraft_Settings["dontcrit"] then
 						returndata["withdotdps"] = (returndata["averagedamnocrit"] + returndata["dotdamage"]) / returndata["casttime"]
@@ -1212,9 +1229,10 @@ local function GenerateTooltip(frame, returndata, spelldata, spellrank)
 
 		if returndata["minheal"] then
 			if (class == "PALADIN") or (class == "MAGE") then
-				if returndata["crithealchance"] then
+				if returndata["crithealchance"] and returndata["manacost"] then
 					-- REM: "illum" also stands for "Master of Elements"
-					returndata["manacost"] = returndata["manacost"] - returndata["manacost"] * ((returndata["crithealchance"]/100) * returndata["illum"])
+					-- REM: mana refunds proc based on basemanacost.
+					returndata["manacost"] = returndata["manacost"] - returndata["basemanacost"] * ((returndata["crithealchance"]/100) * returndata["illum"])
 				end
 			end
 			if returndata["maxheal"] == nil then
@@ -1252,13 +1270,16 @@ local function GenerateTooltip(frame, returndata, spelldata, spellrank)
 				end
 			end
 
-			if TheoryCraft_Settings["dontcrithpm"] then
-				returndata["hpm"] = returndata["averagehealnocrit"] / returndata["manacost"]
-			else
-				returndata["hpm"] = returndata["averageheal"]       / returndata["manacost"]
-			end
-			if TheoryCraft_Data.Stats["lifetapMana"] and TheoryCraft_Data.Stats["lifetapHealth"] then
-				returndata["lifetaphpm"] = returndata["hpm"] * returndata["manacost"] / (returndata["manacost"] / TheoryCraft_Data.Stats["lifetapMana"] * TheoryCraft_Data.Stats["lifetapHealth"])
+			if returndata["manacost"] then
+				-- TODO: save the raw healing amount used to calculate HPM and use it later for +hot calculations
+				if TheoryCraft_Settings["dontcrithpm"] then
+					returndata["hpm"] = returndata["averagehealnocrit"] / returndata["manacost"]
+				else
+					returndata["hpm"] = returndata["averageheal"]       / returndata["manacost"]
+				end
+				if TheoryCraft_Data.Stats["lifetapMana"] and TheoryCraft_Data.Stats["lifetapHealth"] then
+					returndata["lifetaphpm"] = returndata["hpm"] * returndata["manacost"] / (returndata["manacost"] / TheoryCraft_Data.Stats["lifetapMana"] * TheoryCraft_Data.Stats["lifetapHealth"])
+				end
 			end
 
 			if TheoryCraft_Settings["dotoverct"] and spelldata.isdot then
@@ -1273,11 +1294,15 @@ local function GenerateTooltip(frame, returndata, spelldata, spellrank)
 					returndata["hpsdam"] = returndata["averagehpsdam"] / returndata["casttime"]
 				end
 			end
-			if TheoryCraft_Data.Stats["lifetapMana"] then
+			if TheoryCraft_Data.Stats["lifetapMana"] and returndata["manacost"] then
 				returndata["lifetaphps"] = returndata["averageheal"] / (returndata["casttime"] + (returndata["manacost"] / TheoryCraft_Data.Stats["lifetapMana"])*1.5)
 			end
+
 			if returndata["hotheal"] then
-				returndata["withhothpm"] = (returndata["hpm"] * returndata["manacost"] + returndata["hotheal"]) / returndata["manacost"]
+				if returndata["manacost"] then
+					-- Convert hpm back to healing, then add in the hot component, and recalculate HPM
+					returndata["withhothpm"] = (returndata["hpm"] * returndata["manacost"] + returndata["hotheal"]) / returndata["manacost"]
+				end
 				if TheoryCraft_Settings["combinedot"] then
 					returndata["withhothps"] = (returndata["averageheal"] + returndata["hotheal"]) / returndata["casttime"]
 				else
