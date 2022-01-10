@@ -1213,9 +1213,6 @@ local function GenerateTooltip(frame, returndata, spelldata, spellrank)
 		if returndata["minheal"] then
 			if (class == "PALADIN") or (class == "MAGE") then
 				if returndata["crithealchance"] then
-					if (returndata["illum"] ~= 0) and returndata["mindamage"] then
-						returndata["manacost2"] = returndata["manacost"]
-					end
 					-- REM: "illum" also stands for "Master of Elements"
 					returndata["manacost"] = returndata["manacost"] - returndata["manacost"] * ((returndata["crithealchance"]/100) * returndata["illum"])
 				end
