@@ -246,25 +246,6 @@ local function TheoryCraft_getDotDuration(description)
 	return 1
 end
 
-local function getmanacost(frame)
-	index = 1
-	local ltext = getglobal(frame:GetName().."TextLeft"..index):GetText()
-	local manaCost = 0
-	while (ltext) do
-		if (strfind(ltext, TheoryCraft_Locale.Mana)) then
-			manaCost = findpattern(ltext, "%d+")
-		end
-		index = index + 1;
-		ltext = getglobal(frame:GetName().."TextLeft"..index):GetText()
-	end
-	manaCost = tonumber(manaCost)
-	if manaCost then
-		return manaCost
-	else
-		return 0
-	end
-end
-
 local function TheoryCraft_GetRangedSpeed()
 	TheoryCraftTooltip:SetOwner(UIParent,"ANCHOR_NONE")
 	TheoryCraftTooltip:SetInventoryItem("player", GetInventorySlotInfo("RangedSlot"), false, false)
@@ -804,7 +785,7 @@ local function GenerateTooltip(frame, returndata, spelldata, spellrank)
 	returndata["description"] = returndata["basedescription"] or "" --getglobal(frame:GetName().."TextLeft"..frame:NumLines()):GetText()
 	returndata["casttime"] = (tonumber(returndata["basecasttime"]) or 0)  --getcasttime(frame)+(returndata["casttime"] or 0)
 
-	-- returndata["manacost"] = 0--getmanacost(frame)
+	-- returndata["manacost"] = 0
 
 	local spellCosts = GetSpellPowerCost(returndata["spellnumber"])
 	-- print(dump(spellCosts))

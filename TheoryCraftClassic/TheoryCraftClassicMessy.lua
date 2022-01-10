@@ -19,25 +19,6 @@ local function round(arg1, decplaces)
 	return string.format ("%."..decplaces.."f", arg1)
 end
 
-local function getmanacost(frame)
-	index = 1
-	local ltext = getglobal(frame:GetName().."TextLeft"..index):GetText()
-	local manaCost = 0
-	while (ltext) do
-		if (strfind(ltext, TheoryCraft_Locale.Mana)) then
-			manaCost = findpattern(ltext, "%d+")
-		end
-		index = index + 1;
-		ltext = getglobal(frame:GetName().."TextLeft"..index):GetText()
-	end
-	manaCost = tonumber(manaCost)
-	if manaCost then
-		return manaCost
-	else
-		return 0
-	end
-end
-
 function TheoryCraft_getMinMax(spelldata, returndata, frame)
 	if returndata["description"] == nil then return end
 	if returndata["description"] == "" then return end
