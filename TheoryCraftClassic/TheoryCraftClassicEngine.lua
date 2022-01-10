@@ -803,9 +803,8 @@ local function GenerateTooltip(frame, returndata, spelldata, spellrank)
 
 	-- print(returndata["manacost"])
 
-	--if not (spelldata.shoot or spelldata.ismelee or spelldata.isranged) then
 	returndata["basemanacost"] = returndata["manacost"]
-	--end
+
 	if returndata["casttime"] < 1.5 then
 		returndata["casttime"] = 1.5
 	end
@@ -925,23 +924,23 @@ local function GenerateTooltip(frame, returndata, spelldata, spellrank)
 	if spelldata.isheal == nil then
 		returndata["manacost"] = returndata["manacost"] - returndata["manacost"] * (TheoryCraft_Data.Talents["clearcast"] or 0)
 	end
-	if (returndata["manamultiplier"]) then
+	if returndata["manamultiplier"] then
 		returndata["manacost"] = returndata["manacost"] * returndata["manamultiplier"]
 	end
 	returndata["manacost"] = returndata["manacost"] - (TheoryCraft_Data.Stats["icregen"] or 0) * returndata["regencasttime"]
 	returndata["manacost"] = returndata["manacost"] * returndata["manacostmod"]
 
-	if (returndata["crithealchance"]) and (returndata["crithealchance"] > 100) then
+	if returndata["crithealchance"] and (returndata["crithealchance"] > 100) then
 		returndata["crithealchance"] = 100
 	end
-	if (returndata["critdmgchance"]) and (returndata["critdmgchance"] > 100) then
+	if returndata["critdmgchance"] and (returndata["critdmgchance"] > 100) then
 		returndata["critdmgchance"] = 100
 	end
 
 	if spelldata.dontusemelee then
 		returndata["critbonus"] = 0.5
 	end
-	if (spelldata.isseal) or (spelldata.ismelee) or (spelldata.isranged) then
+	if spelldata.isseal or spelldata.ismelee or spelldata.isranged then
 		if (returndata["mindamage"] and returndata["maxdamage"] and (spelldata.isseal == nil)) and (spelldata.block == nil) then 
 			returndata["critdmgmin"] = returndata["mindamage"] * (returndata["critbonus"]+1)
 			returndata["critdmgmax"] = returndata["maxdamage"] * (returndata["critbonus"]+1)
@@ -988,8 +987,8 @@ local function GenerateTooltip(frame, returndata, spelldata, spellrank)
 				returndata["nextcritdamequive"] = returndata["nextcritdam"] / returndata["damworth"]
 				returndata["nextagidamequive"]  = returndata["nextagidam"]  / returndata["damworth"]
 			end
-			if (spelldata.isranged) and (spelldata.shoot == nil) then
-				if (spelldata.autoshot) then
+			if spelldata.isranged and (spelldata.shoot == nil) then
+				if spelldata.autoshot then
 					returndata["dpm"]           = returndata["msrotationlength"] * returndata["msrotationdps"] / returndata["manacost"]
 					returndata["maxoomdam"]     = (TheoryCraft_Data.Stats["totalmana"] + TheoryCraft_GetStat("manarestore")) * returndata["dpm"]
 					returndata["maxoomdamtime"] = returndata["maxoomdam"] / returndata["dps"]
@@ -999,24 +998,27 @@ local function GenerateTooltip(frame, returndata, spelldata, spellrank)
 					if TheoryCraft_Settings["dontcritdpm"] then
 						returndata["dpm"] = returndata["averagedamnocrit"] / returndata["manacost"]
 					else
-						returndata["dpm"] = returndata["averagedam"] / returndata["manacost"]
+						returndata["dpm"] = returndata["averagedam"]       / returndata["manacost"]
 					end
 					returndata["regendam"]   = TheoryCraft_Data.Stats["regen"]   * 10 * returndata["dpm"]
 					returndata["icregendam"] = TheoryCraft_Data.Stats["icregen"] * 10 * returndata["dpm"]
 				end
 			end
 		end
+
+	-- Not a seal, melee or ranged ability (eg, regular spell)
 	else
 		if class == "DRUID" then
-			if (spelldata.cancrit) and (returndata["grace"] ~= 0) and (not TheoryCraft_Settings["dontcrit"]) then
+			if spelldata.cancrit and (returndata["grace"] ~= 0) and (not TheoryCraft_Settings["dontcrit"]) then
 				returndata["casttime"] = returndata["casttime"] - (returndata["critchance"]/100) * returndata["grace"]
 				if returndata["casttime"] < 1.5 then
 					returndata["casttime"] = 1.5
 				end
 			end
 		end
+		-- NOTE: this is for "Master of Elements" mana refund proc chance.
 		if (class == "MAGE") then
-			if (returndata["critdmgchance"]) and (not TheoryCraft_Settings["dontcrit"]) then
+			if returndata["critdmgchance"] and (not TheoryCraft_Settings["dontcrit"]) then
 				returndata["manacost"] = returndata["manacost"] - returndata["manacost"] * ((returndata["critdmgchance"]/100) * returndata["illum"])
 			end
 		end
@@ -1103,19 +1105,21 @@ local function GenerateTooltip(frame, returndata, spelldata, spellrank)
 				local tick3 = round((returndata["averagedam"]-returndata["damfinal"]*returndata["baseincrease"])/8+returndata["damfinal"]*returndata["baseincrease"]/12)
 				returndata["averagedamtick"] = tick1..", "..tick2..", "..tick3
 			end
+			-- TBC-TODO: redesign starshards for updated behavior
 			if spelldata.starshards then
 				local tick1 = round((returndata["averagedam"]-returndata["damfinal"]*returndata["baseincrease"])/10+returndata["damfinal"]*returndata["baseincrease"]/6)
 				local tick2 = round((returndata["averagedam"]-returndata["damfinal"]*returndata["baseincrease"])/6+returndata["damfinal"]*returndata["baseincrease"]/6)
 				local tick3 = round((returndata["averagedam"]-returndata["damfinal"]*returndata["baseincrease"])/4.5+returndata["damfinal"]*returndata["baseincrease"]/6)
 				returndata["averagedamtick"] = tick1..", "..tick2..", "..tick3
 			end
-			if (TheoryCraft_Settings["dontcrit"]) then
-				returndata["dpm"] = returndata["averagedamnocrit"]/returndata["manacost"]
+			if TheoryCraft_Settings["dontcrit"] then
+				returndata["dpm"] = returndata["averagedamnocrit"] / returndata["manacost"]
 			else
-				returndata["dpm"] = returndata["averagedam"]/returndata["manacost"]
+				returndata["dpm"] = returndata["averagedam"]       / returndata["manacost"]
 			end
-			if (TheoryCraft_Data.Stats["lifetapMana"]) and (TheoryCraft_Data.Stats["lifetapHealth"]) then
-				returndata["lifetapdpm"] = returndata["dpm"]*returndata["manacost"]/(returndata["manacost"]/TheoryCraft_Data.Stats["lifetapMana"]*TheoryCraft_Data.Stats["lifetapHealth"])
+			if TheoryCraft_Data.Stats["lifetapMana"] and TheoryCraft_Data.Stats["lifetapHealth"] then
+				-- convert DPM back to damage, then divide by how many lifetaps it takes to cover the mana cost.
+				returndata["lifetapdpm"] = returndata["dpm"] * returndata["manacost"] / (returndata["manacost"] / TheoryCraft_Data.Stats["lifetapMana"] * TheoryCraft_Data.Stats["lifetapHealth"])
 			end
 			local cooldown = tonumber(string.match(returndata["cooldown"], "(%d*%.?%d+)"))
 			if (spelldata.overcooldown and cooldown) then
@@ -1135,40 +1139,41 @@ local function GenerateTooltip(frame, returndata, spelldata, spellrank)
 					returndata["dpsdam"] = returndata["averagedpsdam"]/returndata["casttime"]
 				else
 					if spelldata.isdot then
-						if (TheoryCraft_Settings["dontcrit"]) then
-							returndata["dps"] = returndata["averagedamnocrit"]/returndata["dotduration"]
+						if TheoryCraft_Settings["dontcrit"] then
+							returndata["dps"] = returndata["averagedamnocrit"] / returndata["dotduration"]
 						else
-							returndata["dps"] = returndata["averagedam"]/returndata["dotduration"]
+							returndata["dps"] = returndata["averagedam"]       / returndata["dotduration"]
 						end
-						returndata["dpsdam"] = returndata["averagedpsdam"]/returndata["dotduration"]
+						returndata["dpsdam"] = returndata["averagedpsdam"] / returndata["dotduration"]
 					else
-						if (TheoryCraft_Settings["dontcrit"]) then
-							returndata["dps"] = returndata["averagedamnocrit"]/returndata["casttime"]
+						if TheoryCraft_Settings["dontcrit"] then
+							returndata["dps"] = returndata["averagedamnocrit"] / returndata["casttime"]
 						else
-							returndata["dps"] = returndata["averagedam"]/returndata["casttime"]
+							returndata["dps"] = returndata["averagedam"]       / returndata["casttime"]
 						end
-						returndata["dpsdam"] = returndata["averagedpsdam"]/returndata["casttime"]
+						returndata["dpsdam"] = returndata["averagedpsdam"] / returndata["casttime"]
 						if TheoryCraft_Data.Stats["lifetapMana"] then
-							if (TheoryCraft_Settings["dontcrit"]) then
-								returndata["lifetapdps"] = returndata["averagedamnocrit"]/(returndata["casttime"]+(returndata["manacost"]/TheoryCraft_Data.Stats["lifetapMana"])*1.5)
+							if TheoryCraft_Settings["dontcrit"] then
+								returndata["lifetapdps"] = returndata["averagedamnocrit"] / (returndata["casttime"] + (returndata["manacost"] / TheoryCraft_Data.Stats["lifetapMana"])*1.5)
 							else
-								returndata["lifetapdps"] = returndata["averagedam"]/(returndata["casttime"]+(returndata["manacost"]/TheoryCraft_Data.Stats["lifetapMana"])*1.5)
+								returndata["lifetapdps"] = returndata["averagedam"]       / (returndata["casttime"] + (returndata["manacost"] / TheoryCraft_Data.Stats["lifetapMana"])*1.5)
 							end
 						end
 					end
 				end
 			end
 
-			if returndata["dotdamage"] then			
-				returndata["withdotdpm"] = (returndata["dpm"]*returndata["manacost"]+returndata["dotdamage"])/returndata["manacost"]
-				if (TheoryCraft_Settings["combinedot"]) then
-					if (TheoryCraft_Settings["dontcrit"]) then
-						returndata["withdotdps"] = (returndata["averagedamnocrit"]+returndata["dotdamage"])/returndata["casttime"]
+			if returndata["dotdamage"] then
+				-- Convert dpm back to damage, then add in the dot component, and recalculate DPM
+				returndata["withdotdpm"] = (returndata["dpm"] * returndata["manacost"] + returndata["dotdamage"]) / returndata["manacost"]
+				if TheoryCraft_Settings["combinedot"] then
+					if TheoryCraft_Settings["dontcrit"] then
+						returndata["withdotdps"] = (returndata["averagedamnocrit"] + returndata["dotdamage"]) / returndata["casttime"]
 					else
-						returndata["withdotdps"] = (returndata["averagedam"]+returndata["dotdamage"])/returndata["casttime"]
+						returndata["withdotdps"] = (returndata["averagedam"]       + returndata["dotdamage"]) / returndata["casttime"]
 					end
 				else
-					returndata["withdotdps"] = returndata["dotdamage"]/returndata["dotduration"]
+					returndata["withdotdps"] = returndata["dotdamage"] / returndata["dotduration"]
 				end
 			end
 
@@ -1205,19 +1210,20 @@ local function GenerateTooltip(frame, returndata, spelldata, spellrank)
 			end
 		end
 
-		if (returndata["minheal"]) then
+		if returndata["minheal"] then
 			if (class == "PALADIN") or (class == "MAGE") then
-				if (returndata["crithealchance"]) then
-					if (returndata["illum"] ~= 0) and (returndata["mindamage"]) then
+				if returndata["crithealchance"] then
+					if (returndata["illum"] ~= 0) and returndata["mindamage"] then
 						returndata["manacost2"] = returndata["manacost"]
 					end
-					returndata["manacost"] = returndata["manacost"]-returndata["manacost"]*((returndata["crithealchance"]/100)*returndata["illum"])
+					-- REM: "illum" also stands for "Master of Elements"
+					returndata["manacost"] = returndata["manacost"] - returndata["manacost"] * ((returndata["crithealchance"]/100) * returndata["illum"])
 				end
 			end
 			if returndata["maxheal"] == nil then
 				returndata["maxheal"] = returndata["minheal"]
 			end
-			returndata["averagehealnocrit"] = (returndata["maxheal"]-returndata["minheal"])/2+returndata["minheal"]
+			returndata["averagehealnocrit"]   = (returndata["maxheal"] - returndata["minheal"])/2 + returndata["minheal"]
 			returndata["averagehpsdamnocrit"] = returndata["damfinal"]
 			if spelldata.cancrit then
 				if returndata["crithealchance"] == nil then returndata["crithealchance"] = 0 end
@@ -1248,96 +1254,94 @@ local function GenerateTooltip(frame, returndata, spelldata, spellrank)
 					end
 				end
 			end
+
 			if TheoryCraft_Settings["dontcrithpm"] then
-				returndata["hpm"] = returndata["averagehealnocrit"]/returndata["manacost"]
+				returndata["hpm"] = returndata["averagehealnocrit"] / returndata["manacost"]
 			else
-				returndata["hpm"] = returndata["averageheal"]/returndata["manacost"]
+				returndata["hpm"] = returndata["averageheal"]       / returndata["manacost"]
 			end
-			if (TheoryCraft_Data.Stats["lifetapMana"]) and (TheoryCraft_Data.Stats["lifetapHealth"]) then
-				returndata["lifetaphpm"] = returndata["hpm"]*returndata["manacost"]/(returndata["manacost"]/TheoryCraft_Data.Stats["lifetapMana"]*TheoryCraft_Data.Stats["lifetapHealth"])
+			if TheoryCraft_Data.Stats["lifetapMana"] and TheoryCraft_Data.Stats["lifetapHealth"] then
+				returndata["lifetaphpm"] = returndata["hpm"] * returndata["manacost"] / (returndata["manacost"] / TheoryCraft_Data.Stats["lifetapMana"] * TheoryCraft_Data.Stats["lifetapHealth"])
 			end
-			if (TheoryCraft_Settings["dotoverct"]) and (spelldata.isdot) then
-				returndata["hps"] = returndata["averageheal"]/returndata["casttime"]
-				returndata["hpsdam"] = returndata["averagehpsdam"]/returndata["casttime"]
+
+			if TheoryCraft_Settings["dotoverct"] and spelldata.isdot then
+				returndata["hps"]    = returndata["averageheal"]   / returndata["casttime"]
+				returndata["hpsdam"] = returndata["averagehpsdam"] / returndata["casttime"]
 			else
 				if spelldata.isdot then
-					returndata["hps"] = returndata["averageheal"]/returndata["dotduration"]
-					returndata["hpsdam"] = returndata["averagehpsdam"]/returndata["dotduration"]
+					returndata["hps"]    = returndata["averageheal"]   / returndata["dotduration"]
+					returndata["hpsdam"] = returndata["averagehpsdam"] / returndata["dotduration"]
 				else
-					returndata["hps"] = returndata["averageheal"]/returndata["casttime"]
-					returndata["hpsdam"] = returndata["averagehpsdam"]/returndata["casttime"]
+					returndata["hps"]    = returndata["averageheal"]   / returndata["casttime"]
+					returndata["hpsdam"] = returndata["averagehpsdam"] / returndata["casttime"]
 				end
 			end
 			if TheoryCraft_Data.Stats["lifetapMana"] then
-				returndata["lifetaphps"] = returndata["averageheal"]/(returndata["casttime"]+(returndata["manacost"]/TheoryCraft_Data.Stats["lifetapMana"])*1.5)
+				returndata["lifetaphps"] = returndata["averageheal"] / (returndata["casttime"] + (returndata["manacost"] / TheoryCraft_Data.Stats["lifetapMana"])*1.5)
 			end
 			if returndata["hotheal"] then
-				returndata["withhothpm"] = (returndata["hpm"]*returndata["manacost"]+returndata["hotheal"])/returndata["manacost"]
-				if (TheoryCraft_Settings["combinedot"]) then
-					returndata["withhothps"] = (returndata["averageheal"]+returndata["hotheal"])/returndata["casttime"]
+				returndata["withhothpm"] = (returndata["hpm"] * returndata["manacost"] + returndata["hotheal"]) / returndata["manacost"]
+				if TheoryCraft_Settings["combinedot"] then
+					returndata["withhothps"] = (returndata["averageheal"] + returndata["hotheal"]) / returndata["casttime"]
 				else
-					returndata["withhothps"] = returndata["hotheal"]/returndata["dotduration"]
+					returndata["withhothps"] = returndata["hotheal"] / returndata["dotduration"]
 				end
 			end
 
 			if spelldata.isdot then
-				returndata["dameff"] = returndata["damcoef"]*returndata["baseincrease"]/returndata["dotduration"]*3.5
+				returndata["dameff"] = returndata["damcoef"] * returndata["baseincrease"] / returndata["dotduration"]*3.5
 			else
 				if returndata["damcoef2"] then
-					returndata["dameff"] = ((returndata["damcoef"]+returndata["damcoef2"])*returndata["baseincrease"])/returndata["casttime"]*3.5
+					returndata["dameff"] = ((returndata["damcoef"] + returndata["damcoef2"]) * returndata["baseincrease"]) / returndata["casttime"]*3.5
 				else
-					returndata["dameff"] = returndata["damcoef"]*returndata["baseincrease"]/returndata["casttime"]*3.5
+					returndata["dameff"] = returndata["damcoef"] * returndata["baseincrease"] / returndata["casttime"]*3.5
 				end
 			end
 			if spelldata.dontdomax == nil then
-				returndata["maxoomheal"] = (TheoryCraft_Data.Stats["totalmana"]+TheoryCraft_GetStat("manarestore"))*returndata["hpm"]
-				returndata["maxoomhealtime"] = returndata["maxoomheal"]/returndata["hps"]
+				returndata["maxoomheal"]     = (TheoryCraft_Data.Stats["totalmana"] + TheoryCraft_GetStat("manarestore")) * returndata["hpm"]
+				returndata["maxoomhealtime"] = returndata["maxoomheal"] / returndata["hps"]
 				if returndata["maxtotalmana"] then
-					returndata["maxevocoomheal"] = TheoryCraft_Data.Stats["maxtotalmana"]*returndata["hpm"]
-					returndata["maxevocoomhealtime"] = returndata["maxevocoomheal"]/returndata["hps"]+8
+					returndata["maxevocoomheal"]     = TheoryCraft_Data.Stats["maxtotalmana"] * returndata["hpm"]
+					returndata["maxevocoomhealtime"] = returndata["maxevocoomheal"] / returndata["hps"]+8
 				end
 			end
-			returndata["regenheal"] = TheoryCraft_Data.Stats["regen"]*10*returndata["hpm"]
-			returndata["icregenheal"] = TheoryCraft_Data.Stats["icregen"]*10*returndata["hpm"]
+			returndata["regenheal"]   = TheoryCraft_Data.Stats["regen"]   * 10 * returndata["hpm"]
+			returndata["icregenheal"] = TheoryCraft_Data.Stats["icregen"] * 10 * returndata["hpm"]
 			if returndata["manamultiplier"] then
-				returndata["averageheal"] = returndata["averageheal"]/returndata["manamultiplier"]
-				returndata["averagehealnocrit"] = returndata["averagehealnocrit"]/returndata["manamultiplier"]
-				returndata["averagehealthreat"] = returndata["averagehealthreat"]/returndata["manamultiplier"]
+				returndata["averageheal"]       = returndata["averageheal"]       / returndata["manamultiplier"]
+				returndata["averagehealnocrit"] = returndata["averagehealnocrit"] / returndata["manamultiplier"]
+				returndata["averagehealthreat"] = returndata["averagehealthreat"] / returndata["manamultiplier"]
 			end
 		end
 	end
-	if (returndata["dps"]) then
-		if (returndata["dpsdam"]) then
-			returndata["dpsdampercent"] = returndata["dpsdam"]/returndata["dps"]*100
-		end
+	if returndata["dps"] and returndata["dpsdam"] then
+		returndata["dpsdampercent"] = returndata["dpsdam"] / returndata["dps"]*100
 	end
-	if (returndata["hps"]) then
-		if (returndata["hpsdam"]) then
-			returndata["hpsdampercent"] = returndata["hpsdam"]/returndata["hps"]*100
-		end
+	if returndata["hps"] and returndata["hpsdam"] then
+		returndata["hpsdampercent"] = returndata["hpsdam"] / returndata["hps"]*100
 	end
-	if (returndata["manamultiplier"]) then
-		returndata["manacost"] = returndata["manacost"]/returndata["manamultiplier"]
+	if returndata["manamultiplier"] and returndata["manacost"] then
+		returndata["manacost"] = returndata["manacost"] / returndata["manamultiplier"]
 	end
-	if (spelldata.manamultiplier) and (returndata["damcoef"]) and (spelldata.lightningshield == nil) then 
-		returndata["damcoef"] = returndata["damcoef"]/spelldata.manamultiplier
+	if spelldata.manamultiplier and returndata["damcoef"] and (spelldata.lightningshield == nil) then 
+		returndata["damcoef"] = returndata["damcoef"] / spelldata.manamultiplier
 	end
 
-	if (returndata["nextcritdam"]) and (returndata["critdmgchance"]) and (returndata["critdmgchance"] > 99) then
+	if returndata["nextcritdam"] and returndata["critdmgchance"] and (returndata["critdmgchance"] > 99) then
 		if returndata["critdmgchance"] < 100 then
-			returndata["nextcritdam"] = returndata["nextcritdam"]*(1 - (returndata["critdmgchance"] - 99))
-			returndata["nextcritdamequive"] = returndata["nextcritdamequive"]*(1 - (returndata["critdmgchance"] - 99))
+			returndata["nextcritdam"]       = returndata["nextcritdam"]       * (1 - (returndata["critdmgchance"] - 99))
+			returndata["nextcritdamequive"] = returndata["nextcritdamequive"] * (1 - (returndata["critdmgchance"] - 99))
 		else
-			returndata["nextcritdam"] = 0
+			returndata["nextcritdam"]       = 0
 			returndata["nextcritdamequive"] = 0
 		end
 	end
-	if (returndata["nextcritheal"]) and (returndata["crithealchance"]) and (returndata["crithealchance"] > 99) then
+	if returndata["nextcritheal"] and returndata["crithealchance"] and (returndata["crithealchance"] > 99) then
 		if returndata["crithealchance"] < 100 then
-			returndata["nextcritheal"] = returndata["nextcritheal"]*(1 - (returndata["crithealchance"] - 99))
-			returndata["nextcrithealequive"] = returndata["nextcrithealequive"]*(1 - (returndata["crithealchance"] - 99))
+			returndata["nextcritheal"]       = returndata["nextcritheal"]       * (1 - (returndata["crithealchance"] - 99))
+			returndata["nextcrithealequive"] = returndata["nextcrithealequive"] * (1 - (returndata["crithealchance"] - 99))
 		else
-			returndata["nextcritheal"] = 0
+			returndata["nextcritheal"]       = 0
 			returndata["nextcrithealequive"] = 0
 		end
 	end
@@ -1360,7 +1364,7 @@ local function GenerateTooltip(frame, returndata, spelldata, spellrank)
 	if returndata["manacost"] then
 		returndata["maxspellcasts"] = 1+math.floor((TheoryCraft_GetStat("totalmana") - (returndata["basemanacost"] or returndata["manacost"])) / returndata["manacost"])
 		if returndata["maxoomdam"] then
-			returndata["maxoomdamfloored"] = returndata["dpm"] * returndata["manacost"] * returndata["maxspellcasts"]
+			returndata["maxoomdamfloored"]  = returndata["dpm"] * returndata["manacost"] * returndata["maxspellcasts"]
 		end
 		if returndata["maxoomheal"] then
 			returndata["maxoomhealfloored"] = returndata["hpm"] * returndata["manacost"] * returndata["maxspellcasts"]
@@ -1765,7 +1769,7 @@ function TheoryCraft_GenerateTooltip(frame, spellname, spellrank, i2, showonbutt
 
 	if TheoryCraft_Data["reporttimes"] then
 		TheoryCraft_Data["buttonsgenerated"] = TheoryCraft_Data["buttonsgenerated"]+1
-		TheoryCraft_Data["timetaken"] = TheoryCraft_Data["timetaken"]+GetTime()-timer
+		TheoryCraft_Data["timetaken"]        = TheoryCraft_Data["timetaken"] + GetTime() - timer
 	end
 end
 
@@ -1777,12 +1781,12 @@ local function UpdateTarget(data)
 	data["resistscore"] = 0
 	if data["basemanacost"] and data["manacost"] then
 		if UnitPower("player") >= data["basemanacost"] then
-			data["spellcasts"] = 1+math.floor((UnitPower("player")-(data["basemanacost"] or data["manacost"]))/data["manacost"])
+			data["spellcasts"] = 1+math.floor((UnitPower("player") - (data["basemanacost"] or data["manacost"])) / data["manacost"])
 			if data["dpm"] and data["maxoomdam"] then
-				data["maxoomdamremaining"] = data["dpm"]*data["manacost"]*data["spellcasts"]
+				data["maxoomdamremaining"]  = data["dpm"] * data["manacost"] * data["spellcasts"]
 			end
 			if data["hpm"] and data["maxoomheal"] then
-				data["maxoomhealremaining"] = data["hpm"]*data["manacost"]*data["spellcasts"]
+				data["maxoomhealremaining"] = data["hpm"] * data["manacost"] * data["spellcasts"]
 			end
 		else
 			data["spellcasts"] = 0

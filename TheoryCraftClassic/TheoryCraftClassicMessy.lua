@@ -117,8 +117,8 @@ function TheoryCraft_getMinMax(spelldata, returndata, frame)
 
 		local averageauto, averageaimed, averagemulti, averagearcane = 0, 0, 0, 0
 		local aimedmana, multimana = 0, 0
-		averageauto = (returndata["maxdamage"]+returndata["mindamage"])/2
-		averageauto = averageauto+averageauto*TheoryCraft_Data.Stats["rangedcritchance"]/100*returndata["critbonus"]
+		averageauto = (returndata["maxdamage"] + returndata["mindamage"])/2
+		averageauto = averageauto + averageauto * TheoryCraft_Data.Stats["rangedcritchance"]/100 * returndata["critbonus"]
 		for i = 1, 20 do
 			if TheoryCraft_TooltipData[TheoryCraft_Locale.MinMax.aimedshotname.."("..i..")"] and TheoryCraft_TooltipData[TheoryCraft_TooltipData[TheoryCraft_Locale.MinMax.aimedshotname.."("..i..")"]].averagedam then
 				averageaimed = TheoryCraft_TooltipData[TheoryCraft_TooltipData[TheoryCraft_Locale.MinMax.aimedshotname.."("..i..")"]].averagedam
@@ -137,7 +137,7 @@ function TheoryCraft_getMinMax(spelldata, returndata, frame)
 --		averagemulti = 662
 
 		local rotationlength1, rotationlength2, rotationdps1, rotationdps2, autoshotcount1, autoshotcount2
-		local speed = TheoryCraft_GetStat("RangedSpeed")*TheoryCraft_GetStat("Rangedhastebonus")
+		local speed = TheoryCraft_GetStat("RangedSpeed") * TheoryCraft_GetStat("Rangedhastebonus")
 --		speed = 2.19
 		returndata["dps"] = averageauto/speed
 
@@ -146,30 +146,29 @@ function TheoryCraft_getMinMax(spelldata, returndata, frame)
 		returndata["dontshowmana"] = true
 
 		-- MS (multi shot) Rotation Calculated Here:
-
 		rotationlength1 = 10
-		rotationlength2 = math.ceil(7/speed)*speed+3
+		rotationlength2 = math.ceil(7/speed) * speed+3
 		if (speed > 3) or (averageaimed == 0) then
-			autoshotcount1 = math.floor(rotationlength1/speed)
-			autoshotcount2 = math.floor(rotationlength2/speed)
+			autoshotcount1 = math.floor(rotationlength1 / speed)
+			autoshotcount2 = math.floor(rotationlength2 / speed)
 		else
-			autoshotcount1 = math.floor((rotationlength1-3)/speed)+1
-			autoshotcount2 = math.floor((rotationlength2-3)/speed)+1
+			autoshotcount1 = math.floor((rotationlength1-3) / speed)+1
+			autoshotcount2 = math.floor((rotationlength2-3) / speed)+1
 		end
 
-		rotationdps1 = (averageaimed+averagemulti+averageauto*autoshotcount1)/rotationlength1
-		rotationdps2 = (averageaimed+averagemulti+averageauto*autoshotcount2)/rotationlength2
+		rotationdps1 = (averageaimed + averagemulti + averageauto * autoshotcount1) / rotationlength1
+		rotationdps2 = (averageaimed + averagemulti + averageauto * autoshotcount2) / rotationlength2
 		if (rotationdps1 > rotationdps2) then
-			returndata["msrotationdps"] = rotationdps1
+			returndata["msrotationdps"]    = rotationdps1
 			returndata["msrotationlength"] = rotationlength1
 			if TheoryCraft_Settings["procs"] then
-				returndata["manacost"] = returndata["manacost"]-autoshotcount1*0.04*TheoryCraft_GetStat("Beastmanarestore")
+				returndata["manacost"] = returndata["manacost"] - autoshotcount1*0.04 * TheoryCraft_GetStat("Beastmanarestore")
 			end
 		else
-			returndata["msrotationdps"] = rotationdps2
+			returndata["msrotationdps"]    = rotationdps2
 			returndata["msrotationlength"] = rotationlength2
 			if TheoryCraft_Settings["procs"] then
-				returndata["manacost"] = returndata["manacost"]-autoshotcount2*0.04*TheoryCraft_GetStat("Beastmanarestore")
+				returndata["manacost"] = returndata["manacost"] - autoshotcount2*0.04 * TheoryCraft_GetStat("Beastmanarestore")
 			end
 		end
 		returndata["regencasttime"] = returndata["msrotationlength"]-3
