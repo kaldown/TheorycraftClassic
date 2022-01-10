@@ -38,8 +38,9 @@ local function TheoryCraft_AddAllTalents(talent_data)
 	talent_data["manamultiplierreal"]   = talent_data["manamultiplier"]
 	talent_data["healthmultiplierreal"] = talent_data["healthmultiplier"]
 
-	local catform  = (TCUtils.StanceFormName() == 'cat')
-	local bearform = (TCUtils.StanceFormName() == 'bear')
+	local active_stance = TCUtils.StanceFormName()
+	local catform  = (active_stance == 'cat')
+	local bearform = (active_stance == 'bear')
 
 	while (TheoryCraft_Talents[i]) do
 		if (class == TheoryCraft_Talents[i].class) then

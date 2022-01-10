@@ -12,25 +12,17 @@ local function TheoryCraft_AddAllBuffs(target, data, buffs)
 		data["Rangedmodifier"] = -1+meleemod
 	end
 	if class == "DRUID" then
-		local oldstance = TheoryCraft_Data.currentstance
-		TheoryCraft_Data.currentstance = nil
-
-		-- Other forms like travel/flight are ignored.
-		if TCUtils.StanceFormName() == 'bear' then
-			TheoryCraft_Data.currentstance = 1
-		elseif TCUtils.StanceFormName() == 'cat' then
-			TheoryCraft_Data.currentstance = 3
-		end
-
-		if TheoryCraft_Data.currentstance ~= oldstance then
+		local active_stance, has_changed = TCUtils.StanceFormName()
+		-- travel/flight forms are definitely irrelevant. FUTURE-TODO: add moonkin/tree if necessary
+		if has_changed and (active_stance == 'bear' or active_stance == 'cat') then
 			TheoryCraft_Data.redotalents = true
 		end
 	end
 	if buffs == "debuffs" then
-		locale_table = TheoryCraft_Debuffs
+		locale_table  = TheoryCraft_Debuffs
 		defaulttarget = "target"
 	else
-		locale_table = TheoryCraft_Buffs
+		locale_table  = TheoryCraft_Buffs
 		defaulttarget = "player"
 	end
 	for i = 1, 16 do

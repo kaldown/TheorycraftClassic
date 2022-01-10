@@ -643,6 +643,11 @@ function TheoryCraft_OnEvent(self, event, ...)
 	elseif event == "UNIT_AURA" then
 		if (arg[1] == "player") then
 			TheoryCraft_UpdatePlayerBuffs()
+
+			local _, has_changed = TCUtils.StanceFormName()
+			if has_changed then
+				UpdateActionBarText()
+			end
 		end
 
 	-- Fired when the player's available talent points change. 

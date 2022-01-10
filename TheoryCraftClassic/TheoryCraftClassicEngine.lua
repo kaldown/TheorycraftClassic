@@ -324,12 +324,12 @@ local function GetCritChance(critreport)
 	if (attackSpell ~= TheoryCraft_Locale.Attack) then
 		name, texture, offset, numSpells = GetSpellTabInfo(1)
 		for i=1, numSpells do
-			if (GetSpellBookItemName(i,BOOKTYPE_SPELL) == TheoryCraft_Locale.Attack) then
+			if (GetSpellBookItemName(i, BOOKTYPE_SPELL) == TheoryCraft_Locale.Attack) then
 				id = i
 			end
 		end
 	end
-	if GetSpellBookItemName(id,BOOKTYPE_SPELL) ~= TheoryCraft_Locale.Attack then
+	if GetSpellBookItemName(id, BOOKTYPE_SPELL) ~= TheoryCraft_Locale.Attack then
 		return 0
 	end
 	TheoryCraftTooltip:SetOwner(UIParent,"ANCHOR_NONE")
@@ -340,11 +340,14 @@ local function GetCritChance(critreport)
 	critNum = string.sub(spellName,0,(iCritInfo -2))
 	critChance = string.gsub(critNum, ",", ".")
 	critChance = tonumber(critChance)
+
 	if critreport == nil then critreport = 0 end
 	if (critChance) and (critChance ~= critreport) then
+		local active_stance = TCUtils.StanceFormName()
+
 		-- I guess this means take weapon skill into account?
 		local doweaponskill = true
-		if (TCUtils.StanceFormName() == 'bear') or (TCUtils.StanceFormName() == 'cat') then
+		if (active_stance == 'bear') or (active_stance == 'cat') then
 			doweaponskill = nil
 		end
 		if doweaponskill then
@@ -397,7 +400,7 @@ local function GetCritChance(critreport)
 			critChance = critChance + (TheoryCraft_Data.Talents["Formcritchance"] or 0)
 		end
 
-		if TCUtils.StanceFormName() == 'berserker' then
+		if active_stance == 'berserker' then
 			critchance2 = critchance2 - 3
 			remove = -3
 		end
@@ -457,8 +460,9 @@ function TheoryCraft_LoadStats(source)
 	TheoryCraft_Data.Stats["agilityapranged"] = 0
 	TheoryCraft_Data.Stats["strengthapmelee"] = 1
 
-	local catform  = (TCUtils.StanceFormName() == 'cat')
-	local bearform = (TCUtils.StanceFormName() == 'bear')
+	local active_stance = TCUtils.StanceFormName()
+	local catform  = (active_stance == 'cat')
+	local bearform = (active_stance == 'bear')
 	
 	if class == "DRUID" then
 		TheoryCraft_Data.Stats["strengthapmelee"] = 2 -- yes even in elf form
@@ -777,17 +781,14 @@ local function GenerateTooltip(frame, returndata, spelldata, spellrank)
 		end
 	end
 
-	if (spelldata.bearform) then
-		if TCUtils.StanceFormName() ~= 'bear' then
-			CleanUp(spelldata, returndata)
-			return
-		end
+	local active_stance = TCUtils.StanceFormName()
+	if spelldata.bearform and (active_stance ~= 'bear') then
+		CleanUp(spelldata, returndata)
+		return
 	end
-	if (spelldata.catform) then
-		if TCUtils.StanceFormName() ~= 'cat' then
-			CleanUp(spelldata, returndata)
-			return
-		end
+	if spelldata.catform and (active_stance ~= 'cat') then
+		CleanUp(spelldata, returndata)
+		return
 	end
 
 	-- ----- End Special Cases -----
@@ -906,8 +907,8 @@ local function GenerateTooltip(frame, returndata, spelldata, spellrank)
 
 	-- Apply weapon speeds and AP multipliers for druid forms.
 	if class == "DRUID" then
-		local bearform = (TCUtils.StanceFormName() == 'bear')
-		local catform  = (TCUtils.StanceFormName() == 'cat')
+		local bearform = (active_stance == 'bear')
+		local catform  = (active_stance == 'cat')
 		if catform then
 			TheoryCraft_Data.EquipEffects["MeleeAPMult"] = 1
 			TheoryCraft_Data.EquipEffects["MainSpeed"]   = 1

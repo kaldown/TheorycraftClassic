@@ -16,6 +16,8 @@ do
 	TCUtils.CLASS = class
 end
 
+local active_stance = 'none'
+
 -- Returns:
 --   nil  if class has no stances
 --   none if no stances for this class are active
@@ -66,7 +68,12 @@ TCUtils.StanceFormName = function()
 		end
 	end
 
-	return active_name
+	-- Determine changed status
+	local has_changed = (active_stance ~= active_name)
+	-- Update the currently active stance/form
+	active_stance = active_name
+
+	return active_name, has_changed
 end
 
 -- /run TCUtils.DebugPoints('FrameGlobalName')
