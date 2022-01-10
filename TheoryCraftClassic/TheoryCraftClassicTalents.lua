@@ -38,7 +38,7 @@ local function TheoryCraft_AddAllTalents(talent_data)
 	talent_data["manamultiplierreal"]   = talent_data["manamultiplier"]
 	talent_data["healthmultiplierreal"] = talent_data["healthmultiplier"]
 
-	local active_stance = TCUtils.StanceFormName()
+	local active_stance = TCUtils.StanceFormName('AddAllTalents')
 	local catform  = (active_stance == 'cat')
 	local bearform = (active_stance == 'bear')
 

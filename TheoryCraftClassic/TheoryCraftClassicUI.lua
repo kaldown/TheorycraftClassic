@@ -816,7 +816,7 @@ end
 
 -- Just the main actionbar
 -- REM: may be called many times due to changing pages.
-local function UpdateActionBarText()
+function TheoryCraft_UpdateActionBarText()
 	if not TheoryCraft_Data.TalentsHaveBeenRead then
 		print("Skipped UpdateActionBarText - talents not ready")
 		return
@@ -849,7 +849,7 @@ function TheoryCraft_UpdateAllButtonText(source)
 	end
 
 	UpdateSpellBookText()
-	UpdateActionBarText()
+	TheoryCraft_UpdateActionBarText()
 
 	if ActionButton1 then
 		for i = 1,12 do updatebutton("MultiBarRightButton"..i) end
@@ -885,7 +885,7 @@ end
 -- NOTE: maybe this should be an event? ACTIONBAR_PAGE_CHANGED, what about UPDATE_BONUS_ACTIONBAR ?
 hooksecurefunc("ChangeActionBarPage", function(i)
 	--print("ChangeActionBarPage "..i)
-	UpdateActionBarText()
+	TheoryCraft_UpdateActionBarText()
 end)
 
 

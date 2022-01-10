@@ -22,7 +22,12 @@ local active_stance = 'none'
 --   nil  if class has no stances
 --   none if no stances for this class are active
 --   name of the active form/stance
-TCUtils.StanceFormName = function()
+-- NOTE: src is purely for debugging
+TCUtils.StanceFormName = function(src)
+	--if src then
+	--	print('StanceFormName', src)
+	--end
+
 	local num_forms = GetNumShapeshiftForms()
 	if num_forms == 0 then
 		return nil
@@ -69,7 +74,11 @@ TCUtils.StanceFormName = function()
 	end
 
 	-- Determine changed status
+	-- FUTURE-TODO: If we need to know whether stance changed in multiple different locations (that may happen in arbitrary order)
+	--              then this instant update of current => old may not be sustainable.
+	--              ideally we need some sort of custom event to be triggered, but I don't think that is actually possible.
 	local has_changed = (active_stance ~= active_name)
+	--print(active_stance, active_name)
 	-- Update the currently active stance/form
 	active_stance = active_name
 

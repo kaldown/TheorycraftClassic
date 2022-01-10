@@ -324,7 +324,7 @@ local function GetCritChance(critreport)
 
 	if critreport == nil then critreport = 0 end
 	if (critChance) and (critChance ~= critreport) then
-		local active_stance = TCUtils.StanceFormName()
+		local active_stance = TCUtils.StanceFormName('GetCritChance')
 
 		-- I guess this means take weapon skill into account?
 		local doweaponskill = true
@@ -441,7 +441,7 @@ function TheoryCraft_LoadStats(source)
 	TheoryCraft_Data.Stats["agilityapranged"] = 0
 	TheoryCraft_Data.Stats["strengthapmelee"] = 1
 
-	local active_stance = TCUtils.StanceFormName()
+	local active_stance = TCUtils.StanceFormName('LoadStats')
 	local catform  = (active_stance == 'cat')
 	local bearform = (active_stance == 'bear')
 	
@@ -762,7 +762,7 @@ local function GenerateTooltip(frame, returndata, spelldata, spellrank)
 		end
 	end
 
-	local active_stance = TCUtils.StanceFormName()
+	local active_stance = TCUtils.StanceFormName('GenerateTooltip')
 	if spelldata.bearform and (active_stance ~= 'bear') then
 		CleanUp(spelldata, returndata)
 		return

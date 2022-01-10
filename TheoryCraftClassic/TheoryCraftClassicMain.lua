@@ -642,12 +642,7 @@ function TheoryCraft_OnEvent(self, event, ...)
 	-- NOTE: we care about both "player" and "target"
 	elseif event == "UNIT_AURA" then
 		if (arg[1] == "player") then
-			TheoryCraft_UpdatePlayerBuffs()
-
-			local _, has_changed = TCUtils.StanceFormName()
-			if has_changed then
-				UpdateActionBarText()
-			end
+			TheoryCraft_UpdatePlayerBuffs() -- REM: calls LoadStats
 		end
 
 	-- Fired when the player's available talent points change. 
@@ -669,7 +664,7 @@ function TheoryCraft_OnEvent(self, event, ...)
 	elseif event == "UNIT_POWER_UPDATE" then
 
 	elseif (event == "UNIT_MANA") and (arg[1] == "player") then
-		if TCUtils.StanceFormName() == 'cat' then
+		if TCUtils.StanceFormName('UNIT_MANA') == 'cat' then
 			TheoryCraft_DeleteTable(TheoryCraft_UpdatedButtons)
 		end
 		-- when either primary or secondary dropdown options are configured for:
