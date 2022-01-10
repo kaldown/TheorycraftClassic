@@ -1,5 +1,5 @@
-# TheorycraftClassic
-This is yet another fix for the old Theorycraft addon to work with WoW Classic & TBC. This is a fork from Boothin's repository because he had apparently abandon it. Lets see if I have better luck sticking with this.
+# TheoryCraftClassic
+This is yet another fix for the old TheoryCraft addon to work with WoW Classic & TBC. This is a fork from Boothin's repository because he had apparently abandon it. Lets see if I have better luck sticking with this.
 
 Use /tc to open the options window.
 Use /tc more to see additional commands
@@ -35,7 +35,6 @@ Changes already made from code I inherited from Boothin
 
 ## Other Known Issues
 
-- (Major) No melee ability currently has any tooltip updates performed.
 - +spell damage (and other stats) are not currently read correctly
 - Some slash commands may not function
 - Some checkboxes may have no effect

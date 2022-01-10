@@ -50,8 +50,6 @@ function TheoryCraft_AddTooltipInfo(game_tooltip_frame, dontshow)
 	--print(spellName, spellID)
 	if spellName == nil or spellID == nil then return end
 
-	print("TheoryCraft_AddTooltipInfo(".. game_tooltip_frame:GetName() ..",".. (dontshow or 'nil') ..")")
-
 	tooltipdata = TheoryCraft_GenerateSpellData(spellID)
 
 	if tooltipdata == nil then return end

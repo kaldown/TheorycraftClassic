@@ -818,7 +818,6 @@ end
 -- REM: may be called many times due to changing pages.
 function TheoryCraft_UpdateActionBarText()
 	if not TheoryCraft_Data.TalentsHaveBeenRead then
-		print("Skipped UpdateActionBarText - talents not ready")
 		return
 	end
 
@@ -831,7 +830,6 @@ end
 -- REM: may be called many times due to changing pages.
 local function UpdateSpellBookText()
 	if not TheoryCraft_Data.TalentsHaveBeenRead then
-		print("Skipped UpdateSpellBookText - talents not ready")
 		return
 	end
 
@@ -844,7 +842,6 @@ end
 -- This will handle changing the button color and position as well as what type of text should be shown
 function TheoryCraft_UpdateAllButtonText(source)
 	if not TheoryCraft_Data.TalentsHaveBeenRead then
-		print("Skipped TheoryCraft_UpdateAllButtonText - talents not ready")
 		return
 	end
 

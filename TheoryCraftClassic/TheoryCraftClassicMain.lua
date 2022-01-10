@@ -281,8 +281,6 @@ end
 --]]
 
 function TheoryCraft_OnLoad(self)
-	print("TheoryCraft_OnLoad")
-
 	-- Register the persistent events
 	self:RegisterEvent("ADDON_LOADED")
 	self:RegisterEvent("PLAYER_LOGIN")
@@ -586,7 +584,6 @@ function TheoryCraft_OnEvent(self, event, ...)
 	-- Triggered immediately before PLAYER_ENTERING_WORLD on login and UI Reload, but NOT when entering/leaving instances.
 	-- I.E. this only happens once
 	elseif event == "PLAYER_LOGIN" then
-		print('TheoryCraft Player Login')
 
 		--[[
 		if _G['Bartender4'] ~= nil then
@@ -611,7 +608,6 @@ function TheoryCraft_OnEvent(self, event, ...)
 	-- Fired when the player logs in, /reloads the UI, or zones between map instances, basically whenever the loading screen appears. 
 	-- args: isLogin(bool), isReload(bool)
 	elseif event == "PLAYER_ENTERING_WORLD" then
-		print('TheoryCraft Player Entering World')
 
 		register_events(self)
 
@@ -688,10 +684,7 @@ function TheoryCraft_OnEvent(self, event, ...)
 	elseif event == "ACTIONBAR_SLOT_CHANGED" then
 		local button = TheoryCraft_FindActionButton(arg[1])
 		if button then
-			print("ACTIONBAR_SLOT_CHANGED: ", arg[1], button:GetName())
 			TheoryCraft_ButtonUpdate(button, true)
-		--else
-		--	print("ACTIONBAR_SLOT_CHANGED: "..arg[1].. ' but no button found')
 		end
 
 	-- TODO: this in theory should work, but I don't know what triggers it at the moment.
