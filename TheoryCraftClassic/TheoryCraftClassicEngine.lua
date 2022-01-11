@@ -804,7 +804,10 @@ local function GenerateTooltip(frame, returndata, spelldata, spellrank)
 		end
 	end
 
-	-- print(returndata["manacost"])
+	-- if mana cost is 0 (clearcasting or whatever), then nil it out (to prevent potential divide by zero errors)
+	if returndata["manacost"] == 0 then returndata["manacost"] = nil end
+
+	--print('manacost', returndata["manacost"])
 
 	returndata["basemanacost"] = returndata["manacost"]
 

@@ -47,7 +47,7 @@ function TheoryCraft_AddTooltipInfo(game_tooltip_frame, dontshow)
 	spellName, spellID = GameTooltip:GetSpell()
 
 	-- TheoryCraft does not care if this tooltip is not for a spell of any sort. Ignore it!!!
-	--print((spellName or 'nil').. ", " ..(spellID or 'nil'))
+	--print(spellName, spellID)
 	if spellName == nil or spellID == nil then return end
 
 	print("TheoryCraft_AddTooltipInfo(".. game_tooltip_frame:GetName() ..",".. (dontshow or 'nil') ..")")
