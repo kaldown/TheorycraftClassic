@@ -934,13 +934,17 @@ function TheoryCraft_Command(cmd)
 			print(v)
 		end
 	end
-	if (cmd == "off") then
+	if (cmd == "off") and (not TheoryCraft_Settings["off"]) then
 		print("TheoryCraft is now switched OFF")
 		TheoryCraft_Settings["off"] = true
+		-- also re-render all buttontext (which will trigger it to hide)
+		TheoryCraft_UpdateAllButtonText()
 	end
-	if (cmd == "on") then
+	if (cmd == "on") and TheoryCraft_Settings["off"] then
 		print("TheoryCraft is now switched ON")
 		TheoryCraft_Settings["off"] = nil
+		-- also re-render all buttontext
+		TheoryCraft_UpdateAllButtonText()
 	end
 
 	if (cmd == "more") then

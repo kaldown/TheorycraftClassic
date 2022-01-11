@@ -941,7 +941,8 @@ function TheoryCraft_ButtonUpdate(this, actionbar_slot_changed)
 	end
 	-- --------------
 
-	if not TheoryCraft_Settings["buttontext"] then
+	-- If buttontext checkbox is unchecked or the addon is entirely turned off
+	if not TheoryCraft_Settings["buttontext"] or TheoryCraft_Settings["off"] then
 		toggle_btn_text_fn()
 		return
 	end
