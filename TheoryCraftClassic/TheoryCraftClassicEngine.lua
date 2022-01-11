@@ -674,14 +674,14 @@ local function CleanUp(spelldata, returndata)
 		returndata["nextpendamequive"] = nil
 		returndata["nexthitdamequive"] = nil
 		returndata["nextcritdamequive"] = nil
-		returndata["regendam"] = nil
-		returndata["icregendam"] = nil
+		--returndata["regendam"] = nil
+		--returndata["icregendam"] = nil
 		returndata["nextcritheal"] = nil
 		returndata["nextcrithealequive"] = nil
 		returndata["hpsdam"] = nil
 		returndata["hpsdampercent"] = nil
-		returndata["regenheal"] = nil
-		returndata["icregenheal"] = nil
+		--returndata["regenheal"] = nil
+		--returndata["icregenheal"] = nil
 	end
 
 	if (spelldata.dontdpsafterresists) then
@@ -1000,8 +1000,8 @@ local function GenerateTooltip(frame, returndata, spelldata, spellrank)
 					returndata["dpm"]           = returndata["msrotationlength"] * returndata["msrotationdps"] / returndata["manacost"]
 					returndata["maxoomdam"]     = (TheoryCraft_Data.Stats["totalmana"] + TheoryCraft_GetStat("manarestore")) * returndata["dpm"]
 					returndata["maxoomdamtime"] = returndata["maxoomdam"] / returndata["dps"]
-					returndata["regendam"]      = TheoryCraft_Data.Stats["regen"]   * 10 * returndata["dpm"]
-					returndata["icregendam"]    = TheoryCraft_Data.Stats["icregen"] * 10 * returndata["dpm"]
+					--returndata["regendam"]      = TheoryCraft_Data.Stats["regen"]   * 10 * returndata["dpm"]
+					--returndata["icregendam"]    = TheoryCraft_Data.Stats["icregen"] * 10 * returndata["dpm"]
 
 				elseif returndata["manacost"] then
 					if TheoryCraft_Settings["dontcritdpm"] then
@@ -1009,8 +1009,8 @@ local function GenerateTooltip(frame, returndata, spelldata, spellrank)
 					else
 						returndata["dpm"] = returndata["averagedam"]       / returndata["manacost"]
 					end
-					returndata["regendam"]   = TheoryCraft_Data.Stats["regen"]   * 10 * returndata["dpm"]
-					returndata["icregendam"] = TheoryCraft_Data.Stats["icregen"] * 10 * returndata["dpm"]
+					--returndata["regendam"]   = TheoryCraft_Data.Stats["regen"]   * 10 * returndata["dpm"]
+					--returndata["icregendam"] = TheoryCraft_Data.Stats["icregen"] * 10 * returndata["dpm"]
 				end
 			end
 		end
@@ -1218,8 +1218,8 @@ local function GenerateTooltip(frame, returndata, spelldata, spellrank)
 			end
 			returndata["nextpendam"]       = returndata["averagedam"] * UnitLevel("player")/2400
 			returndata["nextpendamequive"] = returndata["nextpendam"] / returndata["damworth"]
-			returndata["regendam"]         = TheoryCraft_Data.Stats["regen"]   *10 *returndata["dpm"]
-			returndata["icregendam"]       = TheoryCraft_Data.Stats["icregen"] *10 *returndata["dpm"]
+			--returndata["regendam"]         = TheoryCraft_Data.Stats["regen"]   *10 *returndata["dpm"]
+			--returndata["icregendam"]       = TheoryCraft_Data.Stats["icregen"] *10 *returndata["dpm"]
 			returndata["penetration"]      = returndata["penetration"] / ((20/3) * UnitLevel("player")) * returndata["dps"]
 			if (returndata["manamultiplier"]) and (spelldata.lightningshield == nil) then
 				returndata["averagedam"]       = returndata["averagedam"]       / returndata["manamultiplier"]
@@ -1328,8 +1328,8 @@ local function GenerateTooltip(frame, returndata, spelldata, spellrank)
 					returndata["maxevocoomhealtime"] = returndata["maxevocoomheal"] / returndata["hps"]+8
 				end
 			end
-			returndata["regenheal"]   = TheoryCraft_Data.Stats["regen"]   * 10 * returndata["hpm"]
-			returndata["icregenheal"] = TheoryCraft_Data.Stats["icregen"] * 10 * returndata["hpm"]
+			--returndata["regenheal"]   = TheoryCraft_Data.Stats["regen"]   * 10 * returndata["hpm"]
+			--returndata["icregenheal"] = TheoryCraft_Data.Stats["icregen"] * 10 * returndata["hpm"]
 			if returndata["manamultiplier"] then
 				returndata["averageheal"]       = returndata["averageheal"]       / returndata["manamultiplier"]
 				returndata["averagehealnocrit"] = returndata["averagehealnocrit"] / returndata["manamultiplier"]
