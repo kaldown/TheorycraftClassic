@@ -289,6 +289,9 @@ function TheoryCraft_OnLoad(self)
 	self:RegisterEvent("PLAYER_ENTERING_WORLD")
 	self:RegisterEvent("PLAYER_LEAVING_WORLD")
 
+	-- For debugging purposes
+	--self:RegisterEvent("LUA_WARNING")
+
 	-- NOTE: when ADDON_LOADED fires, these will be overwritten by the data from disk.
 	TheoryCraft_MitigationMobs    = {}
 	TheoryCraft_MitigationPlayers = {}
@@ -690,6 +693,10 @@ function TheoryCraft_OnEvent(self, event, ...)
 		--else
 		--	print("ACTIONBAR_SLOT_CHANGED: "..arg[1].. ' but no button found')
 		end
+
+	-- TODO: this in theory should work, but I don't know what triggers it at the moment.
+	--elseif event == "LUA_WARNING" then
+	--	print("a LUA_WARNING has occurred: ", arg[1], arg[2]) -- arg[2] may be the actual warning text, lets not print it for now.
 	end
 
 	if TheoryCraft_Settings["showmem"] then
