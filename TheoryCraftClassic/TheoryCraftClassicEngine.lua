@@ -1204,7 +1204,8 @@ local function GenerateTooltip(frame, returndata, spelldata, spellrank)
 					returndata["dameff"] = returndata["damcoef"] * returndata["baseincrease"] / returndata["casttime"]*3.5
 				end
 			end
-			if spelldata.dontdomax == nil then
+			-- REM: dpm is not calculated if manacost is nil
+			if spelldata.dontdomax == nil and returndata["dpm"] then
 				returndata["maxoomdam"]     = (TheoryCraft_Data.Stats["totalmana"] + TheoryCraft_GetStat("manarestore")) * returndata["dpm"]
 				returndata["maxoomdamtime"] = returndata["maxoomdam"] / returndata["dps"]
 				if TheoryCraft_Data.Stats["maxtotalmana"] then
@@ -1320,7 +1321,8 @@ local function GenerateTooltip(frame, returndata, spelldata, spellrank)
 					returndata["dameff"] = returndata["damcoef"] * returndata["baseincrease"] / returndata["casttime"]*3.5
 				end
 			end
-			if spelldata.dontdomax == nil then
+			-- REM: hpm is not calculated if manacost is nil
+			if spelldata.dontdomax == nil and returndata["hpm"] then
 				returndata["maxoomheal"]     = (TheoryCraft_Data.Stats["totalmana"] + TheoryCraft_GetStat("manarestore")) * returndata["hpm"]
 				returndata["maxoomhealtime"] = returndata["maxoomheal"] / returndata["hps"]
 				if returndata["maxtotalmana"] then
