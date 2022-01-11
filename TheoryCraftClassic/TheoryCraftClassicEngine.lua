@@ -618,34 +618,34 @@ end
 -- Removes irrelevant returndata fields based on configuration in spelldata
 local function CleanUp(spelldata, returndata)
 	if spelldata.percent == 0 then
-		returndata["plusdam"] = nil
+		returndata["plusdam"]  = nil
 		returndata["damfinal"] = nil
-		returndata["damcoef"] = nil
+		returndata["damcoef"]  = nil
 	end
 	if spelldata.ismelee then
 		returndata["manacost"] = nil
-		returndata["plusdam"] = nil
+		returndata["plusdam"]  = nil
 	end
 	if spelldata.isheal then
 		returndata["penetration"] = nil
 	end
 	if spelldata.armor then
-		returndata["plusdam"] = nil
+		returndata["plusdam"]     = nil
 		returndata["penetration"] = nil
 	end
 	if spelldata.dodps == nil then
-		returndata["hps"] = nil
-		returndata["withhothps"] = nil
-		returndata["hpsdam"] = nil
+		returndata["hps"]           = nil
+		returndata["withhothps"]    = nil
+		returndata["hpsdam"]        = nil
 		returndata["hpsdampercent"] = nil
-		returndata["dps"] = nil
-		returndata["withdotdps"] = nil
-		returndata["dpsdam"] = nil
+		returndata["dps"]           = nil
+		returndata["withdotdps"]    = nil
+		returndata["dpsdam"]        = nil
 		returndata["dpsdampercent"] = nil
 	end
 	if (spelldata.usemelee) or (spelldata.petspell) then
-		returndata["nextpendam"] = nil
-		returndata["nextpen"] = nil
+		returndata["nextpendam"]  = nil
+		returndata["nextpen"]     = nil
 		returndata["penetration"] = nil
 	end
 	-- NOTE: there are currently ZERO petspells enabled.
@@ -689,19 +689,19 @@ local function CleanUp(spelldata, returndata)
 	end
 
 	if (spelldata.cancrit == nil) then
-		returndata["nextcritdam"] = nil
-		returndata["nextcritdamequive"] = nil
-		returndata["nextcritdps"] = nil
-		returndata["nextcritdpsequive"] = nil
-		returndata["critchance"] = nil
-		returndata["critdmgchance"] = nil
-		returndata["crithealchance"] = nil
-		returndata["critdmgmin"] = nil
-		returndata["critdmgmax"] = nil
+		returndata["nextcritdam"]           = nil
+		returndata["nextcritdamequive"]     = nil
+		returndata["nextcritdps"]           = nil
+		returndata["nextcritdpsequive"]     = nil
+		returndata["critchance"]            = nil
+		returndata["critdmgchance"]         = nil
+		returndata["crithealchance"]        = nil
+		returndata["critdmgmin"]            = nil
+		returndata["critdmgmax"]            = nil
 		returndata["critdmgminminusignite"] = nil
 		returndata["critdmgmaxminusignite"] = nil
-		returndata["crithealmin"] = nil
-		returndata["crithealmax"] = nil
+		returndata["crithealmin"]           = nil
+		returndata["crithealmax"]           = nil
 	end
 end
 
@@ -793,6 +793,7 @@ local function GenerateTooltip(frame, returndata, spelldata, spellrank)
 
 	-- NOTE: mancost MUST be allowed to be nil, not just zero. (otherwise things break. eg wand-shoot)
 	--returndata["manacost"] = 0
+
 	-- If this spell has some sort of cost to it, find the mana-cost specifically
 	if spellCosts ~= nil then
 		for k, v in pairs(spellCosts) do
@@ -824,7 +825,7 @@ local function GenerateTooltip(frame, returndata, spelldata, spellrank)
 	end
 
 
-	local spelllevel   = 60
+	local spelllevel   = 60 -- TODO-TBC this will need to be updated.
 	local levelpercent = 1
 	-- This section finds the specific configuration per spell rank (if it exists)
 	returndata["manamultiplier"] = spelldata.manamultiplier
@@ -1195,37 +1196,37 @@ local function GenerateTooltip(frame, returndata, spelldata, spellrank)
 			end
 
 			if spelldata.isdot then
-				returndata["dameff"] = returndata["damcoef"]*returndata["baseincrease"]/returndata["dotduration"]*3.5
+				returndata["dameff"] = returndata["damcoef"] * returndata["baseincrease"] / returndata["dotduration"]*3.5
 			else
 				if returndata["damcoef2"] then
-					returndata["dameff"] = ((returndata["damcoef"]+returndata["damcoef2"])*returndata["baseincrease"])/returndata["casttime"]*3.5
+					returndata["dameff"] = ((returndata["damcoef"] + returndata["damcoef2"]) * returndata["baseincrease"]) / returndata["casttime"]*3.5
 				else
-					returndata["dameff"] = returndata["damcoef"]*returndata["baseincrease"]/returndata["casttime"]*3.5
+					returndata["dameff"] = returndata["damcoef"] * returndata["baseincrease"] / returndata["casttime"]*3.5
 				end
 			end
 			if spelldata.dontdomax == nil then
-				returndata["maxoomdam"] = (TheoryCraft_Data.Stats["totalmana"]+TheoryCraft_GetStat("manarestore"))*returndata["dpm"]
-				returndata["maxoomdamtime"] = returndata["maxoomdam"]/returndata["dps"]
+				returndata["maxoomdam"]     = (TheoryCraft_Data.Stats["totalmana"] + TheoryCraft_GetStat("manarestore")) * returndata["dpm"]
+				returndata["maxoomdamtime"] = returndata["maxoomdam"] / returndata["dps"]
 				if TheoryCraft_Data.Stats["maxtotalmana"] then
-					returndata["maxevocoomdam"] = (TheoryCraft_Data.Stats["maxtotalmana"]+TheoryCraft_GetStat("manarestore"))*returndata["dpm"]
-					returndata["maxevocoomdamtime"] = returndata["maxevocoomdam"]/returndata["dps"]+8
+					returndata["maxevocoomdam"]     = (TheoryCraft_Data.Stats["maxtotalmana"] + TheoryCraft_GetStat("manarestore")) * returndata["dpm"]
+					returndata["maxevocoomdamtime"] = returndata["maxevocoomdam"] / returndata["dps"]+8
 				end
 			end
 			if (spelldata.isdot == nil) then
 				returndata["nexthitdam"] = returndata["averagedamnocrit"]/100
 				returndata["nexthitdamequive"] = returndata["nexthitdam"]/returndata["damworth"]
 			end
-			returndata["nextpendam"] = returndata["averagedam"]*UnitLevel("player")/2400
-			returndata["nextpendamequive"] = returndata["nextpendam"]/returndata["damworth"]
-			returndata["regendam"] = TheoryCraft_Data.Stats["regen"]*10*returndata["dpm"]
-			returndata["icregendam"] = TheoryCraft_Data.Stats["icregen"]*10*returndata["dpm"]
-			returndata["penetration"] = returndata["penetration"]/((20/3)*UnitLevel("player"))*returndata["dps"]
+			returndata["nextpendam"]       = returndata["averagedam"] * UnitLevel("player")/2400
+			returndata["nextpendamequive"] = returndata["nextpendam"] / returndata["damworth"]
+			returndata["regendam"]         = TheoryCraft_Data.Stats["regen"]   *10 *returndata["dpm"]
+			returndata["icregendam"]       = TheoryCraft_Data.Stats["icregen"] *10 *returndata["dpm"]
+			returndata["penetration"]      = returndata["penetration"] / ((20/3) * UnitLevel("player")) * returndata["dps"]
 			if (returndata["manamultiplier"]) and (spelldata.lightningshield == nil) then
-				returndata["averagedam"] = returndata["averagedam"]/returndata["manamultiplier"]
-				returndata["averagedamnocrit"] = returndata["averagedamnocrit"]/returndata["manamultiplier"]
-				returndata["averagedamthreat"] = returndata["averagedamthreat"]/returndata["manamultiplier"]
+				returndata["averagedam"]       = returndata["averagedam"]       / returndata["manamultiplier"]
+				returndata["averagedamnocrit"] = returndata["averagedamnocrit"] / returndata["manamultiplier"]
+				returndata["averagedamthreat"] = returndata["averagedamthreat"] / returndata["manamultiplier"]
 			end
-		end
+		end -- mindamage
 
 		if returndata["minheal"] then
 			if (class == "PALADIN") or (class == "MAGE") then
@@ -1334,8 +1335,9 @@ local function GenerateTooltip(frame, returndata, spelldata, spellrank)
 				returndata["averagehealnocrit"] = returndata["averagehealnocrit"] / returndata["manamultiplier"]
 				returndata["averagehealthreat"] = returndata["averagehealthreat"] / returndata["manamultiplier"]
 			end
-		end
+		end -- minheal
 	end
+
 	if returndata["dps"] and returndata["dpsdam"] then
 		returndata["dpsdampercent"] = returndata["dpsdam"] / returndata["dps"]*100
 	end

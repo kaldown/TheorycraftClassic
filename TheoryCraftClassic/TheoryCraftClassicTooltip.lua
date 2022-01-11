@@ -273,7 +273,7 @@ function TheoryCraft_AddTooltipInfo(game_tooltip_frame, dontshow)
 	-- Empty the entire tooltip, TC will repopulate it from scratch
 	game_tooltip_frame:ClearLines()
 
-	local _,  titletext
+	local _, titletext
 	for _, line in ipairs(TheoryCraft_TooltipFormat) do
 		-- Handle titles (special case)
 		if line.title then
@@ -325,7 +325,7 @@ function TheoryCraft_AddTooltipInfo(game_tooltip_frame, dontshow)
 
 			-- REM: can the line be shown according to checkbox settings & the most basic melee/ranged filtering
 			-- Essentially a continue statement if not to be shown
-			if (show) then
+			if show then
 				-- Handle left
 				leftline = line.left
 				if leftline then
