@@ -4,9 +4,10 @@
 	<Script file="locale/frFR.lua"/>
 	<!-- REM: default locale loads last -->
 	<Script file="locale/enUS.lua"/>
+	<Script file="TheoryCraftClassicUtils.lua"/>
+	<Script file="TheoryCraftClassicMain.lua"/>
 	<Script file="TheoryCraftClassicColours.lua"/>
 	<Script file="TheoryCraftClassicUI.lua"/>
-	<Script file="TheoryCraftClassicMain.lua"/>
 	<Script file="TheoryCraftClassicEngine.lua"/>
 	<Script file="TheoryCraftClassicBuffs.lua"/>
 	<Script file="TheoryCraftClassicTalents.lua"/>
@@ -182,7 +183,6 @@
 				TheoryCraft_CheckBoxSetText(self)
 			</OnLoad>
 			<OnClick>
-				PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON); -- Standard subtle click sound
 				TheoryCraft_CheckBoxToggle(self)
 			</OnClick>
 			<OnEnter>
@@ -201,7 +201,6 @@
 		</Size>
 		<Scripts>
 			<OnClick>
-				PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON); -- Standard subtle click sound
 				TheoryCraft_OutfitChange(self)
 			</OnClick>
 		</Scripts>
@@ -350,13 +349,8 @@
 			<AbsDimension x="340" y="400"/>
 		</Size>
 		<Scripts>
-			<OnLoad>
-				TheoryCraft_OnLoad(self)
-				self:SetClampedToScreen(true)
-			</OnLoad>
-			<OnEvent>
-				TheoryCraft_OnEvent(self,event,...)
-			</OnEvent>
+			<OnLoad  function="TheoryCraft_OnLoad"/>
+			<OnEvent function="TheoryCraft_OnEvent"/>
 		</Scripts>
 		<Frames>
 			<!-- These are the clickable tabs to change which page is shown. -->
@@ -1785,7 +1779,8 @@
 			</OnLoad>	
 		</Scripts>
 	</GameTooltip>
-	<Frame name="TheoryCraftUpdater" parent="UIParent">
+	<!-- TODO: what is this? Maybe when you level up? or maybe nothing? -->
+	<!--Frame name="TheoryCraftUpdater" parent="UIParent">
 		<Anchors>
 			<Anchor point="TOP">
 				<Offset>
@@ -1802,13 +1797,12 @@
 			</OnLoad>
 			<OnUpdate>
 				if not TheoryCraft_Data.TalentsHaveBeenRead then
-					TheoryCraft_UpdateTalents()
-				end
-				if TheoryCraft_Data.TalentsHaveBeenRead then
-					TheoryCraft_UpdateAllButtonText()
+					TheoryCraft_UpdateTalents(bogus)
+				else
+					TheoryCraft_UpdateAllButtonText('TheoryCraftUpdater', bogus) 
 					self:SetScript("OnUpdate", nil)
 				end
 			</OnUpdate>
 		</Scripts>
-	</Frame>
+	</Frame-->
 </Ui> 

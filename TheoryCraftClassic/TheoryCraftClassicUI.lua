@@ -1,44 +1,27 @@
+
+-- Stores the MultiActionBarButton connected to its absolute slot_id
+-- NOTE: paginated ActionBars have their FrameName reused. So there is NEVER a 1-to-1 mapping of slot_id => frame_id
+-- See: TheoryCraft_FindActionButton
+local slot_id_action_bar_map = {}
+
 local _TOOLTIPTAB = 1
 local _BUTTONTEXTTAB = 2
 local _ADVANCEDTAB = 3
 
 local _, class = UnitClass("player")
 
-local function findpattern(text, pattern, start)
-	if (text and pattern and (string.find(text, pattern, start))) then
-		return string.sub(text, string.find(text, pattern, start))
-	else
-		return ""
-	end
-end
-
--- /run TheoryCraft_DebugPoints('FrameGlobalName')
-function TheoryCraft_DebugPoints(name)
-	local frame = _G[name]
-	if frame == nil then
-		print('cannot find: ' .. name)
-		return
-	end
-	local n = frame:GetNumPoints()
-	DEFAULT_CHAT_FRAME:AddMessage('num points: '..n)
-	local point, relativeTo, relativePoint, xOfs, yOfs = frame:GetPoint(1)
-	local relativeName = 'Unknown'
-	if relativeTo ~= nil then
-		relativeName = relativeTo:GetName()
-	end
-	DEFAULT_CHAT_FRAME:AddMessage(point)
-	DEFAULT_CHAT_FRAME:AddMessage(relativeName)
-	DEFAULT_CHAT_FRAME:AddMessage(relativePoint)
-	DEFAULT_CHAT_FRAME:AddMessage(xOfs)
-	DEFAULT_CHAT_FRAME:AddMessage(yOfs)
-end
-
 -- REM: called from inside TheoryCraft_AddButtonText and from whatever bartender4 code exists
-function TheoryCraft_SetUpButton(parentname, button_type, specialid)
-	local parent_button = getglobal(parentname)
+-- REM: MultiActionBars will be setup even if they are not visible
+function TheoryCraft_SetUpButton(parentname, button_type, slot_id)
+	local parent_button = _G[parentname]
 
 	if not parent_button then
 		return
+	end
+
+	-- Only the MultiActionBar buttons need slot configurations
+	if slot_id ~= nil then
+		slot_id_action_bar_map[slot_id] = parent_button
 	end
 
 	-- If the text subframe has already been created, we're good to go
@@ -60,8 +43,9 @@ function TheoryCraft_SetUpButton(parentname, button_type, specialid)
 	-- ??? SetPoint probably doesn't even matter at this point, it'll get overwritten when the actual settings are read
 	button_tc_text:SetPoint("TOPLEFT",     parent_button, "TOPLEFT",     0, 0)
 	--button_tc_text:SetPoint("BOTTOMRIGHT", parent_button, "BOTTOMRIGHT", 0, 0)
+	-- NOTE: it looks like button_type is only used for checking whether this button is part of the SpellBook
 	button_tc_text.type      = button_type
-	button_tc_text.specialid = specialid
+	--button_tc_text.specialid = specialid
 	button_tc_text:SetText(" ")
 	button_tc_text:Show()
 
@@ -75,9 +59,6 @@ end
 
 function TheoryCraft_GenBoxEditChange()
 	TheoryCraft_Settings["GenerateList"] = TheoryCraftGenBox_Text:GetText()
-	if string.find(TheoryCraft_Settings["GenerateList"], "ONDEMAND") then
-		TheoryCraft_Settings["GenerateList"] = "ONDEMAND"
-	end
 end
 
 function TheoryCraft_CustomizedEditChange()
@@ -212,7 +193,7 @@ function TheoryCraft_TabHandler(name)
 	end
 end
 
-
+-- NOTE: this is actually the Vitals & Talents tab
 function TheoryCraft_UpdateOutfitTab()
 	if not TheoryCraftOutfitTab:IsVisible() then
 		return
@@ -440,9 +421,10 @@ function TheoryCraft_UpdateOutfitTab()
 	if TheoryCraft_GetStat("manarestore") ~= 0 then
 		TheoryCraftAddMod("Mana Restore", TheoryCraft_GetStat("manarestore"))
 	end
-	UpdateCustomOutfit()
+	--UpdateCustomOutfit() -- probably remove in the future
 end
 
+-- These are apparently the handlers for when an option in the dropdown boxes are selected.
 function TheoryCraft_Combo1Click(self)
 	local optionID = self:GetID()
 	UIDropDownMenu_SetSelectedID(TheoryCrafttryfirst, optionID)
@@ -472,6 +454,7 @@ function TheoryCraft_Combo4Click(self)
 end
 local info = {}
 
+-- Add a button within a dropdown
 local function AddButton(i, text, value, func, remaining)
 	TheoryCraft_DeleteTable(info)
 	info.remaining = true
@@ -512,6 +495,8 @@ function TheoryCraft_InitDropDown(this)
 		return
 	end
 --]]
+
+	-- NOTE: ComboXClick are the names of the UI element we are initializing.
 	if string.find(this:GetName(), "sfg") then
 		if string.find(this:GetName(), "TheoryCrafttryfirst") then
 			a = TheoryCraft_Combo3Click
@@ -526,6 +511,7 @@ function TheoryCraft_InitDropDown(this)
 		i = AddButton(i, "1000", -3, a)
 		return
 	end
+
 	if string.find(this:GetName(), "TheoryCrafttryfirst") then
 		a = TheoryCraft_Combo1Click
 	else
@@ -591,7 +577,69 @@ function TheoryCraft_SetTalent(name)
 		end
 		i = i+1
 	end
-	TheoryCraft_UpdateTalents()
+	TheoryCraft_UpdateTalents() -- manually adjusting talents in the vitals tab
+end
+
+-- Set the checkbox state according to what is saved in settings.
+function TheoryCraft_InitCheckboxState()
+	TheoryCraft_SetCheckBox("embedstyle1")
+	TheoryCraft_SetCheckBox("embedstyle2")
+	TheoryCraft_SetCheckBox("embedstyle3")
+	TheoryCraft_SetCheckBox("titles")
+	TheoryCraft_SetCheckBox("embed")
+	TheoryCraft_SetCheckBox("crit")
+	TheoryCraft_SetCheckBox("critdam")
+	TheoryCraft_SetCheckBox("sepignite")
+	TheoryCraft_SetCheckBox("rollignites")
+	TheoryCraft_SetCheckBox("dps")
+	TheoryCraft_SetCheckBox("combinedot")
+	TheoryCraft_SetCheckBox("dotoverct")
+	TheoryCraft_SetCheckBox("hps")
+	TheoryCraft_SetCheckBox("dpsdam")
+	TheoryCraft_SetCheckBox("averagedam")
+	TheoryCraft_SetCheckBox("procs")
+	TheoryCraft_SetCheckBox("mitigation")
+	TheoryCraft_SetCheckBox("resists")
+	TheoryCraft_SetCheckBox("averagethreat")
+	TheoryCraft_SetCheckBox("plusdam")
+	TheoryCraft_SetCheckBox("damcoef")
+	TheoryCraft_SetCheckBox("dameff")
+	TheoryCraft_SetCheckBox("damfinal")
+	TheoryCraft_SetCheckBox("healanddamage")
+	TheoryCraft_SetCheckBox("nextagi")
+	TheoryCraft_SetCheckBox("nextstr")
+	TheoryCraft_SetCheckBox("nextcrit")
+	TheoryCraft_SetCheckBox("nexthit")
+	TheoryCraft_SetCheckBox("nextpen")
+	TheoryCraft_SetCheckBox("mana")
+	TheoryCraft_SetCheckBox("dpm")
+	TheoryCraft_SetCheckBox("hpm")
+	TheoryCraft_SetCheckBox("max")
+	TheoryCraft_SetCheckBox("maxevoc")
+	TheoryCraft_SetCheckBox("lifetap")
+	TheoryCraft_SetCheckBox("dontcrit")
+	TheoryCraft_SetCheckBox("dontresist") -- TODO: rename to "includeresist"
+	TheoryCraft_SetCheckBox("buttontext")
+
+	TheoryCraftresistArcane:SetText(TheoryCraft_Settings["resistscores"]["Arcane"])
+	TheoryCraftresistFire:SetText(TheoryCraft_Settings["resistscores"]["Fire"])
+	TheoryCraftresistNature:SetText(TheoryCraft_Settings["resistscores"]["Nature"])
+	TheoryCraftresistFrost:SetText(TheoryCraft_Settings["resistscores"]["Frost"])
+	TheoryCraftresistShadow:SetText(TheoryCraft_Settings["resistscores"]["Shadow"])
+
+	if TheoryCraft_Settings["dontresist"] then
+		TheoryCraftresistArcane:Show()
+		TheoryCraftresistFire:Show()
+		TheoryCraftresistNature:Show()
+		TheoryCraftresistFrost:Show()
+		TheoryCraftresistShadow:Show()
+	else
+		TheoryCraftresistArcane:Hide()
+		TheoryCraftresistFire:Hide()
+		TheoryCraftresistNature:Hide()
+		TheoryCraftresistFrost:Hide()
+		TheoryCraftresistShadow:Hide()
+	end
 end
 
 -- TODO: maybe a better name?
@@ -694,6 +742,8 @@ function TheoryCraft_InitButtonTextOpts()
 
 	TheoryCraftFontSize:SetText(TheoryCraft_Settings["FontSize"])
 
+	TheoryCraftGenBox_Text:SetText(TheoryCraft_Settings["GenerateList"])
+
 	-- Also need to restore the position for the dummy text widget
 	-- Since the dummy text is movable we cannot configure an anchor directly in the XML
 	local dummy_text = _G['TheoryCraftActionButtonTextPos']
@@ -732,6 +782,9 @@ local function formattext(a, field, places)
 	return round(a[field]*10^places)/10^places
 end
 
+-- NOTE: ActionButtonX & SpellButtonX are blizzard created frames of one sort or another.
+
+-- This function creates the ButtonText font objects on each ActionButton that could possibly exist
 -- REM: called after VARIABLES_LOADED
 function TheoryCraft_AddButtonText(...)
 	-- 12 spells per spellbook-page
@@ -745,70 +798,180 @@ function TheoryCraft_AddButtonText(...)
 		for i = 1,12 do TheoryCraft_SetUpButton("MultiBarLeftButton"..i, "Special", 36+i) end
 		for i = 1,12 do TheoryCraft_SetUpButton("MultiBarBottomRightButton"..i, "Special", 48+i) end
 		for i = 1,12 do TheoryCraft_SetUpButton("MultiBarBottomLeftButton"..i, "Special", 60+i) end
+	end
+	-- TODO: probably defunct, used to be extra bars for stances/stealth/forms etc.
+	if BonusActionButton1 then
 		for i = 1,12 do TheoryCraft_SetUpButton("BonusActionButton"..i, "Bonus") end
 	end
 end
 
--- this will handle changing the button color and position
-function TheoryCraft_UpdateAllButtonText(...)
-	if not TheoryCraft_Data.TalentsHaveBeenRead then
-		return
-	end
-	local newbutton, oldbutton
-	local updatebutton = function(name)
-		local button = getglobal(name)
-		if button then
-			TheoryCraft_ButtonUpdate(button)
-		end
-	end
-
-	if SpellButton1 then
-		for i = 1,12 do updatebutton("SpellButton"..i, "SpellBook") end
-	end
-
-	if ActionButton1 then
-		for i = 1,12 do updatebutton("ActionButton"..i, "Flippable") end
-		for i = 1,12 do updatebutton("MultiBarRightButton"..i, "Special", 24+i) end
-		for i = 1,12 do updatebutton("MultiBarLeftButton"..i, "Special", 36+i) end
-		for i = 1,12 do updatebutton("MultiBarBottomRightButton"..i, "Special", 48+i) end
-		for i = 1,12 do updatebutton("MultiBarBottomLeftButton"..i, "Special", 60+i) end
-		for i = 1,12 do updatebutton("BonusActionButton"..i, "Bonus") end
-	end
-
-	if _G['Bartender4'] ~= nil then
-		for i = 1,120 do updatebutton("BT4Button"..i, "Normal") end
+-- Helper function, transform a button_name into the button_frame reference
+local function updatebutton(button_name)
+	local button = getglobal(button_name)
+	if button then
+		-- REM: TheoryCraft_SetUpButton uses 3 arguments, but since its already setup, we only need 1
+		TheoryCraft_ButtonUpdate(button)
 	end
 end
 
-
-hooksecurefunc("ChangeActionBarPage", function(i)
-	CURRENT_ACTIONBAR_PAGE = i
-	TheoryCraft_UpdateAllButtonText()
-end)
-
-hooksecurefunc("ActionButton_Update", function(button)
-	TheoryCraft_ButtonUpdate(button)
-end)
-
-hooksecurefunc("SpellBookFrame_UpdateSpells", function(i)
-	TheoryCraft_UpdateAllButtonText()
-end)
-
-function TheoryCraft_ButtonUpdate(this, ...)
+-- Just the main actionbar
+-- REM: may be called many times due to changing pages.
+function TheoryCraft_UpdateActionBarText()
 	if not TheoryCraft_Data.TalentsHaveBeenRead then
 		return
 	end
 
-	local i = this:GetName().."_TCText"
+	if ActionButton1 then
+		for i = 1,12 do updatebutton("ActionButton"..i) end
+	end
+end
+
+-- Just the spellbook
+-- REM: may be called many times due to changing pages.
+local function UpdateSpellBookText()
+	if not TheoryCraft_Data.TalentsHaveBeenRead then
+		return
+	end
+
+	-- 12 spells per spellbook-page
+	if SpellButton1 then
+		for i = 1,12 do updatebutton("SpellButton"..i) end
+	end
+end
+
+-- This will handle changing the button color and position as well as what type of text should be shown
+function TheoryCraft_UpdateAllButtonText(source)
+	if not TheoryCraft_Data.TalentsHaveBeenRead then
+		return
+	end
+
+	UpdateSpellBookText()
+	TheoryCraft_UpdateActionBarText()
+
+	if ActionButton1 then
+		for i = 1,12 do updatebutton("MultiBarRightButton"..i) end
+		for i = 1,12 do updatebutton("MultiBarLeftButton"..i) end -- ??? I think this is actually "Right2"
+		for i = 1,12 do updatebutton("MultiBarBottomRightButton"..i) end
+		for i = 1,12 do updatebutton("MultiBarBottomLeftButton"..i) end
+	end
+	-- TODO: probably defunct, used to be extra bars for stances/stealth/forms etc.
+	if BonusActionButton1 then
+		for i = 1,12 do updatebutton("BonusActionButton"..i) end
+	end
+
+	if _G['Bartender4'] ~= nil then
+		for i = 1,120 do updatebutton("BT4Button"..i) end
+	end
+end
+
+-- Helper to determine which actual ActionBar/ActionButton a spell was placed in, for purposes of ButtonText
+-- This works by process of elimination
+function TheoryCraft_FindActionButton(slot_id)
+	local btn = slot_id_action_bar_map[slot_id] -- maybe nil
+	-- If the ActionBar that this slot would be assigned to is currently shown.
+	if btn ~= nil and btn:GetParent():IsVisible() then
+		-- use the btn as is.
+		return btn
+	end
+	-- otherwise, use the ActionButtonX
+	local i = slot_id % 12
+	return _G["ActionButton"..i]
+end
+
+
+-- NOTE: maybe this should be an event? ACTIONBAR_PAGE_CHANGED, what about UPDATE_BONUS_ACTIONBAR ?
+hooksecurefunc("ChangeActionBarPage", function(i)
+	--print("ChangeActionBarPage "..i)
+	TheoryCraft_UpdateActionBarText()
+end)
+
+
+-- Don't use this, it is very spammy
+-- NOTE: don't use OnUpdate, because that spams every frame (or something like that)
+--[[
+hooksecurefunc("ActionButton_Update", function(button)
+	--print("ActionButton_Update")
+	TheoryCraft_ButtonUpdate(button) -- defunct
+end)
+--]]
+
+-- Looks like this is fired any time the spellbook page or tab is changed
+hooksecurefunc("SpellBookFrame_UpdateSpells", function(i)
+	--print("SpellBookFrame_UpdateSpells")
+	UpdateSpellBookText()
+end)
+
+-- Update a specific button's text (position, color) as well as for any stat/buff changes
+function TheoryCraft_ButtonUpdate(this, actionbar_slot_changed)
+	if not TheoryCraft_Data.TalentsHaveBeenRead then
+		--print("Skipped TheoryCraft_ButtonUpdate - talents not ready")
+		return
+	end
 
 	-- REM: buttontext is a FontString created on each button during SetupButtons
-	local buttontext = getglobal(i)
+	local buttontext = _G[this:GetName().."_TCText"]
 	if not buttontext then 
 		return
 	end
 
-	if not TheoryCraft_Settings["buttontext"] then
-		buttontext:Hide()
+	-- Not 100% sure if "Name" always exists, but it seems to be blank for non macros
+	local macro_name  = _G[this:GetName().."Name"]
+	local button_rank = _G[this:GetName().."_Rank"]
+
+	-- -------------- Helper --------------
+	local function toggle_btn_text_fn(show_btn_txt)
+		if show_btn_txt then
+			-- Show the button text
+			buttontext:Show()
+			-- Hide the macro_name
+			if macro_name then macro_name:Hide() end
+			-- Also hide button_rank
+			if button_rank then button_rank:Hide() end
+		else
+			-- Hide the button text
+			buttontext:Hide()
+			-- Show the macro_name
+			if macro_name then macro_name:Show() end
+			-- Also show button_rank
+			if button_rank then button_rank:Show() end
+		end
+	end
+	-- --------------
+
+	-- If buttontext checkbox is unchecked or the addon is entirely turned off
+	if not TheoryCraft_Settings["buttontext"] or TheoryCraft_Settings["off"] then
+		toggle_btn_text_fn()
+		return
+	end
+
+	-- Try to find the spell data from whats in the button
+	local spelldata
+	-- REM: The ActionButtonID will be empty for spellbook items (obviously)
+	if buttontext.type == "SpellBook" then
+		local icon = _G[this:GetName().."SpellName"]
+		local id   = icon:GetText()
+
+		if (not icon:IsShown()) or (id == nil) then
+			buttontext:Hide()
+			id = nil
+		end
+
+		if id then
+			-- NOTE: the subtext could be: "Rank 1" or "racial passive" or "journeyman" things like that.
+			local rank = _G[this:GetName().."SubSpellName"]:GetText()
+			rank = tonumber(TCUtils.findpattern(rank, "%d+")) or 0
+			spelldata = TheoryCraft_GetSpellDataByName(id, rank)
+		end
+
+	-- type: "Special", "Flippable", "Bonus" ???
+	else
+		local action_slot = this:GetAttribute('action') or this.action
+		spelldata = TheoryCraft_GetSpellDataByAction(action_slot)
+	end
+
+	-- if there is no (valid) spell on this button, also return.
+	if not spelldata then
+		toggle_btn_text_fn()
 		return
 	end
 
@@ -839,6 +1002,7 @@ function TheoryCraft_ButtonUpdate(this, ...)
 		buttontext.colg2 = TheoryCraft_Settings["ColG2"]
 		buttontext.colb2 = TheoryCraft_Settings["ColB2"]
 	end
+
 	if (buttontext.buttontextx ~= TheoryCraft_Settings["buttontextx"]) or (buttontext.buttontexty ~= TheoryCraft_Settings["buttontexty"]) then
 		buttontext.buttontextx = TheoryCraft_Settings["buttontextx"]
 		buttontext.buttontexty = TheoryCraft_Settings["buttontexty"]
@@ -849,57 +1013,25 @@ function TheoryCraft_ButtonUpdate(this, ...)
 		buttontext:SetPoint("CENTER", this, "BOTTOMLEFT", TheoryCraft_Settings["buttontextx"]*w, TheoryCraft_Settings["buttontexty"]*h)
 	end
 
-	-- Try to find the spell data lookup by the spell we have on the button
-	local spelldata
-	-- REM: The ActionButtonID will be empty for spellbook items (obviously)
-	if buttontext.type == "SpellBook" then
-		local icon = getglobal(this:GetName().."SpellName")
-		local id = icon:GetText()
-
-		if (not icon:IsShown()) or (id == nil) then
-			buttontext:Hide()
-			id = nil
-		end
-		-- NOTE: id2 is the subtext "Rank 1" or "racial passive" or "journeyman" things like that.
-		local id2 = getglobal(this:GetName().."SubSpellName"):GetText()
-		--print('id2: '..(id2 or 'nil'))
-		if id then
-			id2 = tonumber(findpattern(id2, "%d+"))
-			if id2 == nil then id2 = 0 end
-			spelldata = TheoryCraft_GetSpellDataByName(id, id2)
-		end
-	else
-		local action = this:GetAttribute('action') or this.action
-		spelldata = TheoryCraft_GetSpellDataByAction(action)
-	end
 	-- Must contain some properties to be valid
 	if spelldata then
-		local tryfirst = formattext(spelldata, TheoryCraft_Settings["tryfirst"], TheoryCraft_Settings["tryfirstsfg"])
+		local tryfirst  = formattext(spelldata, TheoryCraft_Settings["tryfirst"],  TheoryCraft_Settings["tryfirstsfg"])
+		local trysecond = formattext(spelldata, TheoryCraft_Settings["trysecond"], TheoryCraft_Settings["trysecondsfg"])
+
 		if tryfirst then
 			buttontext:SetText(tryfirst)
 			buttontext:SetTextColor(buttontext.colr, buttontext.colg, buttontext.colb)
-			buttontext:Show()
-			if getglobal(this:GetName().."Name") then getglobal(this:GetName().."Name"):Hide() end
-			if getglobal(buttontext:GetParent():GetName().."_Rank") then getglobal(buttontext:GetParent():GetName().."_Rank"):Hide() end
-		else
-			local trysecond = formattext(spelldata, TheoryCraft_Settings["trysecond"], TheoryCraft_Settings["trysecondsfg"])
-			if trysecond then
-				buttontext:SetText(trysecond)
-				buttontext:SetTextColor(buttontext.colr2, buttontext.colg2, buttontext.colb2)
-				if getglobal(this:GetName().."Name") then getglobal(this:GetName().."Name"):Hide() end
-				if getglobal(buttontext:GetParent():GetName().."_Rank") then getglobal(buttontext:GetParent():GetName().."_Rank"):Hide() end
-				buttontext:Show()
-			else
-				if getglobal(this:GetName().."Name") then getglobal(this:GetName().."Name"):Show() end
-				if getglobal(buttontext:GetParent():GetName().."_Rank") then getglobal(buttontext:GetParent():GetName().."_Rank"):Show() end
-				buttontext:Hide()
-			end
+		elseif trysecond then
+			buttontext:SetText(trysecond)
+			buttontext:SetTextColor(buttontext.colr2, buttontext.colg2, buttontext.colb2)
 		end
-	else
-		if getglobal(this:GetName().."Name") then
-			getglobal(this:GetName().."Name"):Show()
+
+		if tryfirst or trysecond then
+			toggle_btn_text_fn(true)
+			return
 		end
-		buttontext:Hide()
 	end
 
+	-- In the case that spelldata was empty, or that tryfirst/trysecond result in no text
+	toggle_btn_text_fn()
 end

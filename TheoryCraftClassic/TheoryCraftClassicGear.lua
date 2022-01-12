@@ -1,4 +1,5 @@
 TheoryCraft_Data.EquipEffects = {}
+
 local _, class = UnitClass("player")
 
 local function findpattern(text, pattern, start)
@@ -9,32 +10,43 @@ local function findpattern(text, pattern, start)
 	end
 end
 
-local function TheoryCraft_AddEquipEffect (slotname, test, data, equippedsets)
+-- REM: data == SlotData
+--      equippedsets == SetData
+local function TheoryCraft_AddEquipEffect(slotname, test, data, equippedsets)
 	if (test ~= "test") then
 		TheoryCraftTooltip:SetOwner(UIParent,"ANCHOR_NONE")
-		TheoryCraftTooltip:SetInventoryItem ("player", GetInventorySlotInfo(slotname.."Slot"))
+		TheoryCraftTooltip:SetInventoryItem("player", GetInventorySlotInfo(slotname.."Slot"), false, false)
 	end
 	if (getglobal("TheoryCraftTooltipTextLeft1") == nil) then
 		return
 	end
+	-- Get the first line in the tooltip (should be item name)
 	local ltext = getglobal(TheoryCraftTooltip:GetName().."TextLeft1"):GetText()
+	-- If data[name] matches the current item's name && the tooltip is the same length as before (eg, not newly enchanted), skip it
 	if (data["name"] == ltext) and (data["numlines"] == TheoryCraftTooltip:NumLines()) then
 		return
 	end
+	-- Nil out all values in data & equippedsets
 	for k,v in pairs(data) do
 		data[k] = nil
 	end
-	if data["procs"] == nil then data["procs"] = {} end
 	for k,v in pairs(equippedsets) do
 		equippedsets[k] = nil
 	end
-	data["name"] = ltext
+	-- Also nil out procs
+	if data["procs"] == nil then data["procs"] = {} end
+
+	-- set the item name and the tooltip line length for future comparison for early exit.
+	data["name"]     = ltext
 	data["numlines"] = TheoryCraftTooltip:NumLines()
+
+	-- Start actual tooltip processing at line 2
 	local index = 2
 	ltext = getglobal("TheoryCraftTooltipTextLeft"..index)
 	if ltext then
 		ltext = ltext:GetText()
 	end
+	-- NOTE: Most lines won't have right text.
 	rtext = getglobal("TheoryCraftTooltipTextRight"..index)
 	if rtext then
 		if (not getglobal("TheoryCraftTooltipTextRight"..index):IsVisible()) then
@@ -43,14 +55,19 @@ local function TheoryCraft_AddEquipEffect (slotname, test, data, equippedsets)
 			rtext = rtext:GetText()
 		end
 	end
-	local itemLink = GetInventoryItemLink("player",GetInventorySlotInfo(slotname.."Slot"))
-	if(itemLink) then
+
+	local itemLink = GetInventoryItemLink("player", GetInventorySlotInfo(slotname.."Slot"))
+	if (itemLink) then
 		stats = GetItemStats(itemLink)
 		if (stats) then
+			-- NOTE: defined in: Interface\FrameXML\GlobalStrings.lua
+			-- https://www.townlong-yak.com/framexml/beta/GlobalStrings.lua  <<< may not be 100% up to date
+			-- This is "Increases healing done by spells and effects by X"
 			local found = stats["ITEM_MOD_SPELL_HEALING_DONE_SHORT"] or 0
 			data["Healing"] = (data["Healing"] or 0) + found
 		end
 	end
+
 	local s2 = 1
 	local is = 1
 	local i2 = 1
@@ -105,6 +122,8 @@ local function TheoryCraft_AddEquipEffect (slotname, test, data, equippedsets)
 			TheoryCraft_SetBonuses[setname] = newbonuses
 			break
 		end
+
+		-- if the line starts with "Equip: " (like Equip + 1% crit... etc)
 		if (strfind(ltext, "^"..TheoryCraft_Locale.ID_Equip)) then
 			foundme = false
 			for k, v in pairs(TheoryCraft_Equips) do
@@ -138,9 +157,12 @@ local function TheoryCraft_AddEquipEffect (slotname, test, data, equippedsets)
 					end
 				end
 			end
+
+		-- Some other type of line
 		else
 			foundme = false
 			if rtext then
+				-- relevant (right) patterns
 				for k, v in pairs(TheoryCraft_EquipEveryRight) do
 					if (v.slot == nil) or (v.slot == slotname) then
 						if (foundme == false) or (v.me == nil) then
@@ -157,15 +179,19 @@ local function TheoryCraft_AddEquipEffect (slotname, test, data, equippedsets)
 					end
 				end
 			end
+
 			ignoreline = false
+			-- Skip irrelevant lines like "durability" or "soulbound"
 			for k, v in pairs(TheoryCraft_IgnoreLines) do
 				if strfind(ltext, v) then
 					ignoreline = true
 					break
 				end
 			end
+
 			if not ignoreline then
 				foundme = false
+				-- relevant (left) patterns
 				for k, v in pairs(TheoryCraft_EquipEveryLine) do
 					if (v.slot == nil) or (v.slot == slotname) then
 						if (not foundme) or (not v.me) then
@@ -182,7 +208,8 @@ local function TheoryCraft_AddEquipEffect (slotname, test, data, equippedsets)
 					end
 				end
 			end
-		end
+
+		end -- end of Some other type of line
 
 		index = index + 1
 		ltext = getglobal("TheoryCraftTooltipTextLeft"..index)
@@ -202,7 +229,7 @@ local function TheoryCraft_AddEquipEffect (slotname, test, data, equippedsets)
 	return true
 end
 
--- Recursively merge values from tab2 into tab1 (adding numbers together)
+-- Recursively merge values from tab1 into tab2 (adding numbers together)
 function TheoryCraft_CombineTables(tab1, tab2)
 	if tab2 == nil then tab2 = tab1 return end
 	for k,v in pairs(tab1) do
@@ -217,9 +244,12 @@ end
 
 local function TheoryCraft_AddAllEquips(outfit, force)
 	local i2 = 1
-	local resetall = true
-	if not force and UnitAffectingCombat("player") then
-		resetall = false
+	local reset_all = true
+	-- force == true, means update even while in combat
+	if force then
+		reset_all = true
+	elseif UnitAffectingCombat("player") then
+		reset_all = false
 	end
 	if (TheoryCraft_Outfits[outfit]) == nil then
 		outfit = 1
@@ -242,12 +272,14 @@ local function TheoryCraft_AddAllEquips(outfit, force)
 		if TheoryCraft_Data["SetData"][v] == nil then
 			TheoryCraft_Data["SetData"][v] = {}
 		end
+		-- NOTE: These 4 slots can be changed while in combat. Everything else is blocked.
 		if (v == "MainHand") or (v == "SecondaryHand") or (v == "Ranged") or (v == "Ammo") then
 			changed = TheoryCraft_AddEquipEffect(v, nil, TheoryCraft_Data["SlotData"][v], TheoryCraft_Data["SetData"][v])
-		elseif (resetall) then
+		elseif (reset_all) then
 			changed = TheoryCraft_AddEquipEffect(v, nil, TheoryCraft_Data["SlotData"][v], TheoryCraft_Data["SetData"][v])
 		end
 	end
+
 	if not TheoryCraft_Data.EquipEffects then
 		TheoryCraft_Data.EquipEffects  = {}
 	end
@@ -462,35 +494,41 @@ local function TheoryCraft_AddAllEquips(outfit, force)
 			end
 		end
 	end
-end
+end -- TheoryCraft_AddAllEquips
 
-local old = {}
-local old2 = {}
+function TheoryCraft_UpdateGear(dont_regenerate_all, force)
+	local old  = {}
+	local old2 = {}
 
-function TheoryCraft_UpdateGear(arg1, dontgen, force)
-	if TheoryCraft_SetBonuses == nil then
-		TheoryCraft_SetBonuses = {}
+	-- If player is in combat, and we're not forcing it to happen NOW...
+	if not force and UnitAffectingCombat("player") then
+		-- ...regenerate after combat ends
+		TheoryCraft_Data.regenaftercombat = true
 	end
-	if (arg1 ~= "player") then return end
-	if not force then
-		if UnitAffectingCombat("player") then
-			TheoryCraft_Data.regenaftercombat = true
-		end
-	end
-	TheoryCraft_DeleteTable(old)
-	TheoryCraft_CopyTable(TheoryCraft_Data.EquipEffects, old)
+
+	-- Copy EquipEffects => old
+	TCUtils.MergeIntoTable(TheoryCraft_Data.EquipEffects, old)
+	-- NOTE: EquipEffects is for things that ARE NOT raw stats. Mostly weapon attributes, but also procs.
+
 	TheoryCraft_AddAllEquips(TheoryCraft_Data["outfit"], force)
+
 	if TheoryCraft_Data.EquipEffects["MeleeAPMult"] == nil then
 		TheoryCraft_Data.EquipEffects["MeleeAPMult"] = 1
 	end
-	if (dontgen == nil) then
-		TheoryCraft_DeleteTable(old2)
-		TheoryCraft_CopyTable(TheoryCraft_Data.Stats, old2)
-		TheoryCraft_DeleteTable(TheoryCraft_Data.Stats)
-		TheoryCraft_LoadStats()
-		if (TheoryCraft_IsDifferent(old, TheoryCraft_Data.EquipEffects)) or (TheoryCraft_IsDifferent(old2, TheoryCraft_Data.Stats)) then
-			TheoryCraft_GenerateAll()
-		end
+	if dont_regenerate_all then
+		return
+	end
+	-- else generateAll
+
+	-- Copy Stats => old2
+	TCUtils.MergeIntoTable(TheoryCraft_Data.Stats, old2)
+	TheoryCraft_DeleteTable(TheoryCraft_Data.Stats)
+
+	TheoryCraft_LoadStats('update gear')
+	-- if something changed between the old and refreshed data...
+	if (TheoryCraft_IsDifferent(old, TheoryCraft_Data.EquipEffects)) or (TheoryCraft_IsDifferent(old2, TheoryCraft_Data.Stats)) then
+		-- UpdateOutfitTab, (which will only matter if its currently shown) and whatever else that does
+		TheoryCraft_GenerateAll() -- update gear
 	end
 end
 
@@ -548,10 +586,10 @@ function TheoryCraft_DequipSpecial(line, returndata)
 	return returndata
 end
 
-function TheoryCraft_DequipEffect (slotname, returndata, equippedsets)
+function TheoryCraft_DequipEffect(slotname, returndata, equippedsets)
 	if (slotname ~= "test") then
 		TheoryCraftTooltip:SetOwner(UIParent,"ANCHOR_NONE")
-		TheoryCraftTooltip:SetInventoryItem ("player", GetInventorySlotInfo(slotname.."Slot"))
+		TheoryCraftTooltip:SetInventoryItem("player", GetInventorySlotInfo(slotname.."Slot"), false, false)
 	end
 	local index = 1
 	local i, found
@@ -615,9 +653,9 @@ function TheoryCraft_AddToCustom(linkid)
 						TheoryCraft_Settings["CustomOutfit"].slots[TheoryCraft_SlotNames[i].slot] = TheoryCraft_Settings["CustomOutfit"].slots[found]
 					end
 				else
-					found = TheoryCraft_SlotNames[i].slot
+					found    = TheoryCraft_SlotNames[i].slot
 					realslot = TheoryCraft_SlotNames[i].realslot
-					both = TheoryCraft_SlotNames[i].both
+					both     = TheoryCraft_SlotNames[i].both
 				end
 			end
 			i = i + 1
@@ -634,7 +672,7 @@ function TheoryCraft_AddToCustom(linkid)
 	end
 	local itemdata = {}
 	local equippedsets = {}
-	TheoryCraft_AddEquipEffect (realslot, "test", itemdata, equippedsets)
+	TheoryCraft_AddEquipEffect(realslot, "test", itemdata, equippedsets)
 	TheoryCraft_Settings["CustomOutfit"].slots[found] = {}
 	TheoryCraft_Settings["CustomOutfit"].slots[found]["data"] = itemdata
 	TheoryCraft_Settings["CustomOutfit"].slots[found]["name"] = itemname

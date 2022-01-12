@@ -1,43 +1,23 @@
-local _, class = UnitClass("player")
-
 TheoryCraft_Data.TargetBuffs = {}
 TheoryCraft_Data.PlayerBuffs = {}
-
-local function findpattern(text, pattern, start)
-	if (text and pattern and (string.find(text, pattern, start))) then
-		return string.sub(text, string.find(text, pattern, start))
-	else
-		return ""
-	end
-end
 
 local function TheoryCraft_AddAllBuffs(target, data, buffs)
 	TheoryCraftTooltip:ClearLines()
 	local i, buff, locale_table, defaulttarget, _, start, found, type
 	if target == "player" then
 		local _, _, _, _, _, _, meleemod = UnitDamage("player")
-		data["Meleemodifier"] = -1+meleemod
+		data["Meleemodifier"]  = -1+meleemod
 		data["Rangedmodifier"] = -1+meleemod
 	end
-	if class == "DRUID" then
-		local oldstance = TheoryCraft_Data.currentstance
-		TheoryCraft_Data.currentstance = nil
-		local _, active
-		_, _, active = GetShapeshiftFormInfo(1)
-		if active then TheoryCraft_Data.currentstance = 1 end
-		_, _, active = GetShapeshiftFormInfo(3)
-		if active then TheoryCraft_Data.currentstance = 3 end
-		if TheoryCraft_Data.currentstance ~= oldstance then
-			TheoryCraft_Data.redotalents = true
-		end
-	end
+
 	if buffs == "debuffs" then
-		locale_table = TheoryCraft_Debuffs
+		locale_table  = TheoryCraft_Debuffs
 		defaulttarget = "target"
 	else
-		locale_table = TheoryCraft_Buffs
+		locale_table  = TheoryCraft_Buffs
 		defaulttarget = "player"
 	end
+	-- TBC-TODO: rework this since the buff/debuff cap is no longer 16
 	for i = 1, 16 do
 		if buffs == "debuffs" then
 			buff = UnitDebuff(target, i)
@@ -52,6 +32,7 @@ local function TheoryCraft_AddAllBuffs(target, data, buffs)
 			else
 				TheoryCraftTooltip:SetUnitBuff(target, i)
 			end
+			-- TODO: SetUnitBuff and SetUnitDebuff have a 3rd argument which is some sort of "filter" (possibly limited to buffs/debuffs the player can do something about, cast or dispell. Function is unclear.)
 			ltext = TheoryCraftTooltipTextLeft2
 			if (ltext) and (not ltext:IsVisible()) then
 				ltext = nil
@@ -85,43 +66,60 @@ local function TheoryCraft_AddAllBuffs(target, data, buffs)
   	end
 end
 
-local old  = {}
-local old2 = {}
 
--- I believe this is called upon entering_world & whenever a player buff/debuff is changed (aura) & whenever target is changed.
-function TheoryCraft_UpdateBuffs(arg1, dontgen)
-	if (arg1 == "player") then
-		TheoryCraft_DeleteTable(TheoryCraft_Data.PlayerBuffs)
-		TheoryCraft_AddAllBuffs("player", TheoryCraft_Data.PlayerBuffs)
-		TheoryCraft_AddAllBuffs("player", TheoryCraft_Data.PlayerBuffs, "debuffs")
-		if dontgen == nil then
-			if TheoryCraft_Data.redotalents then
-				TheoryCraft_UpdateTalents(true)
-				TheoryCraft_Data.redotalents = nil
-			end
-			TheoryCraft_LoadStats()
-			TheoryCraft_UpdateArmor()
-			TheoryCraft_GenerateAll()
-		end
+-- REM: This function is called upon PLAYER_LOGIN(dontgen==true) and whenever a player buff/debuff is changed (aura)
+function TheoryCraft_UpdatePlayerBuffs(dontgen)
+	local active_stance, has_changed = TCUtils.StanceFormName('UpdatePlayerBuffs')
 
-	elseif (arg1 == "target") then
-		TheoryCraft_DeleteTable(old)
-		TheoryCraft_CopyTable(TheoryCraft_Data.TargetBuffs, old)
-		TheoryCraft_DeleteTable(TheoryCraft_Data.TargetBuffs)
-		TheoryCraft_AddAllBuffs("target", TheoryCraft_Data.TargetBuffs)
-		TheoryCraft_AddAllBuffs("target", TheoryCraft_Data.TargetBuffs, "debuffs")
-		if dontgen == nil then
-			if TheoryCraft_Data.redotalents then
-				TheoryCraft_UpdateTalents(true)
-				TheoryCraft_Data.redotalents = nil
-			end
-			TheoryCraft_DeleteTable(old2)
-			TheoryCraft_CopyTable(TheoryCraft_Data.Stats, old2)
-			TheoryCraft_LoadStats()
-			if (TheoryCraft_IsDifferent(old, TheoryCraft_Data.TargetBuffs)) or (TheoryCraft_IsDifferent(old2, TheoryCraft_Data.Stats)) then
-				TheoryCraft_UpdateArmor()
-				TheoryCraft_GenerateAll()
-			end
-		end
+	local redotalents = false
+	-- travel/flight forms are definitely irrelevant. TBC-TODO: add moonkin/tree if necessary
+	if TCUtils.CLASS == "DRUID" and has_changed and (active_stance == 'bear' or active_stance == 'cat') then
+		redotalents = true
+	end
+
+	TheoryCraft_DeleteTable(TheoryCraft_Data.PlayerBuffs)
+	TheoryCraft_AddAllBuffs("player", TheoryCraft_Data.PlayerBuffs) -- player buffs
+	TheoryCraft_AddAllBuffs("player", TheoryCraft_Data.PlayerBuffs, "debuffs") -- player debuffs
+
+	if dontgen then
+		return
+	end
+
+	-- Update the button text for only the main action bar when stance changes.
+	if has_changed then
+		--print('Stance bar changed, UpdateActionBarText')
+		TheoryCraft_UpdateActionBarText()
+	end
+
+	-- NOTE: this is only ever the case when druid form changes (some talents have specific effects in forms that should NOT apply to other forms)
+	if redotalents then
+		TheoryCraft_UpdateTalents(true) -- player buffs
+	end
+	TheoryCraft_LoadStats('player buffs')
+	TheoryCraft_UpdateArmor() -- player buffs
+	TheoryCraft_GenerateAll() -- player buffs
+end
+
+-- REM: This function is called upon PLAYER_LOGIN(dontgen==true) and whenever the current target is changed
+-- QUESTION: should it also be called when the target gains/drops a buff?
+function TheoryCraft_UpdateTargetBuffs(dontgen)
+	local old  = {}
+	local old2 = {}
+
+	TCUtils.MergeIntoTable(TheoryCraft_Data.TargetBuffs, old)
+	TheoryCraft_DeleteTable(TheoryCraft_Data.TargetBuffs)
+	TheoryCraft_AddAllBuffs("target", TheoryCraft_Data.TargetBuffs) -- target buffs
+	TheoryCraft_AddAllBuffs("target", TheoryCraft_Data.TargetBuffs, "debuffs") -- target debuffs
+
+	if dontgen then
+		return
+	end
+
+	TCUtils.MergeIntoTable(TheoryCraft_Data.Stats, old2)
+	TheoryCraft_LoadStats('target buffs')
+	if (TheoryCraft_IsDifferent(old, TheoryCraft_Data.TargetBuffs)) or (TheoryCraft_IsDifferent(old2, TheoryCraft_Data.Stats)) then
+		TheoryCraft_UpdateArmor() -- target buffs
+		TheoryCraft_GenerateAll() -- target buffs
 	end
 end
+

@@ -1,19 +1,22 @@
--- self lua file is mostly used for initialization
+-- this lua file is mostly used for initialization
 
 TheoryCraft_AddonName = "TheoryCraftClassic"
-TheoryCraft_Version   = GetAddOnMetadata("TheoryCraftClassic", "Version") -- Read from TOC file
+TheoryCraft_Version   = GetAddOnMetadata(TheoryCraft_AddonName, "Version") -- Read from TOC file
 
 TheoryCraft_TooltipData = {}
-TheoryCraft_OldText = {}
 TheoryCraft_Data = {}
 TheoryCraft_Data.armormult = 1
 TheoryCraft_Data.armormultinternal = 1
 TheoryCraft_Data.Target = {}
+
 TheoryCraft_Data.BaseData = {}
 TheoryCraft_Data.BaseData["Allcritbonus"] = 0.5
 TheoryCraft_Data.BaseData["Allthreat"] = 1
 TheoryCraft_Data.BaseData["Allmodifier"] = 1
+TheoryCraft_Data.BaseData["AllUpFrontmodifier"] = 1
 TheoryCraft_Data.BaseData["Allbaseincrease"] = 1
+TheoryCraft_Data.BaseData["AllUpFrontbaseincrease"] = 1
+TheoryCraft_Data.BaseData["manacostall"] = 1
 TheoryCraft_Data.BaseData["Huntercritbonus"] = 0.5
 TheoryCraft_Data.BaseData["Rangedcritbonus"] = 1
 TheoryCraft_Data.BaseData["Rangedmodifier"] = 1
@@ -21,36 +24,8 @@ TheoryCraft_Data.BaseData["Rangedbaseincrease"] = 1
 TheoryCraft_Data.BaseData["Meleecritbonus"] = 1
 TheoryCraft_Data.BaseData["Meleemodifier"] = 1
 TheoryCraft_Data.BaseData["Meleebaseincrease"] = 1
-TheoryCraft_Data.BaseData["AllUpFrontmodifier"] = 1
-TheoryCraft_Data.BaseData["AllUpFrontbaseincrease"] = 1
-TheoryCraft_Data.BaseData["manacostall"] = 1
-TheoryCraft_Data.Talents = {}
-TheoryCraft_Data.Talents["strmultiplier"] = 1
-TheoryCraft_Data.Talents["agimultiplier"] = 1
-TheoryCraft_Data.Talents["stammultiplier"] = 1
-TheoryCraft_Data.Talents["intmultiplier"] = 1
-TheoryCraft_Data.Talents["spiritmultiplier"] = 1
-TheoryCraft_Data.Talents["manamultiplier"] = 1
-TheoryCraft_Data.Talents["healthmultiplier"] = 1
 
-local _, class = UnitClass("player")
-local _, race = UnitRace("player")
-if (race == "Gnome") then
-	TheoryCraft_Data.Talents["intmultiplier"] = 1.05
-end
-if (race == "Human") then
-	TheoryCraft_Data.Talents["spiritmultiplier"] = 1.05
-end
-if (race == "Tauren") then
-	TheoryCraft_Data.Talents["healthmultiplier"] = 1.05
-end
-TheoryCraft_Data.Talents["strmultiplierreal"] = 1
-TheoryCraft_Data.Talents["agimultiplierreal"] = 1
-TheoryCraft_Data.Talents["stammultiplierreal"] = 1
-TheoryCraft_Data.Talents["intmultiplierreal"] = TheoryCraft_Data.Talents["intmultiplier"]
-TheoryCraft_Data.Talents["spiritmultiplierreal"] = TheoryCraft_Data.Talents["spiritmultiplier"]
-TheoryCraft_Data.Talents["manamultiplierreal"] = 1
-TheoryCraft_Data.Talents["healthmultiplierreal"] = TheoryCraft_Data.Talents["healthmultiplier"]
+
 TheoryCraft_Data.Stats = {}
 
 TheoryCraft_UpdatedButtons = {}
@@ -64,7 +39,7 @@ if Bartender4 and LibStub then
 		lib.callbacks = lib.callbacks or CBH:New(lib)
 		LAB.RegisterCallback(lib, "OnButtonUpdate", function(event, self)
 			if self._state_type == "action" then
-				TheoryCraft_ButtonUpdate(self)
+				TheoryCraft_ButtonUpdate(self) -- bartender
 			end
 		end)
 		LAB.RegisterCallback(lib, "OnButtonCreated", function(event, self)
@@ -73,42 +48,7 @@ if Bartender4 and LibStub then
 	end
 end
 
-
-function Print(text, begin, spaces)
-	if spaces and string.len(spaces) > 10 then
-		return
-	end
-	if text == nil then text = "nil" end
-	if text == true then text = "true" end
-	if text == false then text = "false" end
-	if type(text) == "function" then
-		text = "function ("..tostring(text)..")"
-	end
-	if type(text) == "table" then
-		for k, v in pairs(text) do
-			if type(v) == "table" then
-				Print(k..": (Table)", "", (spaces or "").."    ")
-			end
-			Print(v, k..": ", (spaces or "").."    ")
-		end
-		return
-	end
-	text = (spaces or "")..(begin or "")..text
-	DEFAULT_CHAT_FRAME:AddMessage(text)
-end
-
--- Recursively copy contents from tab1 into tab2
-function TheoryCraft_CopyTable(tab1, tab2)
-	for k, v in pairs(tab1) do
-		if type(v) == "table" then
-			tab2[k] = {}
-			TheoryCraft_CopyTable(v, tab2[k])
-		else
-			tab2[k] = v
-		end
-	end
-end
-
+-- recursively nil every value in the table
 function TheoryCraft_DeleteTable(tab1)
 	for k, v in pairs(tab1) do
 		if type(v) == "table" then
@@ -119,30 +59,15 @@ function TheoryCraft_DeleteTable(tab1)
 	end
 end
 
-function TheoryCraftCast(spellname, overheal)
-	if UnitHealthMax("target") == 100 then
-		CastSpellByName(spellname)
-		return
-	end
-	if overheal == nil then overheal = 1 end
-	local u, highest, s = UnitHealthMax("target")-UnitHealth("target"), 1
-	u = u * overheal
-	for i = 1,20 do
-		s = TheoryCraft_GetSpellDataByName(spellname, i)
-		if (s) and (s.averagehealnocrit) and (s.averagehealnocrit > u) then
-			CastSpellByName(spellname.."(Rank "..i..")")
-			return
-		end
-	end
-	CastSpellByName(spellname)
-end
-
 local function round(arg1, decplaces)
 	if (decplaces == nil) then decplaces = 0 end
 	if arg1 == nil then arg1 = 0 end
 	return string.format ("%."..decplaces.."f", arg1)
 end
 
+-- This was apparently some kinda monitoring function to parse data about critical strike chances
+-- because some sorta internal wow data wasn't yet known.
+--[[
 function TheoryCraft_WatchCritRate(arg1)
 	local _, _, hit = strfind(arg1, "Your (.+) heals ")
 	local _, _, crit= strfind(arg1, "Your (.+) critically")
@@ -151,7 +76,7 @@ function TheoryCraft_WatchCritRate(arg1)
 	local foundcc
 	for k = 1,20 do
 		if TheoryCraft_TooltipData[hit.."("..k..")"] then
-			foundcc = TheoryCraft_TooltipData[TheoryCraft_TooltipData[hit.."("..k..")"]]["crithealchance"]
+			foundcc = TheoryCraft_TooltipData[ TheoryCraft_TooltipData[hit.."("..k..")"] ]["crithealchance"]
 		end
 	end
 	if foundcc == nil then
@@ -178,24 +103,12 @@ function TheoryCraft_WatchCritRate(arg1)
 		if (TheoryCraft_Settings["critchancedata"][tmp].casts == 15000) or ((TheoryCraft_Settings["critchancedata"][tmp].casts > 15000) and (math.floor(TheoryCraft_Settings["critchancedata"][tmp].casts/100) == TheoryCraft_Settings["critchancedata"][tmp].casts/100)) then
 			if TheoryCraft_Settings["hidecritdata"] then return end
 			local cc = (TheoryCraft_Settings["critchancedata"][tmp].crits/TheoryCraft_Settings["critchancedata"][tmp].casts-(foundcc-TheoryCraft_Data.Stats["critchance"])/100)*100
-			Print("You've cast "..TheoryCraft_Settings["critchancedata"][tmp].casts.." heals with "..tmp2.." intellect and +"..(foundcc-TheoryCraft_Data.Stats["critchance"]).." crit chance.")
-			Print("Over self you had a base crit rate of "..round((TheoryCraft_Settings["critchancedata"][tmp].crits/TheoryCraft_Settings["critchancedata"][tmp].casts-(foundcc-TheoryCraft_Data.Stats["critchance"])/100)*100,4).."%")
-			Print("TC was expecting a base crit rate of "..TheoryCraft_Data.Stats["critchance"].."%")
-			Print("*Please* post self info on the Curse Gaming message board for TheoryCraft, as self is a very significant amount of casts,")
-			Print("and currently the correct crit formula for Paladins is not known.")
-			Print("self message will show every 100 heals from now on.  To hide it, type")
-			Print("/tc hidecritdata")
+			-- Some kinda messaging to post your critical chance over how many casts you've made for data collection purposes.
+			-- I don't think this matters anymore.
 		end
 	end
 end
-
-local function findpattern(text, pattern, start)
-	if (text and pattern and (string.find(text, pattern, start))) then
-		return string.sub(text, string.find(text, pattern, start))
-	else
-		return ""
-	end
-end
+--]]
 
 function TheoryCraft_UpdateArmor()
 	local oldmit = TheoryCraft_Data.armormultinternal
@@ -236,18 +149,18 @@ function TheoryCraft_UpdateArmor()
 	end
 end
 
-local old = {}
 
 function TheoryCraft_UpdateTarget(dontgen)
-	TheoryCraft_DeleteTable(old)
-	TheoryCraft_CopyTable(TheoryCraft_Data.Target, old)
+	local old = {}
+	TCUtils.MergeIntoTable(TheoryCraft_Data.Target, old)
 	TheoryCraft_DeleteTable(TheoryCraft_Data.Target)
-	local race, raceen = UnitRace("player")
+
+	-- REM: the target is a localized string
 	local racetar = UnitCreatureType("target")
-	if (raceen == "Troll") and (racetar == TheoryCraft_Locale.ID_Beast) then
+	if (TCUtils.RACE == "Troll") and (racetar == TheoryCraft_Locale.ID_Beast) then
 		TheoryCraft_Data.Target["Allbaseincrease"] = 0.05
-		TheoryCraft_Data.Target["Rangedmodifier"] = 0.05
-		TheoryCraft_Data.Target["Meleemodifier"] = 0.05
+		TheoryCraft_Data.Target["Rangedmodifier"]  = 0.05
+		TheoryCraft_Data.Target["Meleemodifier"]   = 0.05
 	end
 	local slaying = 0
 	if (racetar == TheoryCraft_Locale.ID_Humanoid) then
@@ -259,14 +172,16 @@ function TheoryCraft_UpdateTarget(dontgen)
 	if racetar then
 		TheoryCraft_Data.Target["All"] = TheoryCraft_GetStat(racetar)
 	end
+
 	TheoryCraft_Data.Target["Allbaseincrease"] = (TheoryCraft_Data.Target["Allbaseincrease"] or 0)+slaying
 	TheoryCraft_Data.Target["Rangedmodifier"] = (TheoryCraft_Data.Target["Rangedmodifier"] or 0)+slaying
 	TheoryCraft_Data.Target["Meleemodifier"] = (TheoryCraft_Data.Target["Meleemodifier"] or 0)+slaying
 	TheoryCraft_Data.Target["Allcritbonus"] = slaying
 	TheoryCraft_Data.Target["Rangedcritbonus"] = slaying
 	TheoryCraft_Data.Target["Meleecritbonus"] = slaying
+
 	if (dontgen == nil) and (TheoryCraft_IsDifferent(old, TheoryCraft_Data.Target)) then
-		TheoryCraft_GenerateAll()
+		TheoryCraft_GenerateAll() -- update target
 	end
 	if TheoryCraft_Settings["dontresist"] then
 		TheoryCraft_DeleteTable(TheoryCraft_UpdatedButtons)
@@ -305,8 +220,14 @@ end
 
 --- OnLoad ---
 
+-- TODO: This should only set defaults if they are missing, not overwrite things that already exist.
 local function SetDefaults()
-	TheoryCraft_Settings = {}
+	-- REM: SavedVariablesPerCharacter
+	-- REM: When saving variables between game sessions, SavedVariables and SavedVariablesPerCharacter load after the last file. This overwrites any default values set earlier.
+	
+	TheoryCraft_Settings["dataversion"] = TheoryCraft_DataVersion -- So that we know if we need to reset the defaults again.
+
+	-- Checkbox defaults
 	TheoryCraft_Settings["embed"] = true
 	TheoryCraft_Settings["combinedot"] = true
 	TheoryCraft_Settings["procs"] = true
@@ -318,42 +239,73 @@ local function SetDefaults()
 	TheoryCraft_Settings["trysecond"] = "averagehealnocrit"
 	TheoryCraft_Settings["tryfirstsfg"] = 0
 	TheoryCraft_Settings["trysecondsfg"] = -1
-	TheoryCraft_Settings["dataversion"] = TheoryCraft_DataVersion
 	TheoryCraft_Settings["GenerateList"] = ""
 	TheoryCraft_Settings["dontresist"] = true
 
+	-- Resistances
 	TheoryCraft_Settings["resistscores"] = {}
 	TheoryCraft_Settings["resistscores"]["Arcane"] = 0
 	TheoryCraft_Settings["resistscores"]["Fire"]   = 0
 	TheoryCraft_Settings["resistscores"]["Nature"] = 0
 	TheoryCraft_Settings["resistscores"]["Frost"]  = 0
 	TheoryCraft_Settings["resistscores"]["Shadow"] = 0
+
+	-- Button text values
+	TheoryCraft_Settings["buttontextx"] = 0.5
+	TheoryCraft_Settings["buttontexty"] = 0.5
+	-- REM: these are stored as decimals between 0/1 because that is how SetTextColor expects values
+	TheoryCraft_Settings["ColR"] = 1
+	TheoryCraft_Settings["ColG"] = 1
+	TheoryCraft_Settings["ColB"] = 1
+	TheoryCraft_Settings["ColR2"] = 1
+	TheoryCraft_Settings["ColG2"] = 1
+	TheoryCraft_Settings["ColB2"] = 175/255
+	TheoryCraft_Settings["FontSize"] = 12
+	--TheoryCraft_Settings["FontPath"] = "Fonts\\ArialN.TTF"
 end
 
+-- Something to do with custom gear sets. Kill it for now.
+-- Maybe use: frame:SetScript("OnHyperlinkClick", ChatFrame_OnHyperlinkShow)
+--            or ChatFrame_OnHyperlinkShow() 
+--[[
 function TheoryCraft_SetItemRef(link, text, button)
 	if (IsAltKeyDown()) and (string.sub(link, 1, 4) == "item") then
 		TheoryCraft_AddToCustom(link)
-		TheoryCraft_UpdateGear("player", true)
-		TheoryCraft_LoadStats()
-		TheoryCraft_GenerateAll()
+		TheoryCraft_UpdateGear(true) -- irrelevant
+		TheoryCraft_LoadStats() -- irrelevant
+		TheoryCraft_GenerateAll() -- irrelevant
 	else
 		TheoryCraft_Data["SetItemRef"](link, text, button)
 	end
 end
+--]]
 
 function TheoryCraft_OnLoad(self)
-	TheoryCraft_MitigationMobs = {}
+	-- Register the persistent events
+	self:RegisterEvent("ADDON_LOADED")
+	self:RegisterEvent("PLAYER_LOGIN")
+	self:RegisterEvent("PLAYER_ENTERING_WORLD")
+	self:RegisterEvent("PLAYER_LEAVING_WORLD")
+
+	-- For debugging purposes
+	--self:RegisterEvent("LUA_WARNING")
+
+	-- NOTE: when ADDON_LOADED fires, these will be overwritten by the data from disk.
+	TheoryCraft_MitigationMobs    = {}
 	TheoryCraft_MitigationPlayers = {}
-	tinsert(UISpecialFrames,"TheoryCraft")
+	TheoryCraft_SetBonuses        = {}
+	TheoryCraft_Settings          = {}
+
+	-- REM: allows frame to be closed with ESC key.
+	tinsert(UISpecialFrames, "TheoryCraft")   -- eg table.insert
+	self:SetClampedToScreen(true)
+
+	-- Register the slash commands
 	SLASH_TheoryCraft1 = "/theorycraft"
 	SLASH_TheoryCraft2 = "/tc"
 	SlashCmdList["TheoryCraft"] = TheoryCraft_Command
-	self:RegisterEvent("VARIABLES_LOADED")
-	self:RegisterEvent("PLAYER_LOGIN")
-	SetDefaults()
 
-	-- Translates and expands out "schoolname" fields
-
+	-- Convert "Shadow" into "[Ss][Hh][Aa][Dd][Oo][Ww]". Luas-poormans case-insensitive match.
 	local s
 	local function bothcase(a)
 		return "["..string.upper(a)..string.lower(a).."]"
@@ -364,6 +316,8 @@ function TheoryCraft_OnLoad(self)
 		end
 	end
 
+	-- Expand TheoryCraft_EquipEveryLine.
+	-- anything with "schoolname" should instead be multiple lines, 1 per spell school
 	local i = 1
 	local s2 = 1
 	local i3 = 1
@@ -394,7 +348,9 @@ function TheoryCraft_OnLoad(self)
 		end
 		i = i + 1
 	end
+
 	i2 = 1
+	-- Append any newones to the end of the EquipEveryLine table
 	while newones[i2] do
 		TheoryCraft_EquipEveryLine[i] = {}
 		TheoryCraft_EquipEveryLine[i].me = newones[i2].me
@@ -405,6 +361,8 @@ function TheoryCraft_OnLoad(self)
 		i = i + 1
 	end
 
+	-- Expand TheoryCraft_EquipEveryRight.
+	-- anything with "schoolname" should instead be multiple lines, 1 per spell school
 	local i = 1
 	local s2 = 1
 	local i3 = 1
@@ -445,6 +403,8 @@ function TheoryCraft_OnLoad(self)
 		i = i + 1
 	end
 
+	-- Expand TheoryCraft_Equips.
+	-- anything with "schoolname" should instead be multiple lines, 1 per spell school
 	local i = 1
 	local s2 = 1
 	local i3 = 1
@@ -484,195 +444,256 @@ function TheoryCraft_OnLoad(self)
 		i = i + 1
 	end
 
+
+	local class = TCUtils.CLASS
+
 	i = 1
+	-- in gamedata
 	while TheoryCraft_Spells[class][i] do
 		if TheoryCraft_Spells[class][i].id then
+			-- Add these entries into MinMax{}
 			if TheoryCraft_Spells[class][i].id == "Aimed Shot" then
-				TheoryCraft_Locale.MinMax.aimedshotname = TheoryCraft_Locale.SpellTranslator[TheoryCraft_Spells[class][i].id]
+				TheoryCraft_Locale.MinMax.aimedshotname = TheoryCraft_Locale.SpellTranslator[ TheoryCraft_Spells[class][i].id ]
 			elseif TheoryCraft_Spells[class][i].id == "Multi-Shot" then
-				TheoryCraft_Locale.MinMax.multishotname = TheoryCraft_Locale.SpellTranslator[TheoryCraft_Spells[class][i].id]
+				TheoryCraft_Locale.MinMax.multishotname = TheoryCraft_Locale.SpellTranslator[ TheoryCraft_Spells[class][i].id ]
 			elseif TheoryCraft_Spells[class][i].id == "Arcane Shot" then
-				TheoryCraft_Locale.MinMax.arcaneshotname = TheoryCraft_Locale.SpellTranslator[TheoryCraft_Spells[class][i].id]
+				TheoryCraft_Locale.MinMax.arcaneshotname = TheoryCraft_Locale.SpellTranslator[ TheoryCraft_Spells[class][i].id ]
 			elseif TheoryCraft_Spells[class][i].id == "Auto Shot" then
-				TheoryCraft_Locale.MinMax.autoshotname = TheoryCraft_Locale.SpellTranslator[TheoryCraft_Spells[class][i].id]
+				TheoryCraft_Locale.MinMax.autoshotname = TheoryCraft_Locale.SpellTranslator[ TheoryCraft_Spells[class][i].id ]
 			end
+
+			-- Add a localized attribute "name" onto the spell data.
 			if TheoryCraft_Locale.SpellTranslator[TheoryCraft_Spells[class][i].id] then
-				TheoryCraft_Spells[class][i].name = TheoryCraft_Locale.SpellTranslator[TheoryCraft_Spells[class][i].id]
+				TheoryCraft_Spells[class][i].name = TheoryCraft_Locale.SpellTranslator[ TheoryCraft_Spells[class][i].id ]
 			else
-				Print("TheoryCraft error, no translation found for: "..TheoryCraft_Spells[class][i].id)
+				-- use "id" as a default "name"
+				print("TheoryCraft error, no translation found for: "..TheoryCraft_Spells[class][i].id)
 				TheoryCraft_Spells[class][i].name = TheoryCraft_Spells[class][i].id
 			end
 		end
 		i = i + 1
 	end
 
-	Print(table.concat({TheoryCraft_AddonName, TheoryCraft_Version, TheoryCraft_Locale.LoadText}, ' '))
+	print(TheoryCraft_AddonName, TheoryCraft_Version, TheoryCraft_Locale.LoadText)
 end
 
 --- OnShow ---
 
 -- REM: this is for tooltip only
-function TheoryCraft_OnShow()
+-- NOTE: this is not yet restricted to action bar tooltips, this applies to everything. Players, npcs, campfires, chat buttons... etc.
+function TheoryCraft_OnTooltipShow()
+	--print('TheoryCraft_OnTooltipShow')
    	TheoryCraft_AddTooltipInfo(GameTooltip)
-	--if (TheoryCraft_OnShow_Save) then
-	--   	TheoryCraft_OnShow_Save()
-	--end
 end
 
-function TheoryCraft_OnEvent(self, event, arg1)
-	--print(event)
-	--if not TheoryCraft_Data.TalentsHaveBeenRead then
-	--	return
+--[[
+function TheoryCraft_OnUpdate()
+	print('TheoryCraft_OnUpdate')
+   	TheoryCraft_AddTooltipInfo(GameTooltip)
+	--if (TheoryCraft_OnTooltipShow_Save) then
+	--   	TheoryCraft_OnTooltipShow_Save()
 	--end
+end
+--]]
+
+-- (un)register events TC cares about
+local function register_events(self, unregister)
+	-- Events to be registered and unregistered as the player hits loading screens
+	local event_list = {
+		"UNIT_AURA",
+		"PLAYER_EQUIPMENT_CHANGED",
+		"PLAYER_TARGET_CHANGED",
+		"UNIT_MANA",
+		"CHARACTER_POINTS_CHANGED",
+		"UNIT_POWER_UPDATE",
+		"COMBAT_LOG_EVENT_UNFILTERED",
+		"PLAYER_REGEN_ENABLED",
+		"ACTIONBAR_SLOT_CHANGED"
+	}
+	for i = 1, #event_list, 1 do
+		if unregister then
+			self:UnregisterEvent(event_list[i])
+		else
+			self:RegisterEvent(event_list[i])
+		end
+	end
+end
+
+
+-- Master list of events: https://wowpedia.fandom.com/wiki/Events
+-- REM: Normal sequence is:  ADDON_LOADED => PLAYER_LOGIN => PLAYER_ENTERING_WORLD
+-- NOTE: VARIABLES_LOADED fires after ALL addon's saved variables have loaded AND after blizzard's cache of account keybinds & macros have synced from the server.
+--       therefore may happen after PLAYER_ENTERING_WORLD
+function TheoryCraft_OnEvent(self, event, ...)
+	-- REM: automatic "..." => "arg{}" is only in lua 5.2
+	local arg={...}
+
+	--print(event)
 
 	local UIMem = gcinfo()
-	if event == "VARIABLES_LOADED" then
-		--print('Theorycraft Variables Loaded')
 
-		TheoryCraft_Mitigation = nil
-		TheoryCraft_Data["SetItemRef"] = SetItemRef
-		SetItemRef = TheoryCraft_SetItemRef
-
-		-- TODO: what the heck does this mean?
-		if TheoryCraft_OnShow_Save ~= nil then
+	-- Fires each time an individual addon's files and saved_variables have finished loading.
+	if event == "ADDON_LOADED" then
+		-- arg[1] == name of addon
+		--print ('Addon Loaded: ', arg[1])
+		-- If its some other addon, nothing to do here.
+		if arg[1] ~= TheoryCraft_AddonName then
 			return
 		end
 
-		--hooking GameTooltip's OnShow
-		TheoryCraft_OnShow_Save = GameTooltip:GetScript("OnShow")
-		GameTooltip:SetScript( "OnShow", TheoryCraft_OnShow )
-		GameTooltip:SetScript( "OnUpdate", TheoryCraft_OnShow ) -- always show?
+		--print('TheoryCraft Addon Loaded')
 
-		if TheoryCraft_Mitigation == nil then
-			TheoryCraft_Mitigation = {}
-		end
+		-- Only process this event once
+		self:UnregisterEvent(event)
+
+		-- NOTE: disabled for now.
+		--TheoryCraft_Data["SetItemRef"] = SetItemRef
+		--SetItemRef = TheoryCraft_SetItemRef
+
+		-- NOTE: OnShow is for ANY tooltip in the world, not just spells
+		GameTooltip:HookScript("OnShow", TheoryCraft_OnTooltipShow)
+		--GameTooltip:HookScript("OnTooltipSetSpell", TheoryCraft_OnTooltipShow)
+		-- NOTE: OnTooltipSetSpell is only for spell tooltips, but for some reason is spammed when moused over spells that cannot be moved. (stance bar & talent tree)
+		-- TODO: I guess OnTooltip<function> hooks, the function names are probably from this list: https://wowpedia.fandom.com/wiki/Widget_API#GameTooltip
+		-- NOTE: this is another possible option, but has its own problems.
+		--     hooksecurefunc(GameTooltip, 'SetTalent', function(self, spellID, isInspect, talentGroup) end)
+
+		--GameTooltip:HookScript("OnUpdate", TheoryCraft_OnUpdate)
+		-- DO not use OnUpdate, this is spammed constantly (probably every frame?)
+		-- abilities that cannot currently be cast, spam nil update events, whereas allowed abilities spam non-nil update events.
+
+		-- TODO: this should run an upgrade script if it is not nil
 		if (TheoryCraft_Settings["dataversion"] ~= TheoryCraft_DataVersion) then
 			SetDefaults()
 		end
-		-- if no values are set, choose defaults -- TODO: come up with a better way to do this
-		if TheoryCraft_Settings["ColR2"] == nil then
-			TheoryCraft_Settings["buttontextx"] = 0.5
-			TheoryCraft_Settings["buttontexty"] = 0.5
-			-- REM: these are stored as decimals between 0/1 because that is how SetTextColor expects values
-			TheoryCraft_Settings["ColR"] = 1
-			TheoryCraft_Settings["ColG"] = 1
-			TheoryCraft_Settings["ColB"] = 1
-			TheoryCraft_Settings["ColR2"] = 1
-			TheoryCraft_Settings["ColG2"] = 1
-			TheoryCraft_Settings["ColB2"] = 175/255
-			TheoryCraft_Settings["FontSize"] = 12
-			--TheoryCraft_Settings["FontPath"] = "Fonts\\ArialN.TTF"
-		end
-		if TheoryCraftGenBox_Text then
-			TheoryCraftGenBox_Text:SetText(TheoryCraft_Settings["GenerateList"])
-		end
 
+		-- Restore checkbox checked status from settings
+		TheoryCraft_InitCheckboxState()
+
+		-- Restore the values from settings into the ButtonText Config UI
 		TheoryCraft_InitButtonTextOpts()
+
+		-- Adds the text FontString to each action button. (NOTE: apparently doesn't need to wait for any later event)
 		TheoryCraft_AddButtonText()
 
+		-- NOTE: this is only intended as a notification, not to actually change what is or is not initialized
 		if TheoryCraft_Settings["off"] then
-			Print("TheoryCraft is currently switched off, type in '/tc on' to enabled")
+			print("TheoryCraft is currently switched off, use '/tc on' to enabled")
 		end
 
+	-- Triggered immediately before PLAYER_ENTERING_WORLD on login and UI Reload, but NOT when entering/leaving instances.
+	-- I.E. this only happens once
 	elseif event == "PLAYER_LOGIN" then
-		self:RegisterEvent("UNIT_AURA")
-		self:RegisterEvent("UNIT_INVENTORY_CHANGED")
-		self:RegisterEvent("PLAYER_TARGET_CHANGED")
-		self:RegisterEvent("UNIT_MANA")
-		self:RegisterEvent("CHARACTER_POINTS_CHANGED")
-		self:RegisterEvent("PLAYER_LEAVING_WORLD")
-		self:RegisterEvent("PLAYER_ENTERING_WORLD")
-		self:RegisterEvent("UNIT_POWER_UPDATE")
-		self:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
-		self:RegisterEvent("PLAYER_REGEN_ENABLED")
-		self:RegisterEvent("SPELL_UPDATE_ICON")
-	elseif event == "PLAYER_LEAVING_WORLD" then
-		self:UnregisterEvent("UNIT_AURA")
-		self:UnregisterEvent("UNIT_INVENTORY_CHANGED")
-		self:UnregisterEvent("PLAYER_TARGET_CHANGED")
-		self:UnregisterEvent("UNIT_MANA")
-		self:UnregisterEvent("CHARACTER_POINTS_CHANGED")
-		self:UnregisterEvent("PLAYER_LEAVING_WORLD")
-		self:UnregisterEvent("UNIT_POWER_UPDATE")
-		self:UnregisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
-		self:UnregisterEvent("PLAYER_REGEN_ENABLED")
 
-	-- Fired when the player enters the world, enters/leaves an instance, or respawns at a graveyard. Also fires any other time the player sees a loading screen. 
-	elseif event == "PLAYER_ENTERING_WORLD" then
-		self:RegisterEvent("UNIT_AURA")
-		self:RegisterEvent("UNIT_INVENTORY_CHANGED")
-		self:RegisterEvent("PLAYER_TARGET_CHANGED")
-		self:RegisterEvent("UNIT_MANA")
-		self:RegisterEvent("CHARACTER_POINTS_CHANGED")
-		self:RegisterEvent("PLAYER_LEAVING_WORLD")
-		self:RegisterEvent("PLAYER_ENTERING_WORLD")
-		self:RegisterEvent("UNIT_POWER_UPDATE")
-		self:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
-		self:RegisterEvent("PLAYER_REGEN_ENABLED")
-		self:RegisterEvent("SPELL_UPDATE_ICON")
-				
-		--[[if _G['Bartender4'] ~= nil then
+		--[[
+		if _G['Bartender4'] ~= nil then
 			for i = 1, 120 do TheoryCraft_SetUpButton("BT4Button"..i, "Normal") end
-		end]]--
+		end
+		]]--
 
-		TheoryCraft_UpdateTalents(true)
-		TheoryCraft_UpdateGear("player", true)
-		TheoryCraft_UpdateBuffs("player", true)
-		TheoryCraft_UpdateBuffs("target", true)
-		TheoryCraft_LoadStats()
-		-- TheoryCraft_GenerateAll()
-		TheoryCraft_UpdateAllButtonText()
+		-- Do this ASAP (many other things depend on this data)
+		TheoryCraft_UpdateTalents(true) -- player login
+
+		-- Wait 2 seconds after LOGIN to give a chance for stats/gear/spells etc to be properly loaded and become available for reading
+		C_Timer.After(2, function()
+			-- NOTE: I think this order of initialization is pretty well fixed.
+			TheoryCraft_UpdateGear(true)    -- player login
+			TheoryCraft_UpdatePlayerBuffs(true)
+			TheoryCraft_UpdateTargetBuffs(true)
+			TheoryCraft_LoadStats('player login') -- REM: must be after UpdateGear
+			-- TheoryCraft_GenerateAll()
+			TheoryCraft_UpdateAllButtonText('login')
+		end) -- C_Timer
+
+	-- Fired when the player logs in, /reloads the UI, or zones between map instances, basically whenever the loading screen appears. 
+	-- args: isLogin(bool), isReload(bool)
+	elseif event == "PLAYER_ENTERING_WORLD" then
+
+		register_events(self)
+
+	-- Fires whenever a loading screen turns on. (not necessarily on logout)
+	elseif event == "PLAYER_LEAVING_WORLD" then
+		-- Unregister the events
+		register_events(self, true)
 
 	elseif event == "COMBAT_LOG_EVENT_UNFILTERED" then
-		if TheoryCraft_ParseCombat then
-			TheoryCraft_ParseCombat(self, event)
-		end
-	elseif event == "CHAT_MSG_SPELL_SELF_BUFF" then
-		TheoryCraft_WatchCritRate(arg1)
-	elseif event == "UNIT_INVENTORY_CHANGED" then
-		TheoryCraft_UpdateGear(arg1)
+		TheoryCraft_ParseCombat(self, event)
+
+	-- TODO: this event no longer exists. Replaced with "COMBAT_LOG_EVENT" in 2.4.0
+	--       but its junk anyways, so who cares
+	--elseif event == "CHAT_MSG_SPELL_SELF_BUFF" then
+	--	TheoryCraft_WatchCritRate(arg[1])
+
+	elseif event == "PLAYER_EQUIPMENT_CHANGED" then
+		-- REM: arg[1] is equpimentSlotID, arg[2] is true when slot is now empty, false otherwise
+		TheoryCraft_UpdateGear()
 
 	-- This occurs when you are not on the hate list of any NPC, or a few seconds after the latest pvp attack that you were involved with. 
 	elseif event == "PLAYER_REGEN_ENABLED" then
+		-- If we had previously called UpdateGear but were in combat a the time...
 		if TheoryCraft_Data.regenaftercombat then
 			TheoryCraft_Data.regenaftercombat = nil
-			TheoryCraft_UpdateGear("player", nil, true)
+			-- ... now is the time to go ahead and UpdateGear
+			TheoryCraft_UpdateGear(nil, true)
 		end
 
-	elseif event == "SPELLS_CHANGED" then
-		local autoshotname = TheoryCraft_Locale.SpellTranslator["Auto Shot"]
-		if autoshotname then
-			local olddesc = TheoryCraft_TooltipData[autoshotname.."(0)"]
-			if olddesc then
-				TheoryCraft_TooltipData[autoshotname.."(0)"] = nil
-				TheoryCraft_TooltipData[olddesc] = nil
-			end
-		end
+	-- arg[1] == player, pet, NPC, or mob
+	-- NOTE: we care about both "player" and "target"
 	elseif event == "UNIT_AURA" then
-		TheoryCraft_UpdateBuffs(arg1)
+		if (arg[1] == "player") then
+			TheoryCraft_UpdatePlayerBuffs() -- REM: calls LoadStats
+		end
+
+	-- Fired when the player's available talent points change. 
+	-- arg[1] == change(int) -- -1 for spent, and +1 for leveled up
 	elseif event == "CHARACTER_POINTS_CHANGED" then
 		TheoryCraft_UpdateTalents()
+
 	elseif event == "PLAYER_TARGET_CHANGED" then
 		TheoryCraft_UpdateTarget()
-		TheoryCraft_UpdateBuffs("target")
-		TheoryCraft_UpdateAllButtonText()
+		TheoryCraft_UpdateTargetBuffs()
+		TheoryCraft_UpdateAllButtonText('target changed')
+
+	-- Fired when a unit's current power (mana, rage, energy) changes
+	--   A spell is cast which changes the unit's power.
+	--   The unit reaches full power.
+	--   While the unit's power is naturally regenerating or decaying, this event will only fire once every two seconds.
+	--   full list of power types: https://wowpedia.fandom.com/wiki/Enum.PowerType
+	-- arg[1] == unitID(string), arg[2] == powerType(string)
 	elseif event == "UNIT_POWER_UPDATE" then
 
-	elseif (event == "UNIT_MANA") and (arg1 == "player") then
-		if UnitClass("player") == "DRUID" then
-			local _, _, catform = GetShapeshiftFormInfo(3)
-			if catform then
-				TheoryCraft_DeleteTable(TheoryCraft_UpdatedButtons)
-			end
+	elseif (event == "UNIT_MANA") and (arg[1] == "player") then
+		if TCUtils.StanceFormName('UNIT_MANA') == 'cat' then
+			TheoryCraft_DeleteTable(TheoryCraft_UpdatedButtons)
 		end
+		-- when either primary or secondary dropdown options are configured for:
+		--   maxoomhealremaining  - Total Healing (left)
+		--   maxoomdamremaining   - Total Damage (left)
+		--   spellcasts           - Spellcasts remaining
 		if ((string.find(TheoryCraft_Settings["tryfirst"], "remaining")) or (string.find(TheoryCraft_Settings["trysecond"], "remaining"))) or
 		   ((TheoryCraft_Settings["tryfirst"] == "spellcasts") or (TheoryCraft_Settings["trysecond"] == "spellcasts")) then
 			TheoryCraft_DeleteTable(TheoryCraft_UpdatedButtons)
 		end
+
+	-- arg[1] == action_bar_slot_number(int)   AND no other arguments.
+	-- NOTE: this event has many many trigger conditions:
+	--       - when a macro has its active spell updated (example, modifier keys, or mouse over targets)
+	--       - when spells that have a reagent cost have their reagents quantity changed, or the reagent is moved in bags
+	--       - when inventory items that are set to an actionbutton are updated in any way (quantity changes, moved around in bags, bought/sold)
+	-- NOTE: this will fire a bunch of times any time the player loads through a loading screen that WASNOT /reload
+	elseif event == "ACTIONBAR_SLOT_CHANGED" then
+		local button = TheoryCraft_FindActionButton(arg[1])
+		if button then
+			TheoryCraft_ButtonUpdate(button, true)
+		end
+
+	-- TODO: this in theory should work, but I don't know what triggers it at the moment.
+	--elseif event == "LUA_WARNING" then
+	--	print("a LUA_WARNING has occurred: ", arg[1], arg[2]) -- arg[2] may be the actual warning text, lets not print it for now.
 	end
 
 	if TheoryCraft_Settings["showmem"] then
-		Print(event..": "..gcinfo()-UIMem)
+		print(event..": "..gcinfo() - UIMem)
 	end
 end
 
@@ -683,6 +704,9 @@ function TheoryCraft_CheckBoxShowDescription(self)
 	if (TheoryCraft_CheckButtons[name] == nil) then
 		return
 	end
+
+	local class = TCUtils.CLASS
+
 	local text = 1
 	if (TheoryCraft_CheckButtons[name].descriptionmelee) and ((class == "ROGUE") or (class == "WARRIOR")) then
 		text = TheoryCraft_CheckButtons[name].descriptionmelee
@@ -692,6 +716,7 @@ function TheoryCraft_CheckBoxShowDescription(self)
 	if string.find(text, "$cr") then
 		text = string.gsub(text, "$cr", round(TheoryCraft_intpercrit(), 2))
 	end
+	-- Use the default GameTooltip to show the popup descriptions for UI checkboxes.
 	GameTooltip_SetDefaultAnchor( GameTooltip, UIParent )
 	if TheoryCraft_CheckButtons[name].tooltiptitle then
 		GameTooltip:AddLine(TheoryCraft_CheckButtons[name].tooltiptitle, 1,1,1)
@@ -716,8 +741,7 @@ function TheoryCraft_CheckBoxSetText(self)
 	-- REM: hide is a table of class names for which a given checkbox option is to be disabled (because it doesn't apply to them)
 	if TheoryCraft_CheckButtons[name].hide then
 		for k,v in pairs(TheoryCraft_CheckButtons[name].hide) do
-			-- REM: class is a global set at the top of UI.lua
-			if (class == v) then
+			if (TCUtils.CLASS == v) then
 				getglobal(self:GetName()):Disable()
 				getglobal(self:GetName().."Text"):SetTextColor(0.5, 0.5, 0.5)
 			end
@@ -727,13 +751,15 @@ function TheoryCraft_CheckBoxSetText(self)
 end
 
 function TheoryCraft_CheckBoxToggle(self)
+	PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON); -- Standard subtle click sound
+
 	-- REM: true or nil
 	local onoff
 	if (self:GetChecked()) then
 		onoff = true
 	end
 	local name = self:GetName()
-	name = string.sub(name, 12) -- TheoryCraft
+	name = string.sub(name, 12) -- "TheoryCraft"
 	if (name == "embedstyle1") or (name == "embedstyle2") or (name == "embedstyle3") then
 		-- Clear all
 		TheoryCraft_Settings["embedstyle1"] = nil
@@ -766,7 +792,7 @@ function TheoryCraft_CheckBoxToggle(self)
 		end
 	end
 	if (name == "procs") or (name == "rollignites") or (name == "sepignites") or (name == "combinedot") or (name == "dotoverct") or (name == "dontcrit") then
-		TheoryCraft_GenerateAll()
+		TheoryCraft_GenerateAll() -- turning on/off several checkboxes
 	end
 	if (name == "buttontext") or (name == "dontresist") then
 		TheoryCraft_DeleteTable(TheoryCraft_UpdatedButtons)
@@ -783,84 +809,29 @@ function TheoryCraft_Command(cmd)
 		end
 		TheoryCraft_Data["firstrun"] = 1
 
-		TheoryCraft_SetCheckBox("embedstyle1")
-		TheoryCraft_SetCheckBox("embedstyle2")
-		TheoryCraft_SetCheckBox("embedstyle3")
-		TheoryCraft_SetCheckBox("titles")
-		TheoryCraft_SetCheckBox("embed")
-		TheoryCraft_SetCheckBox("crit")
-		TheoryCraft_SetCheckBox("critdam")
-		TheoryCraft_SetCheckBox("sepignite")
-		TheoryCraft_SetCheckBox("rollignites")
-		TheoryCraft_SetCheckBox("dps")
-		TheoryCraft_SetCheckBox("combinedot")
-		TheoryCraft_SetCheckBox("dotoverct")
-		TheoryCraft_SetCheckBox("hps")
-		TheoryCraft_SetCheckBox("dpsdam")
-		TheoryCraft_SetCheckBox("averagedam")
-		TheoryCraft_SetCheckBox("procs")
-		TheoryCraft_SetCheckBox("mitigation")
-		TheoryCraft_SetCheckBox("resists")
-		TheoryCraft_SetCheckBox("averagethreat")
-		TheoryCraft_SetCheckBox("plusdam")
-		TheoryCraft_SetCheckBox("damcoef")
-		TheoryCraft_SetCheckBox("dameff")
-		TheoryCraft_SetCheckBox("damfinal")
-		TheoryCraft_SetCheckBox("healanddamage")
-		TheoryCraft_SetCheckBox("nextagi")
-		TheoryCraft_SetCheckBox("nextstr")
-		TheoryCraft_SetCheckBox("nextcrit")
-		TheoryCraft_SetCheckBox("nexthit")
-		TheoryCraft_SetCheckBox("nextpen")
-		TheoryCraft_SetCheckBox("mana")
-		TheoryCraft_SetCheckBox("dpm")
-		TheoryCraft_SetCheckBox("hpm")
-		TheoryCraft_SetCheckBox("max")
-		TheoryCraft_SetCheckBox("maxevoc")
-		TheoryCraft_SetCheckBox("lifetap")
-		TheoryCraft_SetCheckBox("dontcrit")
-		TheoryCraft_SetCheckBox("dontresist")
-		TheoryCraft_SetCheckBox("buttontext")
-
-		TheoryCraftresistArcane:SetText(TheoryCraft_Settings["resistscores"]["Arcane"])
-		TheoryCraftresistFire:SetText(TheoryCraft_Settings["resistscores"]["Fire"])
-		TheoryCraftresistNature:SetText(TheoryCraft_Settings["resistscores"]["Nature"])
-		TheoryCraftresistFrost:SetText(TheoryCraft_Settings["resistscores"]["Frost"])
-		TheoryCraftresistShadow:SetText(TheoryCraft_Settings["resistscores"]["Shadow"])
-
-		if TheoryCraft_Settings["dontresist"] then
-			TheoryCraftresistArcane:Show()
-			TheoryCraftresistFire:Show()
-			TheoryCraftresistNature:Show()
-			TheoryCraftresistFrost:Show()
-			TheoryCraftresistShadow:Show()
-		else
-			TheoryCraftresistArcane:Hide()
-			TheoryCraftresistFire:Hide()
-			TheoryCraftresistNature:Hide()
-			TheoryCraftresistFrost:Hide()
-			TheoryCraftresistShadow:Hide()
-		end
-
+		-- Toggle the main frame.
 		if (TheoryCraft:IsVisible()) then
 			TheoryCraft:Hide()
 		else
 			TheoryCraft:Show()
 		end
 	end
-	local onoff = nil
+
+	local cmd_opts = nil
 	if strfind(cmd, " ") then
-		onoff = string.sub(cmd, strfind(cmd, " ")+1)
+		-- Get the string from just beyond the first space until end
+		cmd_opts = string.sub(cmd, strfind(cmd, " ")+1)
+		-- Get the string from start until just before first space
 		cmd = string.sub(cmd, 1, strfind(cmd, " ")-1)
 	end
 	if (cmd == "custom") then
-		local linkid = string.sub(onoff, string.find(onoff, "item:%d+:%d+:%d+:%d+"))
+		local linkid = string.sub(cmd_opts, string.find(cmd_opts, "item:%d+:%d+:%d+:%d+"))
 		TheoryCraft_Settings["CustomOutfitName"] = "Custom"
 		TheoryCraft_AddToCustom(linkid)
 	end
 	if (cmd == "calccrits") then
 		if TheoryCraft_Settings["critchancedata"] == nil then
-			Print("No crits found - self feature works for heals only")
+			print("No crits found - self feature works for heals only")
 			return
 		end
 		local _, critrate, int, gear
@@ -890,123 +861,132 @@ function TheoryCraft_Command(cmd)
 		end
 		mincrit = mincrit * 100
 		maxcrit = maxcrit * 100
-		Print("Int | Casts | Crit Chance")
+		print("Int | Casts | Crit Chance")
 		for k, v in crittable do
-			Print(k.." | "..v.casts.." | "..round(v.critrate*100,4).."%")
+			print(k.." | "..v.casts.." | "..round(v.critrate*100,4).."%")
 		end
 		if minint == 1000 then
-			Print("Insufficient data to calculate crit rates")
+			print("Insufficient data to calculate crit rates")
 		elseif minint == maxint then
-			Print("Insufficient range to calculate base crit, assuming 0")
-			Print("Int Per Crit = "..round(maxint/maxcrit,3))
-			Print("Base Crit = 0")
+			print("Insufficient range to calculate base crit, assuming 0")
+			print("Int Per Crit = "..round(maxint/maxcrit,3))
+			print("Base Crit = 0")
 		else
-			Print("Using self data:")
-			Print("Int Per Crit = "..round((maxint-minint)/(maxcrit-mincrit),3))
-			Print("Base Crit = "..round((mincrit-minint/((maxint-minint)/(maxcrit-mincrit))),3).."%")
+			print("Using self data:")
+			print("Int Per Crit = "..round((maxint-minint)/(maxcrit-mincrit),3))
+			print("Base Crit = "..round((mincrit-minint/((maxint-minint)/(maxcrit-mincrit))),3).."%")
 		end
 	end
 	if (cmd == "armor") or (cmd == "playerarmor") then
-		if onoff == nil then onoff = "" end
-		onoff = string.upper(onoff)
+		if cmd_opts == nil then cmd_opts = "" end
+		cmd_opts = string.upper(cmd_opts)
 		local test = {}
 		local i = 1
 		local ul = UnitLevel("player")
-		Print(" ")
+		print(" ")
 		if cmd == "armor" then
 			for k, v in pairs(TheoryCraft_MitigationMobs) do
-				if strfind(string.upper(k), onoff) then
+				if strfind(string.upper(k), cmd_opts) then
 					test[i] = round((v[1] / (85 * ul + 400 + v[1]))*100,1).." | "..v[1].." | "..k
 					i = i + 1
 					if i > 250 then
-						Print("Please limit your search - more than 250 mobs were found")
+						print("Please limit your search - more than 250 mobs were found")
 						return
 					end
 				end
 			end
-			Print("DR | Armor | Mob Name")
+			print("DR | Armor | Mob Name")
 		else
 			local classname, level, _
 			for k, v in pairs(TheoryCraft_MitigationPlayers) do
-				if strfind(string.upper(k), onoff) and strfind(string.upper(k), ":") then
+				if strfind(string.upper(k), cmd_opts) and strfind(string.upper(k), ":") then
 					_, _, classname, level = strfind(k, "(.+):(.+)")
 					test[i] = classname.." | "..level.." | "..v[1].." | "..round((v[1] / (85 * ul + 400 + v[1]))*100,1)
 					i = i + 1
 					if i > 250 then
-						Print("Please limit your search - more than 250 mobs were found")
+						print("Please limit your search - more than 250 mobs were found")
 						return
 					end
 				end
 			end
-			Print(" ")
-			Print("Class | Lvl | Armor | DR")
+			print(" ")
+			print("Class | Lvl | Armor | DR")
 			table.sort(test)
 			for k, v in pairs(test) do
-				Print(v)
+				print(v)
 			end
 			test = {}
 			for k, v in pairs(TheoryCraft_MitigationPlayers) do
-				if strfind(string.upper(k), onoff) and (not strfind(k, ":")) then
+				if strfind(string.upper(k), cmd_opts) and (not strfind(k, ":")) then
 					test[i] = round((v[1] / (85 * ul + 400 + v[1]))*100,1).." | "..v[1].." | "..k
 					i = i + 1
 					if i > 250 then
-						Print("Please limit your search - more than 250 mobs were found")
+						print("Please limit your search - more than 250 mobs were found")
 						return
 					end
 				end
 			end
-			Print(" ")
-			Print("DR | Armor | Player Name")
+			print(" ")
+			print("DR | Armor | Player Name")
 		end
 		table.sort(test)
 		for k, v in pairs(test) do
-			Print(v)
+			print(v)
 		end
 	end
-	if (cmd == "off") then
-		Print("TheoryCraft is now switched OFF")
+
+	if (cmd == "off") and (not TheoryCraft_Settings["off"]) then
+		print("TheoryCraft is now switched OFF")
 		TheoryCraft_Settings["off"] = true
+		-- also re-render all buttontext (which will trigger it to hide)
+		TheoryCraft_UpdateAllButtonText()
 	end
-	if (cmd == "on") then
-		Print("TheoryCraft is now switched ON")
+	if (cmd == "on") and TheoryCraft_Settings["off"] then
+		print("TheoryCraft is now switched ON")
 		TheoryCraft_Settings["off"] = nil
+		-- also re-render all buttontext
+		TheoryCraft_UpdateAllButtonText()
 	end
+
 	if (cmd == "more") then
-		Print("/tc showmem")
-		Print("    Debug infomation, shows the memory usage (in bytes) as each event occurs")
-		Print("/tc damtodouble")
-		Print("    Shows how much +damage/+heal is required to double a spells base damage")
-		Print("/tc dpsmana")
-		Print("    Adds a dps/mana field to the tooltip")
-		Print("/tc armorchanges")
-		Print("    Prints whenever the armor value of the target changes")
-		Print("/tc armor (mob name)")
-		Print("    Prints the mobs armor. Leave blank for all.")
-		Print("/tc playerarmor (player name, or class)")
-		Print("    Prints a players armor. Leave blank for all.")
-		Print("/tc calccrits")
-		Print("    Shows your actual crit rate, from combat. Only works for healers.")
-		Print("Macro Tooltips")
-		Print("    If you name a macro the same as the name of the spell, in the format: Pyroblast(x), where x is the rank (or 0 if N/A), TC will show the correct tooltip. If the spell name does not fit, only use as many characters as can fit without leaving the rank off.")
-		Print('/script TheoryCraftCast("Greater Heal", 1)')
-		Print("    Casts the lowest rank Greater Heal that'll bring your target to full health.  The 1 represents overheal amount, eg change to 1.2 to attempt to overheal by 20% (to account for damage while casting). Can be used in macros.")
+		print("/tc showmem")
+		print("    Debug infomation, shows the memory usage (in bytes) as each event occurs")
+		print("/tc damtodouble")
+		print("    Shows how much +damage/+heal is required to double a spells base damage")
+		print("/tc dpsmana")
+		print("    Adds a dps/mana field to the tooltip")
+		print("/tc armorchanges")
+		print("    Prints whenever the armor value of the target changes")
+		print("/tc armor (mob name)")
+		print("    Prints the mobs armor. Leave blank for all.")
+		print("/tc playerarmor (player name, or class)")
+		print("    Prints a players armor. Leave blank for all.")
+		print("/tc calccrits")
+		print("    Shows your actual crit rate, from combat. Only works for healers.")
+		print("Macro Tooltips")
+		print("    If you name a macro the same as the name of the spell, in the format: Pyroblast(x), where x is the rank (or 0 if N/A), TC will show the correct tooltip. If the spell name does not fit, only use as many characters as can fit without leaving the rank off.")
 	end
-	if (cmd == "titles") or (cmd == "dpsmana") or (cmd == "damtodouble") or (cmd == "hidecritdata") or (cmd == "dpsdampercent") or (cmd == "armorchanges") or (cmd == "procs") or (cmd == "hideadvanced") or (cmd == "showregenheal") or (cmd == "showregendam") or (cmd == "hpm") or (cmd == "dpm") or (cmd == "dontcritdpm") or (cmd == "dontcrithpm") or (cmd == "nextagi") or (cmd == "nextpen") or (cmd == "embed") or (cmd == "dam") or (cmd == "averagedam") or (cmd == "averagedamnocrit") or (cmd == "crit") or (cmd == "critdam") or (cmd == "sepignite") or (cmd == "rollignites") or (cmd == "dps") or (cmd == "dpsdam") or (cmd == "resists") or (cmd == "timeit") or (cmd == "plusdam") or (cmd == "damcoef") or (cmd == "dameff") or (cmd == "damfinal") or (cmd == "nextcrit") or (cmd == "nexthit") or (cmd == "mana") or (cmd == "max") or (cmd == "maxevoc") or (cmd == "maxtime") or (cmd == "averagethreat") or (cmd == "healanddamage") or (cmd == "lifetap") or (cmd == "showmore") or (cmd == "showmem") then
+
+	-- Toggle on or off checkboxes from the UI panel.
+	if (cmd == "titles") or (cmd == "dpsmana") or (cmd == "damtodouble") or (cmd == "hidecritdata") or (cmd == "dpsdampercent") or (cmd == "armorchanges") or (cmd == "procs") or (cmd == "hideadvanced") or (cmd == "hpm") or (cmd == "dpm") or (cmd == "dontcritdpm") or (cmd == "dontcrithpm") or (cmd == "nextagi") or (cmd == "nextpen") or (cmd == "embed") or (cmd == "dam") or (cmd == "averagedam") or (cmd == "averagedamnocrit") or (cmd == "crit") or (cmd == "critdam") or (cmd == "sepignite") or (cmd == "rollignites") or (cmd == "dps") or (cmd == "dpsdam") or (cmd == "resists") or (cmd == "timeit") or (cmd == "plusdam") or (cmd == "damcoef") or (cmd == "dameff") or (cmd == "damfinal") or (cmd == "nextcrit") or (cmd == "nexthit") or (cmd == "mana") or (cmd == "max") or (cmd == "maxevoc") or (cmd == "maxtime") or (cmd == "averagethreat") or (cmd == "healanddamage") or (cmd == "lifetap") or (cmd == "showmore") or (cmd == "showmem") then
+		local onoff = nil
 		if (TheoryCraft_Settings[cmd]) then
 			onoff = nil
 		else
 			onoff = true
 		end
 		if onoff then
-			DEFAULT_CHAT_FRAME:AddMessage(cmd.." is now set to 'on'")
+			print(cmd, "is now set to 'on'")
 		else
-			DEFAULT_CHAT_FRAME:AddMessage(cmd.." is now set to 'off'")
+			print(cmd, "is now set to 'off'")
 		end
 		TheoryCraft_Settings[cmd] = onoff
 	end
 end
 
 function TheoryCraft_OutfitChange(self)
+	PlaySound(SOUNDKIT.IG_MAINMENU_OPTION_CHECKBOX_ON); -- Standard subtle click sound
+
 	local id   = self:GetName()
 	local name = self:GetText()
 
@@ -1016,10 +996,11 @@ function TheoryCraft_OutfitChange(self)
 		local spellname, spellrank
 		local i, i2 = 1
 		local first = true
+		local class = TCUtils.CLASS
 		while (true) do
 			spellname, spellrank = GetSpellBookItemName(i,BOOKTYPE_SPELL)
 			if spellname == nil then break end
-			spellrank = tonumber(findpattern(spellrank, "%d+"))
+			spellrank = tonumber(TCUtils.findpattern(spellrank, "%d+"))
 			if spellrank == nil then spellrank = 0 end
 			i2 = 1
 			while (TheoryCraft_Spells[class][i2]) and (spellname ~= TheoryCraft_Spells[class][i2].name) do
@@ -1039,11 +1020,11 @@ function TheoryCraft_OutfitChange(self)
 	end
 	if (id == "TheoryCraftGenAll") then
 		local timer = GetTime()
-		TheoryCraft_UpdateGear("player", true)
+		TheoryCraft_UpdateGear(true)
 		TheoryCraft_LoadStats()
 		timer = round((GetTime()-timer)*1000)
-		Print(" ")
-		Print("TheoryCraft takes: "..timer.."ms to read your gear. self will only occur out of combat, and only when your gear changes.")
+		print(" ")
+		print("TheoryCraft takes:", timer, "ms to read your gear. self will only occur out of combat, and only when your gear changes.")
 		TheoryCraft_Data["reporttimes"] = true
 		TheoryCraft_Data["buttonsgenerated"] = 0
 		TheoryCraft_Data["timetaken"] = 0
@@ -1058,22 +1039,22 @@ function TheoryCraft_OutfitChange(self)
 			TheoryCraft_Talents[i].forceto = -1
 			i = i + 1
 		end
-		TheoryCraft_UpdateGear("player", true)
+		--TheoryCraft_UpdateGear(true) -- NOTE: There is currently no way to "Fake" a gear modification, so no need to reset this stuff
 		TheoryCraft_UpdateTalents(true)
-		TheoryCraft_LoadStats()
+		TheoryCraft_LoadStats('reset_button')
 		TheoryCraft_GenerateAll()
 		--UIDropDownMenu_SetSelectedID(TheoryCraftoutfit, 1)
 		TheoryCraftCustomOutfit:Hide()
 		return
 	end
 	if (id == "TheoryCraftApplyButtonText") then
-		TheoryCraft_UpdateAllButtonText()
+		TheoryCraft_UpdateAllButtonText('apply')
 	end
-    -- TODO: defunct because outfits are disabled.
+	-- TODO: defunct because outfits are disabled.
 	if (id == "TheoryCraftClearButton") then
 		TheoryCraft_Settings["CustomOutfitName"] = "Custom"
 		TheoryCraft_Settings["CustomOutfit"] = nil
-		TheoryCraft_UpdateGear("player", true)
+		TheoryCraft_UpdateGear(true)
 		TheoryCraft_LoadStats()
 		TheoryCraft_GenerateAll()
 		return
@@ -1086,13 +1067,13 @@ function TheoryCraft_OutfitChange(self)
 		TheoryCraft_Settings["CustomOutfitName"] = UnitName("target")
 		TheoryCraft_Settings["CustomOutfit"] = nil
 		TheoryCraft_Data["outfit"] = 2
-		TheoryCraft_UpdateGear("player", true)
+		TheoryCraft_UpdateGear(true)
 		local i = 20
 		while i > 0 do
 			TheoryCraft_AddToCustom(GetInventoryItemLink("target", i))
 			i=i-1
 		end
-		TheoryCraft_UpdateGear("player", true)
+		TheoryCraft_UpdateGear(true)
 		TheoryCraft_LoadStats()
 		TheoryCraft_GenerateAll()
 		return
@@ -1100,7 +1081,7 @@ function TheoryCraft_OutfitChange(self)
 	if (id == "TheoryCraftEquipSelfButton") then
 		TheoryCraft_Settings["CustomOutfitName"] = "Self"
 		TheoryCraft_Settings["CustomOutfit"] = nil
-		TheoryCraft_UpdateGear("player", true)
+		TheoryCraft_UpdateGear(true)
 		TheoryCraft_LoadStats()
 		TheoryCraft_GenerateAll()
 		TheoryCraft_Data["outfit"] = 2
@@ -1109,7 +1090,7 @@ function TheoryCraft_OutfitChange(self)
 			TheoryCraft_AddToCustom(GetInventoryItemLink("player", i))
 			i=i-1
 		end
-		TheoryCraft_UpdateGear("player", true)
+		TheoryCraft_UpdateGear(true)
 		TheoryCraft_LoadStats()
 		TheoryCraft_GenerateAll()
 		return

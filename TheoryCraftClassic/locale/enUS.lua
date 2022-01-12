@@ -1,126 +1,166 @@
-﻿-- If another localization has already run, we can stop here
+-- If another localization has already run, we can stop here
 if (TheoryCraft_Locale ~= nil) then return end
+
+-- These are for $variables$ that get replaced by words instead of data.
+TheoryCraft_TooltipOrs = {
+	hitorhealhit  = "hit",
+	hitorhealheal = "heal",
+
+	damorhealdam  = "Dam",
+	damorhealheal = "Heal",
+
+	damorapap     = "AP",
+	damorapdam    = "+dam",
+}
 
 -- The format of the tooltip is defined below.
 -- It looks ghastly complicated at first, but is quite straight forward.
+-- FUTURE: refactor to remove conditional logic.
+--         Conditional logic should not be built into a string if at all possible.
 
--- show is which checkbox needs to be enabled for the line to show
+-- "show" is which checkbox needs to be enabled for the line to show
+-- if "true" it is always shown if possible. (not tied to a checkbox)
 
--- if inverse is true, then the checkbox needs to be unchecked
+-- if "inverse" is true, then the checkbox needs to be unchecked
 
--- left is what gets added to the left hand side of the toolip
--- right is what gets added to the right hand side of the tooltip
+-- "left"  is what gets added to the left  hand side of the tooltip
+-- "right" is what gets added to the right hand side of the tooltip
+-- "title" is a special title line for a section of tooltip lines. Only displayed if something in that section is.
 
--- If a value is not found, the entire line will be hidden.
--- to avoid this, put it in an if... eg the line:
---       "foo#IFbar lalala $invalidvalue$ no#"
--- will just show the word "foo", as the invalid value will hide the entire
--- if.
+-- variables are defined between two "$"  eg. $somevalue$ refers to somevalue
+-- #cX,Y,Z# = color configuration
 
--- Where you want one value to be shown, or if that isn't valid to show
--- another, use OR.  Eg on a spell with 1000 minimum damage:
---       "foo#ORthis is invalid$invalidvalue$/bar $mindamage$OR#"
--- will just show foobar 1000, however if the spell is a heal nothing
--- will be shown at all.
+-- Lines that have variables resolved to undefined values (eg that variable is unavailable)
+-- will be skipped over.
 
+-- An "OR" block is used to choose between 2 options for this line.
+-- Example: "foo #OR bar $option_A$/ baz $option_B$OR#"
+-- when option_A is available, the line will be printed as "foo bar $option_A$"
+-- if option_A is unavailable, then try to use option_B "foo baz $option_B$"
+-- If neither are available, the line will be completely skipped
 -- Format for ORs:
---     "#OR text / more text OR#"
+--     "#OR some text / other text OR#"
+
+-- An "IF" block is used to conditionally display text if its associated variable is available
+-- Example: "hello foo #IF bar $option_A$IF#"
+-- when option_A is available, the line will be printed as "hello foo bar $option_A$"
+-- however when option_A is unavailable, the line will be printed as "hello foo"
 -- Format for IFs:
 --     "#IF text IF#"
 
-TheoryCraft_TooltipOrs = {
-	hitorhealhit = "hit",
-	hitorhealheal = "heal",
-	damorhealdam = "Dam",
-	damorhealheal = "Heal",
-	damorapap = "AP",
-	damorapdam = "+dam",
-}
 
+-- REM: right MUST follow left.
+-- REM: embedstyle1 => DPS | Crit
+--      embedstyle2 => DPM | Crit
+--      embedstyle3 => DPS/HPM | Crit
 TheoryCraft_TooltipFormat = {
-	{show = true, 		left = "#c1,1,1#$spellname$", 		right = "#c0.5,0.5,0.5#Rank $spellrank$"},
-	{show = true, 		left = "#c1,1,1#$wandlineleft2$", 	right = "#c1,1,1#$wandlineright2$"},
-	{show = true, 		left = "#c1,1,1#$wandlineleft3$", 	right = "#c1,1,1#$wandlineright3$"},
-	{show = "embedstyle1", 	left = "#c1,1,1#$wandlineleft4$", 	right = "#c0.9,0.9,1#$critchance,1$%#c1,1,1# to crit"},
+	{show = true,         left = "#c1,1,1#$spellname$",         right = "#c0.5,0.5,0.5#Rank $spellrank$"},
+	{show = true,         left = "#c1,1,1#$wandlineleft2$",     right = "#c1,1,1#$wandlineright2$"},
+	{show = true,         left = "#c1,1,1#$wandlineleft3$",     right = "#c1,1,1#$wandlineright3$"},
+
+	{show = "embedstyle1",                 left = "#c1,1,1#$wandlineleft4$",     right = "#c0.9,0.9,1#$critchance,1$%#c1,1,1# to crit"},
 	{show = "embedstyle1", inverse = true, left = "#c1,1,1#$wandlineleft4$"},
-	{show = true, 		left = "#c1,1,1#$basemanacost$ Mana", 	right = "#c1,1,1#$spellrange$"},
-	{show = "embedstyle1", 	left = "#c0.9,0.9,1##OR$dps$#c1,1,1# Dps/$hps$#c1,1,1# HpsOR#", 
-			       right = "#c0.9,0.9,1#$critchance,1$%#c1,1,1# to crit"},
-	{show = "embedstyle2", 	left = "#c0.9,0.9,1##OR$dpm,2$#c1,1,1# Dpm/$hpm,2$#c1,1,1# HpmOR#", 
-			       right = "#c0.9,0.9,1#$critchance,1$%#c1,1,1# to crit"},
-	{show = "embedstyle3", 	left = "#c0.9,0.9,1##OR$dps$#c1,1,1# Dps/$hpm,2$#c1,1,1# HpmOR#", 
-			       right = "#c0.9,0.9,1#$critchance,1$%#c1,1,1# to crit"},
-	{show = true, 		left = "#c1,1,1#$basecasttime$", right = "#c1,1,1#$cooldown$"},
-	{show = true, 		left = "#c1,1,1#$cooldownremaining$",},
-	{show = "embed", 	left = "#c1,0.82745098,0##OR$description$/$basedescription$OR##WRAP#"},
-	{show = "embed", inverse = true, left = "#c1,0.82745098,0#$basedescription$#WRAP#"},
-	{show = true, 		left = "#c1,0.5,1#$outfitname$"},
-	{show = true, 		left = "Restores $evocation$ mana."},
-	{show = true, 		left = "Unbuffed: $sealunbuffed,1$ dps"},
-	{show = true, 		left = "With this seal: $sealbuffed,1$ dps"},
-	{show = "titles", 	left = "#c1,1,1##TITLE=Healing Statistics#"},
-	{show = "embed", inverse = true, left = "Heals: $healrange$"},
-	{show = "critwithdam", 	left = "Crits: $crithealchance,2$% (for $crithealrange$)"},
-	{show = "critwithoutdam", left = "Crits: $crithealchance,2$%"},
-	{show = "hps", 		left = "HPS: $hps,1$#IF, $withhothps,1$IF#"},
-	{show = "dpsdam", 	left = "HPS from +heal: $hpsdam,1$ ($hpsdampercent,1$%)"},
+
+	{show = true,         left = "#c1,1,1#$basemanacost$ Mana",     right = "#c1,1,1#$spellrange$"},
+
+	{show = "embedstyle1",     left = "#c0.9,0.9,1##OR$dps$#c1,1,1# Dps/$hps$#c1,1,1# HpsOR#",     right = "#c0.9,0.9,1#$critchance,1$%#c1,1,1# to crit"},
+	{show = "embedstyle2",     left = "#c0.9,0.9,1##OR$dpm,2$#c1,1,1# Dpm/$hpm,2$#c1,1,1# HpmOR#", right = "#c0.9,0.9,1#$critchance,1$%#c1,1,1# to crit"},
+	{show = "embedstyle3",     left = "#c0.9,0.9,1##OR$dps$#c1,1,1# Dps/$hpm,2$#c1,1,1# HpmOR#",   right = "#c0.9,0.9,1#$critchance,1$%#c1,1,1# to crit"},
+
+	{show = true,         left = "#c1,1,1#$basecasttime$", right = "#c1,1,1#$cooldown$"},
+	{show = true,         left = "#c1,1,1#$cooldownremaining$",},
+
+	-- REM: these are not allowed to have rightside text
+	{show = "embed",                 left = "#c1,0.83,0##OR$description$/$basedescription$OR#", wrap = true},
+	{show = "embed", inverse = true, left = "#c1,0.83,0#$basedescription$", wrap = true},
+
+	{show = true,         left = "#c1,0.5,1#$outfitname$"},
+	{show = true,         left = "Restores $evocation$ mana."},
+	{show = true,         left = "Unbuffed: $sealunbuffed,1$ dps"},
+	{show = true,         left = "With this seal: $sealbuffed,1$ dps"},
+
+	-- ######## Healing Statistics ########
+	{title = "Healing Statistics:"},
+
+	{show = "embed", inverse = true, left = "Heals: $healrange$"}, -- show the final healing + spellpower here instead of in the description
+
+	{show = "critwithdam",      left = "Crits: $crithealchance,2$% (for $crithealrange$)"},
+	{show = "critwithoutdam",   left = "Crits: $crithealchance,2$%"},
+	{show = "hps",              left = "HPS: $hps,1$#IF, $withhothps,1$IF#"},
+	{show = "dpsdam",           left = "HPS from +heal: $hpsdam,1$ ($hpsdampercent,1$%)"},
 	{show = "averagedamnocrit", left = "Average Heal: $averagehealnocrit$"},
 	{show = "averagedamnocrit", left = "Ticks For: $averagehealtick$"},
-	{show = "averagedam", 	left = "Average Heal: $averageheal$"},
-	{show = "averagedam", 	left = "Ticks For: $averagehealtick$"},
-	{show = "titles", 	left = "#c1,1,1##TITLE=Damage Statistics#"},
-	{show = "embed", inverse = true, left = "Hits: $dmgrange$"},
-	{show = "critmelee", 	left = "Crits: $critdmgchance,2$% (for $critdmgrange$)"},
-	{show = "critwithdam", 	left = "Crits: $critdmgchance,2$% (for $critdmgrange$)"},
-	{show = "sepignite", 	left = "With Ignite: $igniterange$"},
-	{show = "critwithoutdam", left = "Crits: $critdmgchance,2$%"},
-	{show = "dps", 		left = "DPS: $dps,1$#IF, $withdotdps,1$IF#"},
-	{show = "dpsdam", 	left = "DPS from +dam: $dpsdam,1$ ($dpsdampercent,1$%)"},
+	{show = "averagedam",       left = "Average Heal: $averageheal$"},
+	{show = "averagedam",       left = "Ticks For: $averagehealtick$"},
+
+	-- ######## Damage Statistics ########
+	{title = "Damage Statistics:"},
+
+	{show = "embed", inverse = true, left = "Hits: $dmgrange$"}, -- show the final damage + spellpower here instead of in the description
+
+	{show = "critmelee",        left = "Crits: $critdmgchance,2$% (for $critdmgrange$)"},
+	{show = "critwithdam",      left = "Crits: $critdmgchance,2$% (for $critdmgrange$)"},
+	{show = "sepignite",        left = "With Ignite: $igniterange$"},
+	{show = "critwithoutdam",   left = "Crits: $critdmgchance,2$%"},
+	{show = "dps",              left = "DPS: $dps,1$#IF, $withdotdps,1$IF#"},
+	{show = "dpsdam",           left = "DPS from +dam: $dpsdam,1$ ($dpsdampercent,1$%)"},
 	{show = "averagedamnocrit", left = "Average Hit: $averagedamnocrit$"},
 	{show = "averagedamnocrit", left = "Ticks For: $averagedamtick$"},
-	{show = "averagedam", 	left = "Average Hit: $averagedam$"},
-	{show = "averagedam", 	left = "Ticks For: $averagedamtick$"},
-	{show = "titles", 	left = "#c1,1,1##TITLE=Multipliers:#"},
-	{show = "plusdam", 	left = "Base +$damorheal$: $plusdam$"},
-	{show = "damcoef", 	left = "+$damorheal$ Coefficient: $damcoef,1$%#IF, $damcoef2,1$%IF#"},
-	{show = "dameff", 	left = "+$damorheal$ Efficiency: $dameff,1$%"},
-	{show = "damtodouble", 	left = "+$damorheal$ to Double: $damtodouble$"},
-	{show = "damfinal", 	left = "Final +$damorheal$: $damfinal$#IF, $damfinal2$IF#"},
-	{show = "titles", 	left = "#c1,1,1##TITLE=Resists:#"},
-	{show = "resists", 	left = "Resist Rate ($resistlevel$): $resistrate$%"},
-	{show = "resists", 	left = "After Level Resists: $dpsafterresists,1$ DPS"},
-	{show = "resists", 	left = "Up to: $penetration,1$ DPS Penetrated"},
-	{show = "titles", 	left = "#c1,1,1##TITLE=Comparisons:#"},
-	{show = "nextcrit", 	left = "1% to crit: +$nextcritheal,2$ average heal (Eq: $nextcrithealequive,2$ +heal)"},
-	{show = "nextstr", 	left = "10 str: +$nextstrdam,2$ average $hitorheal$ (Eq: $nextstrdamequive,2$ $damorap$)"},
-	{show = "nextagi", 	left = "10 agi: +$nextagidam,2$ average $hitorheal$#IF (Eq: $nextagidamequive,2$ $damorap$)IF#"},
-	{show = "nextcrit", 	left = "1% to crit: +$nextcritdam,2$ average $hitorheal$#IF (Eq: $nextcritdamequive,2$ $damorap$)IF#"},
-	{show = "nexthit", 	left = "1% to hit: +$nexthitdam,2$ average $hitorheal$#IF (Eq: $nexthitdamequive,2$ $damorap$)IF#"},
-	{show = "nextpen", 	left = "10 pen: #OR$dontshowupto$/Up to OR#+$nextpendam,2$ average $hitorheal$#IF (Eq: $nextpendamequive,2$ $damorap$)IF#"},
-	{show = "titles", 	left = "#c1,1,1##TITLE=Rotations:#"},
-	{show = true, 		left = "MS rot ($msrotationlength,1$ sec) dps: $msrotationdps,1$"},
-	{show = true, 		left = "AS rot ($asrotationlength,1$ sec) dps: $asrotationdps,1$"},
-	{show = true, 		left = "MS/Arcane rot dps: $arcrotationdps,1$"},
-	{show = "titles", 	left = "#c1,1,1##TITLE=Combined Comparisons:#"},
-	{show = "nextagi", 	left = "10 agi: +$nextagidps,2$ MS rot dps#IF (Eq: $nextagidpsequive,2$ $damorap$)IF#"},
-	{show = "nextcrit", 	left = "1% to crit: +$nextcritdps,2$ MS rot dps (Eq: $nextcritdpsequive,2$ $damorap$)"},
-	{show = "nexthit", 	left = "1% to hit: +$nexthitdps,2$ MS rot dps (Eq: $nexthitdpsequive,2$ $damorap$)"},
-	{show = "titles", 	left = "#c1,1,1##TITLE=Efficiency:#"},
-	{show = "mana", 	left = "True Mana Cost: $manacost,1$"},
-	{show = "dpm", 		left = "DPM: $dpm,2$#IF, $withdotdpm,2$IF#"},
-	{show = "dpsmana", 	left = "DPS/Mana: $dpsmana,3$"},
-	{show = "hpm", 		left = "HPM: $hpm,2$#IF, $withhothpm,2$IF#"},
-	{show = "lifetap", 	left = "Lifetap DPH: $lifetapdpm,1$"},
-	{show = "lifetap", 	left = "Lifetap HPH: $lifetaphpm,1$"},
-	{show = "lifetap", 	left = "Lifetap DPS: $lifetapdps,1$"},
-	{show = "lifetap", 	left = "Lifetap HPS: $lifetaphps,1$"},
-	{show = "showregenheal", left = "10 sec of regen: +$regenheal$ healing"},
-	{show = "showregenheal", left = "10 sec of regen whilst casting: +$icregenheal$ healing"},
-	{show = "showregendam", left = "10 sec of regen: +$regendam$ damage"},
-	{show = "showregendam", left = "10 sec of regen whilst casting: +$icregendam$ damage"},
-	{show = "max", 		left = "Healing til oom: $maxoomheal$ ($maxoomhealtime$ secs)"},
-	{show = "max", 		left = "Damage til oom: $maxoomdam$ ($maxoomdamtime$ secs)"},
-	{show = "maxevoc", 	left = "Damage til oom w/ evoc+gem: $maxevocoomdam$ ($maxevocoomdamtime$ secs)"},
+	{show = "averagedam",       left = "Average Hit: $averagedam$"},
+	{show = "averagedam",       left = "Ticks For: $averagedamtick$"},
+
+	-- ######## Multipliers ########
+	{title = "Multipliers:"},
+	{show = "plusdam",     left = "Base +$damorheal$: $plusdam$"},
+	{show = "damcoef",     left = "+$damorheal$ Coefficient: $damcoef,1$%#IF, $damcoef2,1$%IF#"},
+	{show = "dameff",      left = "+$damorheal$ Efficiency: $dameff,1$%"},
+	{show = "damtodouble", left = "+$damorheal$ to Double: $damtodouble$"},
+	{show = "damfinal",    left = "Final +$damorheal$: $damfinal$#IF, $damfinal2$IF#"},
+
+	-- ######## Resists ########
+	{title = "Resists:"},
+	{show = "resists",     left = "Resist Rate ($resistlevel$): $resistrate$%"},
+	{show = "resists",     left = "After Level Resists: $dpsafterresists,1$ DPS"},
+	{show = "resists",     left = "Up to: $penetration,1$ DPS Penetrated"},
+
+	-- ######## Comparisons ########
+	{title = "Comparisons:"},
+	{show = "nextcrit",   left = "1% to crit: +$nextcritheal,2$ average heal (Eq: $nextcrithealequive,2$ +heal)"},
+	{show = "nextstr",    left = "10 str: +$nextstrdam,2$ average $hitorheal$ (Eq: $nextstrdamequive,2$ $damorap$)"},
+	{show = "nextagi",    left = "10 agi: +$nextagidam,2$ average $hitorheal$#IF (Eq: $nextagidamequive,2$ $damorap$)IF#"},
+	{show = "nextcrit",   left = "1% to crit: +$nextcritdam,2$ average $hitorheal$#IF (Eq: $nextcritdamequive,2$ $damorap$)IF#"},
+	{show = "nexthit",    left = "1% to hit: +$nexthitdam,2$ average $hitorheal$#IF (Eq: $nexthitdamequive,2$ $damorap$)IF#"},
+	{show = "nextpen",    left = "10 pen: #OR$dontshowupto$/Up to OR#+$nextpendam,2$ average $hitorheal$#IF (Eq: $nextpendamequive,2$ $damorap$)IF#"},
+
+	-- ######## Rotations ########
+	{title = "Rotations:"},
+	{show = true,         left = "MS rot ($msrotationlength,1$ sec) dps: $msrotationdps,1$"},
+	{show = true,         left = "AS rot ($asrotationlength,1$ sec) dps: $asrotationdps,1$"},
+	{show = true,         left = "MS/Arcane rot dps: $arcrotationdps,1$"},
+
+	-- ######## Combined Comparisons ########
+	{title = "Combined Comparisons:"},
+	{show = "nextagi",  left = "10 agi: +$nextagidps,2$ MS rot dps#IF (Eq: $nextagidpsequive,2$ $damorap$)IF#"},
+	{show = "nextcrit", left = "1% to crit: +$nextcritdps,2$ MS rot dps (Eq: $nextcritdpsequive,2$ $damorap$)"},
+	{show = "nexthit",  left = "1% to hit: +$nexthitdps,2$ MS rot dps (Eq: $nexthitdpsequive,2$ $damorap$)"},
+
+	-- ######## Efficiency ########
+	{title = "Efficiency:"},
+	{show = "mana",          left = "True Mana Cost: $manacost,1$"},
+	{show = "dpm",           left = "DPM: $dpm,2$#IF, $withdotdpm,2$IF#"},
+	{show = "dpsmana",       left = "DPS/Mana: $dpsmana,3$"},
+	{show = "hpm",           left = "HPM: $hpm,2$#IF, $withhothpm,2$IF#"},
+	{show = "lifetap",       left = "Lifetap DPH: $lifetapdpm,1$"},
+	{show = "lifetap",       left = "Lifetap HPH: $lifetaphpm,1$"},
+	{show = "lifetap",       left = "Lifetap DPS: $lifetapdps,1$"},
+	{show = "lifetap",       left = "Lifetap HPS: $lifetaphps,1$"},
+	--{show = "showregenheal", left = "10 sec of regen: +$regenheal$ healing"},
+	--{show = "showregenheal", left = "10 sec of regen whilst casting: +$icregenheal$ healing"},
+	--{show = "showregendam",  left = "10 sec of regen: +$regendam$ damage"},
+	--{show = "showregendam",  left = "10 sec of regen whilst casting: +$icregendam$ damage"},
+	{show = "max",           left = "Healing til oom: $maxoomheal$ ($maxoomhealtime$ secs)"},
+	{show = "max",           left = "Damage til oom: $maxoomdam$ ($maxoomdamtime$ secs)"},
+	{show = "maxevoc",       left = "Damage til oom w/ evoc+gem: $maxevocoomdam$ ($maxevocoomdamtime$ secs)"},
 }
 
 
@@ -784,12 +824,22 @@ TheoryCraft_DotDurations = {
 	{ text="after 1 min%.", amount="60" },					-- Curse of Doom
 }
 
+-- REM: Amount is essentially the units, seconds (usually)
+TheoryCraft_DotDurations_new = {
+	["overXsec"]  = {str=" over (%d+) sec" ,   amount="n"},  -- (most dots) ex: SW: Pain, Corruption, Immolate, Renew
+	["forXsec"]   = {str="for (%d+) sec%." ,   amount="n"},  -- ex: Volley, Tranquility, Arcane Missiles, searing totem
+	["lastXsec"]  = {str="Lasts (%d+) sec%." , amount="n"},  -- ex: Drain and Siphon Life
+	["after1min"] = {str="after 1 min%." ,     amount="60"}, -- Curse of Doom
+	["for1min"]   = {str="for 1 min that%",    amount="60"}, -- totems
+}
 -- Checks every line for these
 
 TheoryCraft_EquipEveryRight = {
 	{ text="^Speed (%d+%.?%d+)", type="OffhandSpeed", slot="SecondaryHand" },	-- Weapon Damage
 	{ text="^Speed (%d+%.?%d+)", type="MainSpeed", slot="MainHand" },		-- Weapon Damage
 	{ text="^Speed (%d+%.?%d+)", type="RangedSpeed", slot="Ranged" },		-- Weapon Damage
+
+	-- REM: Daggers are normalized at 1.7 speed instead of 2.4, hence the negative number
 	{ text="^Dagger", type="MeleeAPMult", amount=-0.7, slot="MainHand" },		-- Weapon Damage
 	{ text="^Dagger", type="DaggerEquipped", amount=1, slot="MainHand" }	,	-- Used for dagger spec
 	{ text="^Fist Weapon", type="FistEquipped", amount=1, slot="MainHand" },	-- Used for fist spec
@@ -798,6 +848,7 @@ TheoryCraft_EquipEveryRight = {
 	{ text="^Shield", type="ShieldEquipped", amount=1, slot="SecondaryHand" },	-- Used for Block
 }
 
+-- Left lines
 TheoryCraft_EquipEveryLine = {
 	{ text="%+(%d+) Healing Spells", type="Healing" },					-- of healing items
 	{ text=".+Block Value %+(%d+)", type="BlockValueReport" }, -- Block Value (ZG Enchant)
@@ -808,9 +859,11 @@ TheoryCraft_EquipEveryLine = {
 
 	{ text="Adds (%d+%.?%d+) damage per second", type="AmmoDPS", slot="Ammo" },	-- Arrows
 
+	-- NOTE: the normalized attack speed from which instant abilties have their AP contribution calculated.
 	{ text="Main Hand", type="MeleeAPMult", amount="2.4", slot="MainHand" },	-- Weapon Damage
 	{ text="One%-Hand", type="MeleeAPMult", amount="2.4", slot="MainHand" },	-- Weapon Damage
 	{ text="Two%-Hand", type="MeleeAPMult", amount="3.3", slot="MainHand" },	-- Weapon Damage
+
 	{ text="(%d+) %- %d+", type="RangedMin", slot="Ranged" },			-- Weapon Damage
 	{ text="%d+ %- (%d+)", type="RangedMax", slot="Ranged" }, 			-- Weapon Damage
 	{ text="Scope %(%+(%d+) Damage%)", type="RangedMin", slot="Ranged" },		-- Weapon Damage enchant
