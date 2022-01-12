@@ -203,6 +203,7 @@ function TheoryCraft_getMinMax(spelldata, returndata, frame)
 		returndata["arcrotationdps"] = (averagearcane*10 + averagemulti + averageauto * (10/speed)) / 10
 		returndata["arcmagicdps"]    = averagearcane
 
+	-- If its a melee or ranged ability (not a regular spell)
 	elseif (spelldata.ismelee) or (spelldata.isranged) then
 		local normalized
 		if spelldata.noscale then

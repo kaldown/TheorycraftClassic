@@ -4,9 +4,10 @@
 	<Script file="locale/frFR.lua"/>
 	<!-- REM: default locale loads last -->
 	<Script file="locale/enUS.lua"/>
+	<Script file="TheoryCraftClassicUtils.lua"/>
+	<Script file="TheoryCraftClassicMain.lua"/>
 	<Script file="TheoryCraftClassicColours.lua"/>
 	<Script file="TheoryCraftClassicUI.lua"/>
-	<Script file="TheoryCraftClassicMain.lua"/>
 	<Script file="TheoryCraftClassicEngine.lua"/>
 	<Script file="TheoryCraftClassicBuffs.lua"/>
 	<Script file="TheoryCraftClassicTalents.lua"/>
@@ -14,7 +15,6 @@
 	<Script file="TheoryCraftClassicTooltip.lua"/>
 	<Script file="TheoryCraftClassicMessy.lua"/>
 	<Script file="TheoryCraftClassicMitigation.lua"/>
-	<Script file="TheoryCraftClassicUtils.lua"/>
 
 	<!-- NOTE: this template is used for input.type=text boxes -->
 	<EditBox name="TheoryCraft_EditBoxTemplate" autoFocus="false" inherits="InputBoxTemplate" justifyH="CENTER" frameStrata="HIGH" virtual="true">
@@ -1797,10 +1797,9 @@
 			</OnLoad>
 			<OnUpdate>
 				if not TheoryCraft_Data.TalentsHaveBeenRead then
-					TheoryCraft_UpdateTalents()
-				end
-				if TheoryCraft_Data.TalentsHaveBeenRead then
-					TheoryCraft_UpdateAllButtonText('TheoryCraftUpdater')
+					TheoryCraft_UpdateTalents(bogus)
+				else
+					TheoryCraft_UpdateAllButtonText('TheoryCraftUpdater', bogus) 
 					self:SetScript("OnUpdate", nil)
 				end
 			</OnUpdate>

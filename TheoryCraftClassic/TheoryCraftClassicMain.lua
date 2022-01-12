@@ -934,6 +934,7 @@ function TheoryCraft_Command(cmd)
 			print(v)
 		end
 	end
+
 	if (cmd == "off") and (not TheoryCraft_Settings["off"]) then
 		print("TheoryCraft is now switched OFF")
 		TheoryCraft_Settings["off"] = true
@@ -1038,7 +1039,7 @@ function TheoryCraft_OutfitChange(self)
 			TheoryCraft_Talents[i].forceto = -1
 			i = i + 1
 		end
-		TheoryCraft_UpdateGear(true)
+		--TheoryCraft_UpdateGear(true) -- NOTE: There is currently no way to "Fake" a gear modification, so no need to reset this stuff
 		TheoryCraft_UpdateTalents(true)
 		TheoryCraft_LoadStats('reset_button')
 		TheoryCraft_GenerateAll()
