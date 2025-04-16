@@ -194,8 +194,7 @@
 		</Scripts>
 	</CheckButton>
 
-	<!-- TODO: should this inherit from UIPanelButtonTemplate instead? -->
-	<Button name="TheoryCraftButtonTemplate" inherits="OptionsButtonTemplate" virtual="true">
+	<Button name="TheoryCraftButtonTemplate" inherits="UIPanelButtonTemplate" virtual="true">
 		<Size>
 			<AbsDimension x="73" y="20"/>
 		</Size>
@@ -299,7 +298,7 @@
 		</Shadow>
 	</FontString>
 
-	<Button name="TheoryCraftTalentTemplate" inherits="OptionsButtonTemplate" virtual="true">
+	<Button name="TheoryCraftTalentTemplate" inherits="UIPanelButtonTemplate" virtual="true">
 		<FontHeight>
 			<AbsValue val="10.5"/>
 		</FontHeight>
